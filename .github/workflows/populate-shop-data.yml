@@ -1,0 +1,146 @@
+name: Populate paint shop workbook
+
+on:
+  push:
+    paths:
+      - ".github/workflows/populate-shop-data.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Generate workbook
+        run: |
+          python -m pip install openpyxl
+          python <<'PY'
+          from openpyxl import Workbook
+          from openpyxl.styles import Font, PatternFill, Alignment
+          from openpyxl.utils import get_column_letter
+          from datetime import datetime
+
+          headers = {
+            "Products":["ID","SKU","Name","Brand","Type","Shade","Finish","PackSize","Unit","PurchasePrice","SellingPrice","GSTPercent","Stock","ReorderLevel","Rack"],
+            "Customers":["ID","ShopName","CustomerName","Phone","Area","GSTIN","CreditLimit","Address"],
+            "Suppliers":["ID","CompanyName","ContactName","Phone","Email","Area","GSTIN","Address"],
+            "Sales":["ID","Invoice","CustomerID","Customer","ProductID","Product","Quantity","UnitPrice","Discount","Total","Paid","Due","PaymentMethod","Date"],
+            "Purchases":["ID","Invoice","SupplierID","Supplier","ProductID","Product","Quantity","UnitCost","Total","Paid","Due","PaymentMethod","Date"],
+            "Stock Movements":["ID","ProductID","Product","Type","Quantity","ReferenceID","Date"]
+          }
+
+          products = [
+          ["P001","ASH-001","Tractor Emulsion 20L","Asian Paints","Interior Emulsion","White","Matt","20","Litre",6200,7600,18,18,5,"A1"],
+          ["P002","ASH-002","Apcolite Premium 20L","Asian Paints","Interior Emulsion","White","Matt","20","Litre",7100,8450,18,12,5,"A1"],
+          ["P003","BER-001","WeatherCoat Long Life 20L","Berger","Exterior Emulsion","White","Matt","20","Litre",7200,8800,18,9,5,"A1"],
+          ["P004","BER-002","Easy Clean 20L","Berger","Interior Emulsion","Ivory","Silk","20","Litre",6750,8100,18,14,5,"A1"],
+          ["P005","JSW-001","Halo Advanced Primer 20L","JSW Paints","Wall Primer","White","Matt","20","Litre",3100,3900,18,21,6,"A2"],
+          ["P006","NER-001","Excel Total 20L","Nerolac","Interior Emulsion","White","Matt","20","Litre",6500,7900,18,7,5,"A2"],
+          ["P007","NER-002","Synthetic Enamel 1L","Nerolac","Enamel","Black","Gloss","1","Litre",260,340,18,16,10,"B1"],
+          ["P008","ASH-003","Tractor Shyne 1L","Asian Paints","Exterior Emulsion","Terracotta","Matt","1","Litre",390,520,18,24,10,"B1"],
+          ["P009","BER-003","Luxol Hi-Gloss 1L","Berger","Enamel","Royal Blue","Gloss","1","Litre",315,410,18,8,10,"B1"],
+          ["P010","ACC-001","ACC Gold Water Shield 50kg","ACC","Cement","Grey","Standard","50","Kg",340,390,5,35,20,"C1"],
+          ["P011","ULTRA-001","UltraTech PPC Cement 50kg","UltraTech","Cement","Grey","Standard","50","Kg",350,410,5,28,20,"C1"],
+          ["P012","JK-001","JK Wall Putty 40kg","JK Cement","Wall Putty","White","Smooth","40","Kg",1120,1320,18,11,8,"C2"],
+          ["P013","BIRLA-001","Birla White WallCare 20kg","Birla White","Wall Putty","White","Smooth","20","Kg",650,780,18,19,8,"C2"],
+          ["P014","ASIAN-TOOL-001","Wood Primer 1L","Asian Paints","Wood Primer","Natural","Matt","1","Litre",420,560,18,13,5,"B2"],
+          ["P015","FEV-001","Fevicol SH 1kg","Pidilite","Adhesive","Clear","Standard","1","Kg",145,185,18,22,8,"B2"],
+          ["P016","FEV-002","Dr. Fixit Pidicrete 1L","Pidilite","Waterproofing","Milky","Standard","1","Litre",175,225,18,6,8,"B2"],
+          ["P017","ASIAN-004","Royale Matt 4L","Asian Paints","Interior Emulsion","Lily White","Matt","4","Litre",1900,2350,18,10,4,"A3"],
+          ["P018","BER-004","Bison Acrylic Distemper 20L","Berger","Distemper","Pearl White","Matt","20","Litre",2450,3100,18,5,5,"A3"]
+          ]
+
+          customers = [
+          ["C001","Sri Sai Hardware & Paints","Ramesh Kumar","9000000001","Benz Circle","GSTIN-SAMPLE-001",75000,"Benz Circle, Vijayawada"],
+          ["C002","Lakshmi Traders","Suresh Rao","9000000002","Moghalrajpuram","GSTIN-SAMPLE-002",50000,"Moghalrajpuram, Vijayawada"],
+          ["C003","Vijaya Home Needs","Anitha Devi","9000000003","Patamata","GSTIN-SAMPLE-003",60000,"Patamata, Vijayawada"],
+          ["C004","Sai Durga Constructions","Prakash","9000000004","Gunadala","GSTIN-SAMPLE-004",100000,"Gunadala, Vijayawada"],
+          ["C005","Ravi Building Materials","Ravi Teja","9000000005","Poranki","GSTIN-SAMPLE-005",80000,"Poranki, Vijayawada"],
+          ["C006","Mahalakshmi Hardware","Kiran","9000000006","Ramavarappadu","GSTIN-SAMPLE-006",45000,"Ramavarappadu, Vijayawada"],
+          ["C007","Sri Balaji Paint House","Naveen","9000000007","Ajit Singh Nagar","GSTIN-SAMPLE-007",55000,"Ajit Singh Nagar, Vijayawada"],
+          ["C008","Venkateswara Traders","Harish","9000000008","Kanuru","GSTIN-SAMPLE-008",70000,"Kanuru, Vijayawada"]
+          ]
+
+          suppliers = [
+          ["S001","Asian Paints Authorized Distributor","Sales Desk","9100000001","sales@example-paints.in","Vijayawada","GST-SUP-001","Industrial Estate, Vijayawada"],
+          ["S002","Berger Paints Regional Distributor","Supply Desk","9100000002","supply@example-berger.in","Vijayawada","GST-SUP-002","Auto Nagar, Vijayawada"],
+          ["S003","JSW Paints Distributor","Supply Desk","9100000003","orders@example-jsw.in","Guntur","GST-SUP-003","Guntur Road"],
+          ["S004","Building Materials Wholesale","Accounts Desk","9100000004","orders@example-materials.in","Vijayawada","GST-SUP-004","Bhavanipuram, Vijayawada"],
+          ["S005","Pidilite Trade Distributor","Sales Desk","9100000005","trade@example-pidilite.in","Vijayawada","GST-SUP-005","Auto Nagar, Vijayawada"]
+          ]
+
+          sales = [
+          ["SA001","SAL-1001","C001","Ramesh Kumar","P001","Tractor Emulsion 20L",2,7600,0,15200,15200,0,"UPI","2026-09-18"],
+          ["SA002","SAL-1002","C002","Suresh Rao","P005","Halo Advanced Primer 20L",3,3900,200,11500,10000,1500,"Cash","2026-09-17"],
+          ["SA003","SAL-1003","C003","Anitha Devi","P010","ACC Gold Water Shield 50kg",10,390,0,3900,3900,0,"UPI","2026-09-16"],
+          ["SA004","SAL-1004","C004","Prakash","P003","WeatherCoat Long Life 20L",2,8800,500,17100,12000,5100,"Credit","2026-09-15"],
+          ["SA005","SAL-1005","C005","Ravi Teja","P012","JK Wall Putty 40kg",4,1320,120,5160,5160,0,"Card","2026-09-14"],
+          ["SA006","SAL-1006","C006","Kiran","P007","Synthetic Enamel 1L",5,340,0,1700,1700,0,"Cash","2026-09-13"],
+          ["SA007","SAL-1007","C007","Naveen","P004","Easy Clean 20L",2,8100,300,15900,10000,5900,"UPI","2026-09-12"],
+          ["SA008","SAL-1008","C008","Harish","P015","Fevicol SH 1kg",8,185,0,1480,1480,0,"Cash","2026-09-11"],
+          ["SA009","SAL-1009","C001","Ramesh Kumar","P017","Royale Matt 4L",1,2350,0,2350,2350,0,"UPI","2026-09-10"],
+          ["SA010","SAL-1010","C003","Anitha Devi","P009","Luxol Hi-Gloss 1L",3,410,30,1200,1200,0,"Cash","2026-09-09"],
+          ["SA011","SAL-1011","C002","Suresh Rao","P018","Bison Acrylic Distemper 20L",2,3100,100,6100,3000,3100,"Credit","2026-09-08"],
+          ["SA012","SAL-1012","C005","Ravi Teja","P011","UltraTech PPC Cement 50kg",12,410,120,4800,4800,0,"Bank Transfer","2026-09-07"],
+          ["SA013","SAL-1013","C004","Prakash","P016","Dr. Fixit Pidicrete 1L",2,225,0,450,450,0,"UPI","2026-09-06"],
+          ["SA014","SAL-1014","C007","Naveen","P014","Wood Primer 1L",3,560,0,1680,1680,0,"Cash","2026-09-05"],
+          ["SA015","SAL-1015","C006","Kiran","P013","Birla White WallCare 20kg",5,780,50,3850,3850,0,"UPI","2026-09-04"],
+          ["SA016","SAL-1016","C008","Harish","P002","Apcolite Premium 20L",1,8450,0,8450,5000,3450,"Credit","2026-09-03"]
+          ]
+
+          purchases = [
+          ["PU001","PUR-2001","S001","Asian Paints Authorized Distributor","P001","Tractor Emulsion 20L",10,6200,62000,62000,0,"Bank Transfer","2026-09-18"],
+          ["PU002","PUR-2002","S002","Berger Paints Regional Distributor","P003","WeatherCoat Long Life 20L",8,7200,57600,50000,7600,"Bank Transfer","2026-09-16"],
+          ["PU003","PUR-2003","S003","JSW Paints Distributor","P005","Halo Advanced Primer 20L",15,3100,46500,46500,0,"UPI","2026-09-14"],
+          ["PU004","PUR-2004","S004","Building Materials Wholesale","P010","ACC Gold Water Shield 50kg",40,340,13600,10000,3600,"Cash","2026-09-12"],
+          ["PU005","PUR-2005","S004","Building Materials Wholesale","P011","UltraTech PPC Cement 50kg",30,350,10500,10500,0,"Bank Transfer","2026-09-10"],
+          ["PU006","PUR-2006","S002","Berger Paints Regional Distributor","P004","Easy Clean 20L",10,6750,67500,60000,7500,"Bank Transfer","2026-09-08"],
+          ["PU007","PUR-2007","S001","Asian Paints Authorized Distributor","P017","Royale Matt 4L",8,1900,15200,15200,0,"UPI","2026-09-06"],
+          ["PU008","PUR-2008","S005","Pidilite Trade Distributor","P015","Fevicol SH 1kg",20,145,2900,2900,0,"Cash","2026-09-04"],
+          ["PU009","PUR-2009","S005","Pidilite Trade Distributor","P016","Dr. Fixit Pidicrete 1L",12,175,2100,2000,100,"Cash","2026-09-02"],
+          ["PU010","PUR-2010","S004","Building Materials Wholesale","P012","JK Wall Putty 40kg",10,1120,11200,11200,0,"Bank Transfer","2026-08-31"]
+          ]
+
+          wb=Workbook()
+          wb.remove(wb.active)
+          for name in headers:
+              ws=wb.create_sheet(name)
+              ws.append(headers[name])
+              rows={"Products":products,"Customers":customers,"Suppliers":suppliers,"Sales":sales,"Purchases":purchases}.get(name,[])
+              for row in rows: ws.append(row)
+
+          ws=wb["Stock Movements"]
+          for r in sales:
+              ws.append([f"MV-{r[0]}",r[4],r[5],"SALE",-r[6],r[1],r[13]])
+          for r in purchases:
+              ws.append([f"MV-{r[0]}",r[4],r[5],"PURCHASE",r[6],r[1],r[12]])
+
+          for ws in wb.worksheets:
+              ws.freeze_panes="A2"
+              for cell in ws[1]:
+                  cell.font=Font(bold=True)
+                  cell.fill=PatternFill("solid",fgColor="D9EAF7")
+                  cell.alignment=Alignment(horizontal="center")
+              for c in range(1,ws.max_column+1):
+                  width=max(12,max(len(str(ws.cell(r,c).value or "")) for r in range(1,min(ws.max_row,50)+1))+2)
+                  ws.column_dimensions[get_column_letter(c)].width=min(width,30)
+
+          wb.save("Raghava_Shop_Data.xlsx")
+          PY
+
+      - name: Commit populated workbook
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Raghava_Shop_Data.xlsx
+          git diff --cached --quiet && exit 0
+          git commit -m "Populate paint shop sample data"
+          git push
