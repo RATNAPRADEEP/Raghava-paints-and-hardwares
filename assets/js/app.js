@@ -17,7 +17,7 @@ async function connect(){
   try{
     folder=await window.showDirectoryPicker({mode:'readwrite'});
     await loadFiles();
-    setConnection(true);setConnection(false);renderAll();
+    setConnection(true);renderAll();
     message('Local data folder connected.');
   }catch(e){if(e.name!=='AbortError')message(e.message,'danger');}
 }
