@@ -1,5 +1,5 @@
 const CLIENT_ID='911229643443-mp5i74p1h7jdonfev8180n9i1o6f9nn1.apps.googleusercontent.com';
-const API_KEY='__GOOGLE_DRIVE_API_KEY__';
+const API_KEY='AIzaSyCoRIWkMUrYNzvJxHKjOCZqvLVvoUhj2jM';
 const APP_ID='911229643443';
 const SCOPES='https://www.googleapis.com/auth/drive.file';
 const FILE='Raghava_Shop_Data.xlsx';
