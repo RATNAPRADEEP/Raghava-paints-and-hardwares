@@ -17,7 +17,7 @@
     <h2>Shop Management</h2>
     
   </div>
-  <div class="manage-status"><span class="dot" id="manageDot"></span><span id="manageStatusText">Connect Google Drive to begin</span></div>
+  
 </div>
 
 <div class="customer-overview">
@@ -252,7 +252,7 @@ function supplierItems(){return db.suppliers.map(s=>({value:s.id,label:`${s.name
 function categories(){return [...new Set(activeSubs().map(x=>x.category).filter(Boolean))].sort()}
 function setSubExclusive(prefix,mainId,subId){const sub=$(subId),main=$(mainId);if(sub.value){main.value='';}else if(main.value){sub.value='';}}
 function render(){
- if($('customersCount'))$('customersCount').textContent=db.customers.length;if($('manageStatusText'))$('manageStatusText').textContent=driveFileId?'Workbook connected':'Connect Google Drive to begin';if($('manageDot'))$('manageDot').classList.toggle('connected',!!driveFileId);renderCustomerOverview();
+ if($('customersCount'))$('customersCount').textContent=db.customers.length;renderCustomerOverview();
  fill('saleProduct',productItems(),'Choose paint / main product');fill('saleSubproduct',subproductItems(),'Choose subproduct category');fill('saleSize',[],'Choose size');updateSalePricePreview();fill('saleCustomerType',customerTypeItems().map(x=>({value:x,label:x})),'Choose customer type');fill('purchaseSupplier',supplierItems(),'Choose supplier');fill('purchaseProduct',productItems(),'Choose main product');fill('purchaseSubproduct',subproductItems(),'Choose subproduct category');fill('purchaseSize',[],'Choose size');
  
  fill('salePayment',optList('PaymentMethods',['Cash','UPI','Card','Credit','Bank Transfer']).map(x=>({value:x,label:x})),'Choose payment');fill('purchasePayment',optList('PaymentMethods',['Cash','UPI','Card','Credit','Bank Transfer']).map(x=>({value:x,label:x})),'Choose payment');fill('saleRecordedBy',optList('RecordedBy',['Me','Other']).map(x=>({value:x,label:x})),'Recorded by');fill('purchaseRecordedBy',optList('RecordedBy',['Me','Other']).map(x=>({value:x,label:x})),'Recorded by');
