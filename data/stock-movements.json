@@ -1,0 +1,7 @@
+[
+  {"id":"m1","productId":"p1","type":"OPENING","quantity":8,"date":"2026-09-18T00:00:00.000Z","note":"Opening stock"},
+  {"id":"m2","productId":"p2","type":"OPENING","quantity":5,"date":"2026-09-18T00:00:00.000Z","note":"Opening stock"},
+  {"id":"m3","productId":"p3","type":"OPENING","quantity":12,"date":"2026-09-18T00:00:00.000Z","note":"Opening stock"},
+  {"id":"m4","productId":"p4","type":"OPENING","quantity":25,"date":"2026-09-18T00:00:00.000Z","note":"Opening stock"},
+  {"id":"m5","productId":"p5","type":"OPENING","quantity":35,"date":"2026-09-18T00:00:00.000Z","note":"Opening stock"}
+]
