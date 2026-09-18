@@ -1,0 +1,18 @@
+# Local configuration
+.env
+config/local.php
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+cache/
