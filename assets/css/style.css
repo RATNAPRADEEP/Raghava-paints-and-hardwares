@@ -1,1 +1,20 @@
 :root{font-family:Arial,Helvetica,sans-serif;color:#20242a;background:#f4f6f8}*{box-sizing:border-box}body{margin:0}header{background:#20242a;color:white;padding:28px 5%;display:flex;justify-content:space-between;align-items:center;gap:20px}h1{margin:4px 0;font-size:32px}h2{margin-top:0}.eyebrow{font-size:12px;letter-spacing:2px;opacity:.65;margin:0}header p:last-child{margin-bottom:0;color:#cbd0d6}nav{display:flex;gap:8px;flex-wrap:wrap;padding:14px 5%;background:white;border-bottom:1px solid #ddd}button{border:1px solid #cfd4da;background:white;border-radius:8px;padding:10px 14px;cursor:pointer}.tab.active,.primary{background:#20242a;color:white;border-color:#20242a}.tab{border:0}.section{padding:28px 5%}.hidden{display:none}.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:20px}.stats article,.card{background:white;border:1px solid #e0e3e7;border-radius:12px;padding:20px}.stats span{color:#69717a;font-size:13px}.stats strong{display:block;font-size:24px;margin-top:8px}.warning strong{color:#b26a00}.grid{display:grid;gap:20px}.two{grid-template-columns:1fr 1fr;margin-bottom:20px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.section-head p{color:#69717a}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px;border-bottom:1px solid #eceef0}th{font-size:12px;color:#69717a;text-transform:uppercase}form{display:grid;gap:13px}label{display:grid;gap:6px;font-size:13px;font-weight:bold}input,select{width:100%;padding:10px;border:1px solid #cfd4da;border-radius:7px;font:inherit}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}dialog{border:0;border-radius:12px;padding:24px;width:min(520px,92vw);box-shadow:0 15px 50px #0003}dialog::backdrop{background:#0006}#message{position:fixed;right:20px;top:20px;z-index:10}.notice{background:#20242a;color:white;padding:12px 16px;border-radius:8px;margin-bottom:8px}.danger{background:#b42318}.good{background:#16794a}@media(max-width:900px){.stats{grid-template-columns:repeat(3,1fr)}.two{grid-template-columns:1fr}}@media(max-width:560px){header{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:repeat(2,1fr)}.section{padding:18px 3%}}
+
+/* Voice Guru-inspired product UI layer */
+:root{--ink:#17202a;--muted:#69727d;--line:#e3e7eb;--soft:#f0f3f6;--good:#157347;--warn:#b54708}
+body{background:linear-gradient(180deg,#eef2f6 0,#f7f8fa 280px)}
+header{background:#fff!important;color:var(--ink)!important;border-bottom:1px solid var(--line);padding:30px 5%!important}
+header h1{font-size:27px!important;letter-spacing:-.6px}
+header p:last-child{color:var(--muted)!important}
+.eyebrow{font-weight:800;letter-spacing:1.7px}
+nav{position:sticky;top:0;z-index:5;box-shadow:0 1px 0 #00000008}
+.section{max-width:1450px;margin:auto;padding:32px 5%}
+.stats article,.card{border-radius:15px!important;border-color:var(--line)!important;box-shadow:0 2px 8px #17202a06}
+.stats article{min-height:112px}
+.stats strong{letter-spacing:-.5px}
+.tab.active,.primary{background:var(--ink)!important;border-color:var(--ink)!important}
+button:hover{transform:translateY(-1px);box-shadow:0 4px 14px #17202a12}
+.grid{gap:18px}
+.card h2{letter-spacing:-.3px}
+@media(max-width:900px){.stats{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
