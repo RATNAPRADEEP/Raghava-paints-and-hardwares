@@ -70,7 +70,7 @@ function renderAll(){
 }
 function status(p){const n=Number(p.stock);return n<=0?'OUT':n<=Number(p.reorderLevel)?'LOW':'OK'}
 function tableSales(rows){return '<tr><th>Invoice</th><th>Customer</th><th>Total</th><th>Date</th></tr>'+rows.map(x=>'<tr><td>'+esc(x.invoiceNo)+'</td><td>'+esc(x.customerName||'Walk-in customer')+'</td><td>'+money(x.total)+'</td><td>'+new Date(x.date).toLocaleString('en-IN')+'</td></tr>').join('')}
-function tablePurchases(rows){return '<tr><th>Invoice</th><th>Supplier</th><th>Total</th><th>Date</th></tr>'+rows.map(x=>'<tr><td>'+esc(x.invoiceNo)+'</td><td>'+esc(x.supplierName||'Unknown')+'</td><td>'+money(x.total)+'</td><td>'+new Date(x.date).toLocaleString('en-IN')+'</td></tr>').join('')}
+function tablePurchases(rows){return '<tr><th>Invoice</th><th>Supplier</th><th>Product</th><th>Quantity</th><th>Unit Cost</th><th>Total</th><th>Date</th></tr>'+rows.map(x=>{const items=x.items||[];const productNames=items.map(i=>{const p=db.products.find(p=>p.id===i.productId);return p?.name||'Unknown product'}).join(', ');const quantities=items.map(i=>i.quantity).join(', ');const costs=items.map(i=>money(i.unitCost)).join(', ');return '<tr><td>'+esc(x.invoiceNo)+'</td><td>'+esc(x.supplierName||'Unknown')+'</td><td>'+esc(productNames)+'</td><td>'+esc(quantities)+'</td><td>'+esc(costs)+'</td><td>'+money(x.total)+'</td><td>'+new Date(x.date).toLocaleString('en-IN')+'</td></tr>'}).join('')}
 
 $('connectBtn').onclick=connect;
 $('backupBtn').onclick=async()=>{if(!folder){message('Connect the local data folder first.','danger');return;}await saveAll();message('All data files saved. Copy the data folder anywhere for backup.')};
