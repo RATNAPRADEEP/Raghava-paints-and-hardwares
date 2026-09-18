@@ -8,13 +8,16 @@ const id=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 
 function message(text,type='good'){ $('message').innerHTML='<div class="notice '+(type==='danger'?'danger':'good')+'">'+esc(text)+'</div>';setTimeout(()=>{$('message').innerHTML=''},3000); }
+function setConnection(connected){if($('connectionDot'))$('connectionDot').classList.toggle('connected',connected);if($('connectionText'))$('connectionText').textContent=connected?'Local data connected':'Local data not connected';if($('systemState'))$('systemState').textContent=connected?'Connected':'Ready';if($('systemStateDetail'))$('systemStateDetail').textContent=connected?'Reading and writing JSON files on this computer.':'Connect your local data folder to begin.';}
+function go(section){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.section===section));document.querySelectorAll('.section').forEach(x=>x.classList.add('hidden'));$(section).classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});}
+
 
 async function connect(){
   if(!window.showDirectoryPicker){message('Use Microsoft Edge or Google Chrome for local folder storage.','danger');return;}
   try{
     folder=await window.showDirectoryPicker({mode:'readwrite'});
     await loadFiles();
-    renderAll();
+    setConnection(true);setConnection(false);renderAll();
     message('Local data folder connected.');
   }catch(e){if(e.name!=='AbortError')message(e.message,'danger');}
 }
@@ -88,3 +91,5 @@ $('saleForm').onsubmit=async e=>{e.preventDefault();const p=db.products.find(x=>
 $('purchaseForm').onsubmit=async e=>{e.preventDefault();const p=db.products.find(x=>x.id===$('purchaseProduct').value),q=+$('purchaseQuantity').value,cost=+$('purchaseCost').value;if(!p||q<=0||cost<0)return message('Enter valid purchase details.','danger');const s=db.suppliers.find(x=>x.id===$('purchaseSupplier').value);const purchase={id:id(),invoiceNo:'PUR-'+Date.now(),supplierId:s?.id||null,supplierName:s?.name||'Unknown supplier',date:new Date().toISOString(),total:q*cost,items:[{productId:p.id,quantity:q,unitCost:cost}]};p.stock=Number(p.stock)+q;p.purchasePrice=cost;db.purchases.push(purchase);db.movements.push({id:id(),productId:p.id,type:'PURCHASE',quantity:q,referenceId:purchase.id,date:purchase.date,note:purchase.invoiceNo});await saveAll();e.target.reset();renderAll();message(purchase.invoiceNo+' recorded for '+money(purchase.total))};
 
 renderAll();
+
+document.querySelectorAll('.action-card').forEach(b=>b.onclick=()=>go(b.dataset.go));
