@@ -2,13 +2,15 @@ const CLIENT_ID='911229643443-mp5i74p1h7jdonfev8180n9i1o6f9nn1.apps.googleuserco
 const API_KEY='AIzaSyCoRIWkMUrYNzvJxHKjOCZqvLVvoUhj2jM';
 const APP_ID='911229643443';
 const SCOPES='https://www.googleapis.com/auth/drive.file';
-const FILE='Raghava_Shop_Data.xlsx';
+const FILE='Raghava_Paints_Hardwares_Asian_Paints_Master_Expanded.xlsx';
 let accessToken=null,driveFileId=null,tokenClient=null;
 let db={products:[],customers:[],suppliers:[],sales:[],purchases:[]};
+let sourceWorkbook=null;
+let workbookName=FILE;
 let gapiResolve,gisResolve;
 const gapiReady=new Promise(r=>gapiResolve=r),gisReady=new Promise(r=>gisResolve=r);
 const $=id=>document.getElementById(id);
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=v=>String(v??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const money=v=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR'}).format(Number(v||0));
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function toast(t,err=false){$('toast').innerHTML='<div class="toast '+(err?'err':'')+'">'+esc(t)+'</div>';setTimeout(()=>$('toast').innerHTML='',3500)}
@@ -21,51 +23,49 @@ Customers:['ID','ShopName','CustomerName','Phone','Area','GSTIN','CreditLimit','
 Suppliers:['ID','CompanyName','ContactName','Phone','Email','Area','GSTIN','Address'],
 Sales:['ID','Invoice','CustomerID','Customer','ProductID','Product','Quantity','UnitPrice','Discount','Total','Paid','Due','PaymentMethod','Date'],
 Purchases:['ID','Invoice','SupplierID','Supplier','ProductID','Product','Quantity','UnitCost','Total','Paid','Due','PaymentMethod','Date'],
-'Stock Movements':['ID','ProductID','Product','Type','Quantity','ReferenceID','Date']
+'Stock Movements':['ID','ProductID','Product','Type','Quantity','ReferenceID','Date'],
+'My Records':['RecordID','RecordType','RecordedBy','Date','ReferenceID','ProductID','Product','Quantity','UnitPriceOrCost','Amount','PaymentMethod','Notes'],
+'Other Records':['RecordID','RecordType','RecordedBy','Date','ReferenceID','ProductID','Product','Quantity','UnitPriceOrCost','Amount','PaymentMethod','Notes']
 };
+function sheetRows(wb,names){for(const n of names){if(wb.Sheets[n])return XLSX.utils.sheet_to_json(wb.Sheets[n],{defval:''})}return []}
+function setSheet(wb,name,data,cols){
+ const ws=jsonSheet(data,cols);
+ if(wb.Sheets[name]){const i=wb.SheetNames.indexOf(name);wb.Sheets[name]=ws; if(i>=0)wb.SheetNames[i]=name}
+ else XLSX.utils.book_append_sheet(wb,ws,name);
+}
 async function buildWorkbook(){
- const wb=XLSX.utils.book_new();
- const p=db.products.map(x=>({
-  ID:x.id,SKU:x.sku,Brand:x.brand,ProductType:x.type,ProductName:x.name,Shade:x.shade,Finish:x.finish,
-  Size:x.packSize,Unit:x.unit,PurchasePrice:x.cost,SellingPrice:x.sell,GSTPercent:x.gst,Stock:x.stock,
-  ReorderLevel:x.reorder,Supplier:x.supplier||'',Barcode:x.barcode||'',Rack:x.rack||'',Active:x.active!==false,
-  CreatedAt:x.createdAt||new Date().toISOString().slice(0,10),PriceBasis:x.priceBasis||'',
-  Source:x.source||'',VerifiedOn:x.verifiedOn||''
- }));
+ if(!sourceWorkbook)throw Error('Connect a Google Drive workbook first.');
+ const wb=sourceWorkbook;
+ const p=db.products.map(x=>({ID:x.id,SKU:x.sku,Brand:x.brand,ProductType:x.type,ProductName:x.name,Shade:x.shade,Finish:x.finish,Size:x.packSize,Unit:x.unit,PurchasePrice:x.cost,SellingPrice:x.sell,GSTPercent:x.gst,Stock:x.stock,ReorderLevel:x.reorder,Supplier:x.supplier||'',Barcode:x.barcode||'',Rack:x.rack||'',Active:x.active!==false,CreatedAt:x.createdAt||new Date().toISOString().slice(0,10),PriceBasis:x.priceBasis||'',Source:x.source||'',VerifiedOn:x.verifiedOn||''}));
  const c=db.customers.map(x=>({ID:x.id,ShopName:x.shop,CustomerName:x.name,Phone:x.phone,Area:x.area,GSTIN:x.gstin,CreditLimit:x.credit,Address:x.address}));
  const s=db.suppliers.map(x=>({ID:x.id,CompanyName:x.name,ContactName:x.contact,Phone:x.phone,Email:x.email,Area:x.area,GSTIN:x.gstin,Address:x.address}));
  const sales=db.sales.map(x=>({ID:x.id,Invoice:x.invoice,CustomerID:x.customerId,Customer:x.customer,ProductID:x.productId,Product:x.product,Quantity:x.qty,UnitPrice:x.price,Discount:x.discount,Total:x.total,Paid:x.paid,Due:x.due,PaymentMethod:x.payment,Date:x.date}));
  const purchases=db.purchases.map(x=>({ID:x.id,Invoice:x.invoice,SupplierID:x.supplierId,Supplier:x.supplier,ProductID:x.productId,Product:x.product,Quantity:x.qty,UnitCost:x.cost,Total:x.total,Paid:x.paid,Due:x.due,PaymentMethod:x.payment,Date:x.date}));
  const mov=[...db.sales.map(x=>({ID:uid(),ProductID:x.productId,Product:x.product,Type:'SALE',Quantity:-x.qty,ReferenceID:x.invoice,Date:x.date})),...db.purchases.map(x=>({ID:uid(),ProductID:x.productId,Product:x.product,Type:'PURCHASE',Quantity:x.qty,ReferenceID:x.invoice,Date:x.date}))];
- XLSX.utils.book_append_sheet(wb,jsonSheet(p,headers.Products),'Products');
- XLSX.utils.book_append_sheet(wb,jsonSheet(c,headers.Customers),'Customers');
- XLSX.utils.book_append_sheet(wb,jsonSheet(s,headers.Suppliers),'Suppliers');
- XLSX.utils.book_append_sheet(wb,jsonSheet(sales,headers.Sales),'Sales');
- XLSX.utils.book_append_sheet(wb,jsonSheet(purchases,headers.Purchases),'Purchases');
- XLSX.utils.book_append_sheet(wb,jsonSheet(mov,headers['Stock Movements']),'Stock Movements');
+ setSheet(wb,'Products_Inventory',p,headers.Products);
+ setSheet(wb,'Customers',c,headers.Customers);
+ setSheet(wb,'Suppliers',s,headers.Suppliers);
+ setSheet(wb,'Sales',sales,headers.Sales);
+ setSheet(wb,'Purchases',purchases,headers.Purchases);
+ setSheet(wb,'Stock_Movements',mov,headers['Stock Movements']);
+ if(!wb.Sheets['My_Records'])setSheet(wb,'My_Records',[],headers['My Records']);
+ if(!wb.Sheets['Other_Records'])setSheet(wb,'Other_Records',[],headers['Other Records']);
  return XLSX.write(wb,{bookType:'xlsx',type:'array'});
 }
-async function driveFetch(url,options={},retry=true){
- const response=await fetch(url,{...options,headers:{...(options.headers||{}),Authorization:'Bearer '+accessToken}});
- if(response.status===401&&retry){
-  await requestToken('');
-  return driveFetch(url,options,false);
- }
- return response;
-}
+async function driveFetch(url,options={},retry=true){const response=await fetch(url,{...options,headers:{...(options.headers||{}),Authorization:'Bearer '+accessToken}});if(response.status===401&&retry){await requestToken('');return driveFetch(url,options,false)}return response}
 async function writeExcel(){
  if(!driveFileId)throw Error('Google Drive workbook is not connected.');
  const bytes=await buildWorkbook();
- const res=await driveFetch('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(driveFileId)+'?uploadType=media',{
-  method:'PATCH',
-  headers:{'Content-Type':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'},
-  body:bytes
- });
+ const res=await driveFetch('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(driveFileId)+'?uploadType=media',{method:'PATCH',headers:{'Content-Type':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'},body:bytes});
  if(!res.ok)throw Error('Google Drive save failed ('+res.status+').');
 }
 function read(wb,n){return wb.Sheets[n]?XLSX.utils.sheet_to_json(wb.Sheets[n],{defval:''}):[]}
 function loadData(wb){
- db.products=read(wb,'Products').map(r=>({id:r.ID||uid(),sku:r.SKU||'',name:r.Name||r.ProductName||'',brand:r.Brand||'',type:r.Type||r.ProductType||'',shade:r.Shade||'',finish:r.Finish||'',packSize:r.PackSize||r.Size||'',unit:r.Unit||'piece',cost:+(r.PurchasePrice||0),sell:+(r.SellingPrice||r.Price||0),gst:+(r.GSTPercent||r.GST||0),stock:+(r.Stock||0),reorder:(r.ReorderLevel===''||r.ReorderLevel==null)?5:+r.ReorderLevel,rack:r.Rack||'',supplier:r.Supplier||'',barcode:r.Barcode||'',active:String(r.Active).toLowerCase()!=='false',createdAt:r.CreatedAt||'',priceBasis:r.PriceBasis||'',source:r.Source||'',verifiedOn:r.VerifiedOn||''}));
+ sourceWorkbook=wb;
+ let pr=read(wb,'Products_Inventory');
+ if(!pr.length)pr=read(wb,'Products_Catalogue');
+ if(!pr.length)pr=read(wb,'Products');
+ db.products=pr.map(r=>({id:r.ID||uid(),sku:r.SKU||'',name:r.Name||r.ProductName||'',brand:r.Brand||'',type:r.Type||r.ProductType||'',shade:r.Shade||'',finish:r.Finish||'',packSize:r.PackSize||r.Size||'',unit:r.Unit||'piece',cost:+(r.PurchasePrice||0),sell:+(r.SellingPrice||r.Price||0),gst:+(r.GSTPercent||r.GST||0),stock:+(r.Stock||0),reorder:(r.ReorderLevel===''||r.ReorderLevel==null)?0:+r.ReorderLevel,rack:r.Rack||'',supplier:r.Supplier||'',barcode:r.Barcode||'',active:String(r.Active).toLowerCase()!=='false',createdAt:r.CreatedAt||'',priceBasis:r.PriceBasis||'',source:r.Source||'',verifiedOn:r.VerifiedOn||''}));
  db.customers=read(wb,'Customers').map(r=>({id:r.ID||uid(),shop:r.ShopName||'',name:r.CustomerName||r.Name||'',phone:r.Phone||r.ContactNumber||'',area:r.Area||'',gstin:r.GSTIN||'',credit:+(r.CreditLimit||0),address:r.Address||''}));
  db.suppliers=read(wb,'Suppliers').map(r=>({id:r.ID||uid(),name:r.CompanyName||r.Name||'',contact:r.ContactName||'',phone:r.Phone||r.ContactNumber||'',email:r.Email||'',area:r.Area||'',gstin:r.GSTIN||'',address:r.Address||''}));
  db.sales=read(wb,'Sales').map(r=>({id:r.ID||uid(),invoice:r.Invoice||'',customerId:r.CustomerID||'',customer:r.Customer||'',productId:r.ProductID||'',product:r.Product||'',qty:+(r.Quantity||0),price:+(r.UnitPrice||r.Rate||0),discount:+(r.Discount||0),total:+(r.Total||0),paid:+(r.Paid||0),due:+(r.Due||0),payment:r.PaymentMethod||'',date:r.Date||''}));
