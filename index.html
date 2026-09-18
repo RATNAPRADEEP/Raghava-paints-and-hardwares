@@ -167,7 +167,7 @@ function selectedItem(prefix){
  return activeProducts().find(x=>String(x.id)===String(id))||null;
 }
 function numericSize(v){
- const m=String(v??'').replace(/,/g,'').match(/\\d+(?:\\.\\d+)?/);
+ const m=String(v??'').replace(/,/g,'').match(/[0-9]+(?:\\.[0-9]+)?/);
  return m?Number(m[0]):0;
 }
 function getTransactionPrice(prefix,item){
