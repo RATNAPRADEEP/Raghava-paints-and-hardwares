@@ -1,23 +1,38 @@
 # Raghava Paints & Hardwares
 
-A local-first shop operations dashboard.
+A live shop-operations dashboard for products, sales, purchases, customers, suppliers and inventory.
 
 ## Architecture
-Browser UI → JavaScript → local Excel workbook
 
-No PHP, MySQL, MongoDB, or JSON database.
+```text
+Vercel static frontend
+        ↓
+Supabase Auth
+        ↓
+Supabase PostgreSQL
+        ↓
+Products / Sales / Purchases / Stock Movements / Customers / Suppliers
+```
 
-## Excel storage
-Download the `Raghava_Shop_Data.xlsx` workbook from the repository and connect that file from the app. The workbook currently contains product-focused demonstration data:
-- Products
-- Suppliers
-- Purchases
-- Stock Movements
+There is no traditional PHP/MySQL server. The frontend talks to Supabase using the browser-safe publishable/anon key, with Row Level Security enabled.
 
-Customer records and assumed customer/sales sample data have been removed. The sample product catalog is modeled around the business structure of the reference paint-shop database project by Talat Zubair: product code, brand, type, shade, size/pack, price, suppliers, purchasing, and stock tracking. The implementation here uses those business concepts with a local Excel workbook instead of the original PHP/MySQL stack.
+## Workflow
 
-## Frontend direction
-The interface uses the VoiceCall Guru frontend as a visual/product-design reference: clear workflow navigation, strong state indicators, quick actions, cards, metrics, activity tables, responsive layout, and a focused primary action. The business workflow is adapted specifically for a paint and hardware shop: Manage → Sell → Purchase → Track → Analyze.
+**Manage → Sell → Purchase → Track → Analyze**
 
-## Run
-Use Microsoft Edge or Google Chrome on the HTTPS Vercel deployment. Click **Connect Excel Storage** and select the local `Raghava_Shop_Data.xlsx` file. The app reads and writes that workbook directly using the browser File System Access API.
+- Products and inventory are stored in PostgreSQL.
+- Sales atomically deduct stock.
+- Purchases atomically increase stock and update purchase cost.
+- Customers and suppliers are persistent database records.
+- Stock movements provide an audit trail.
+- Excel remains a backup/import-export artifact, not the live database.
+
+## Setup
+
+See `supabase/README.md` and run `supabase/schema.sql` in the Supabase SQL Editor.
+
+Then put the Supabase Project URL and browser-safe anon/publishable key into `assets/js/app.js` and deploy the repository to Vercel.
+
+## Free-tier target
+
+The project is designed to run on Supabase Free + Vercel for portfolio/demo usage.
