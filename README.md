@@ -1,221 +1,139 @@
 # Raghava Paints & Hardwares
 
-A practical **Paint Shop Sales & Inventory Management System** built for a small retail hardware/paint business.
+A **local Paint Shop Sales & Inventory Management System** designed to run directly on a personal computer without a database server.
 
-The project is inspired by the workflow of paint-shop sales and inventory systems, but the implementation, schema, UI, and business rules are original.
+The application keeps business data in simple local text/JSON files. These files can be opened and edited with Windows Notepad, making the project easy to understand, portable, and suitable for a small shop.
 
-## What it manages
+## Key features
 
-- Product catalog with SKU, category, brand, unit, selling price, purchase price and stock
-- Customers and suppliers
-- Purchase transactions that increase stock
-- Sales transactions that decrease stock
-- Automatic stock validation
-- Low-stock and out-of-stock alerts
-- Dashboard KPIs
-- Sales and purchase summaries
+- Product catalog
+- Categories and brands
+- Customer records
+- Supplier records
+- Purchase recording
+- Sales recording
+- Automatic stock increase/decrease
+- Low-stock alerts
+- Dashboard summaries
+- Sales and purchase history
 - Top-selling products
-- Recent transactions
-- AJAX-based operations without full-page refreshes
-- Responsive Bootstrap interface
-- Chart.js analytics
+- Local backup/export
+- Import/restore
+- Human-readable JSON data files
 
-## Technology
+## How storage works
 
-- **Frontend:** HTML5, CSS3, Bootstrap 5, JavaScript
-- **AJAX:** Fetch API
-- **Backend:** PHP 8+
-- **Database:** MySQL 8+
-- **Charts:** Chart.js
-- **Local server:** XAMPP / Apache
+The project does not require MySQL, MongoDB, PHP, XAMPP, or any other database server.
 
-## Architecture
+Business records are stored as local JSON text files:
 
 ```
-Browser
-   |
-   | AJAX / HTTP
-   v
-PHP Application
-   |
-   | PDO + Prepared Statements
-   v
-MySQL
-   |
-   +-- products
-   +-- categories
-   +-- customers
-   +-- suppliers
-   +-- purchases
-   +-- purchase_items
-   +-- sales
-   +-- sale_items
-   +-- stock_movements
+data/
+├── products.json
+├── customers.json
+├── suppliers.json
+├── sales.json
+├── purchases.json
+└── stock-movements.json
 ```
 
-## Database design
+Because JSON is plain text, the files can be opened with **Notepad** or another text editor.
 
-The database separates master data from transaction data:
+The application uses the browser's local file access capability to read and save these files after the user selects the project data folder.
 
-- `categories` → product classification
-- `products` → current product and stock state
-- `customers` → customer master data
-- `suppliers` → supplier master data
-- `purchases` / `purchase_items` → incoming stock
-- `sales` / `sale_items` → outgoing stock
-- `stock_movements` → auditable stock changes
+## Running the application
 
-Sales and purchases are processed inside database transactions so the transaction and stock update succeed or fail together.
+### Option 1 — Open locally
 
-## Run locally
+Use a modern browser such as Microsoft Edge or Google Chrome.
 
-### 1. Requirements
+1. Download/clone this repository.
+2. Open `index.html`.
+3. Click **Connect Local Data Folder**.
+4. Select the project's `data` folder.
+5. The application loads the shop records from the local files.
 
-Install XAMPP with:
+The browser will ask for permission before the application can write changes to the selected folder.
 
-- Apache
-- PHP 8+
-- MySQL
+### Option 2 — Simple local web server
 
-### 2. Copy project
+A local web server may also be used if the browser restricts local-file access. The data remains on the computer in the `data` folder.
 
-Place the repository in:
+## Data files
 
-```
-C:\xampp\htdocs\Raghava-paints-and-hardwares
-```
+### products.json
 
-### 3. Create database
+Stores:
 
-Open phpMyAdmin and import:
+- SKU
+- Product name
+- Brand
+- Category
+- Unit
+- Purchase price
+- Selling price
+- Current stock
+- Reorder level
 
-```
-database.sql
-```
+### customers.json
 
-The script creates the `raghava_paints` database and sample data.
+Stores customer names, phone numbers and addresses.
 
-### 4. Configure connection
+### suppliers.json
 
-Edit:
+Stores supplier names, phone numbers, email addresses and addresses.
 
-```
-config/config.php
-```
+### sales.json
 
-Default XAMPP configuration:
+Stores sales invoices and their line items.
 
-```
-host = 127.0.0.1
-database = raghava_paints
-username = root
-password = 
-```
+### purchases.json
 
-### 5. Start
+Stores purchase invoices and their line items.
 
-Start Apache and MySQL in XAMPP and open:
+### stock-movements.json
 
-```
-http://localhost/Raghava-paints-and-hardwares/
-```
+Stores every opening, purchase, sale, or adjustment movement.
 
-## Core business rules
+## Important business rules
 
-1. A sale cannot exceed available stock.
+1. A sale cannot reduce stock below zero.
 2. A purchase increases stock.
 3. A sale decreases stock.
-4. Every stock change creates a stock-movement record.
-5. Sale totals are calculated on the server.
-6. Purchase totals are calculated on the server.
-7. Database transactions protect inventory consistency.
-8. Product SKU is unique.
-9. Product quantity cannot become negative.
-
-## Example workflow
-
-### Purchase
-
-Supplier → Product → Quantity → Purchase price → Save
-
-Result:
-
-```
-Stock = Previous Stock + Purchased Quantity
-```
-
-### Sale
-
-Customer → Product → Quantity → Selling price → Save
-
-Result:
-
-```
-Stock = Previous Stock - Sold Quantity
-```
-
-### Dashboard
-
-The dashboard derives:
-
-- Total products
-- Total stock units
-- Inventory value
-- Today's sales
-- Total sales
-- Low-stock products
-- Top-selling products
-- Recent sales
+4. Every stock change creates a movement record.
+5. Prices are read from the product record when a transaction is created.
+6. Invoice totals are calculated by the application.
+7. Data is saved locally on the user's computer.
+8. The user can back up the complete `data` folder.
+9. JSON files remain human-readable and editable.
 
 ## Project structure
 
 ```
 Raghava-paints-and-hardwares/
+├── data/
+│   ├── products.json
+│   ├── customers.json
+│   ├── suppliers.json
+│   ├── sales.json
+│   ├── purchases.json
+│   └── stock-movements.json
 ├── assets/
 │   ├── css/
 │   │   └── style.css
 │   └── js/
 │       └── app.js
-├── config/
-│   └── config.php
-├── api.php
-├── database.sql
-├── index.php
+├── index.html
 ├── .gitignore
 └── README.md
 ```
 
-## Future extensions
-
-- Authentication and role-based access
-- GST invoice generation
-- PDF invoice export
-- Barcode scanning
-- Supplier payment tracking
-- Customer credit/dues
-- Excel/CSV reports
-- Monthly profit analysis
-- WhatsApp invoice sharing
-- Multi-user audit logs
-
 ## Portfolio description
 
-**Raghava Paints & Hardwares — Sales & Inventory Management System**
+**Raghava Paints & Hardwares — Local Sales & Inventory Management System**
 
-Developed a PHP/MySQL business management application for a paint and hardware retail workflow. Implemented normalized relational data modeling, transactional purchase/sales processing, stock validation, AJAX operations, inventory movement tracking, dashboard analytics, and Chart.js visualizations.
+Built a local-first paint and hardware shop management application that stores inventory, customers, suppliers, sales, purchases, and stock movements as editable JSON text files on a personal computer. Implemented stock validation, transaction calculations, dashboard reporting, local backup/restore, and a browser-based interface without requiring a traditional database server.
 
-## Learning outcomes
+## Important note
 
-This project demonstrates:
-
-- Relational database design
-- Primary/foreign-key relationships
-- SQL joins and aggregation
-- CRUD operations
-- Transactions
-- Prepared statements
-- REST-style AJAX endpoints
-- Inventory business logic
-- Data visualization
-- Responsive web UI
-
+This project intentionally uses **local files as its data store**. It is designed for a single-computer/single-user workflow rather than concurrent multi-user operation.
