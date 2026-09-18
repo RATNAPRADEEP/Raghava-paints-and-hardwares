@@ -177,10 +177,14 @@ function getTransactionPrice(prefix,item){
  const rows=productSizes(item.id);
  const pack=rows.find(x=>String(x.size).trim().toLowerCase()===String(size).trim().toLowerCase());
  const packSell=Number(pack?.sell??pack?.sellingPrice??0);
- if(packSell>0)return packSell;
  const base=Number(item.sell||0);
  const n=numericSize(size);
  const u=String(pack?.unit||item.unit||'').trim().toLowerCase();
+ // Some workbook versions contain the same base rate (e.g. ₹209) in every
+ // Product_Pack_Sizes row. Treat that repeated value as a per-litre/per-kg
+ // rate for multi-unit paint packs, rather than as the complete pack price.
+ if(packSell>0 && packSell!==base)return packSell;
+ if(packSell>0 && packSell===base && n>1 && (u==='litre'||u==='liter'||u==='l'||u==='kg'))return base*n;
  const basis=String(item.priceBasis||'').trim().toLowerCase();
  const perUnit=/per[\\s_-]*(litre|liter|l|kg)|per[\\s_-]*unit|unit[\\s_-]*price/.test(basis);
  // Main-product catalogue prices in this workbook are per litre/kg when no size-specific
