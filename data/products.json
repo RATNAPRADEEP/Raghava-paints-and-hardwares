@@ -1,0 +1,7 @@
+[
+  {"id":"p1","sku":"AP-ROY-001","name":"Royale Luxury Emulsion 20L","brand":"Asian Paints","category":"Interior Paint","unit":"bucket","purchasePrice":5200,"sellingPrice":6100,"stock":8,"reorderLevel":3},
+  {"id":"p2","sku":"AP-APEX-001","name":"Apex Ultima 20L","brand":"Asian Paints","category":"Exterior Paint","unit":"bucket","purchasePrice":6800,"sellingPrice":7900,"stock":5,"reorderLevel":2},
+  {"id":"p3","sku":"BG-PRM-001","name":"Wall Primer 20L","brand":"Berger","category":"Primers","unit":"bucket","purchasePrice":2600,"sellingPrice":3200,"stock":12,"reorderLevel":4},
+  {"id":"p4","sku":"PUT-020","name":"Wall Putty 20kg","brand":"Birla White","category":"Putty & Wall Care","unit":"bag","purchasePrice":650,"sellingPrice":820,"stock":25,"reorderLevel":8},
+  {"id":"p5","sku":"BRU-004","name":"Paint Brush 4 inch","brand":"Generic","category":"Tools","unit":"piece","purchasePrice":90,"sellingPrice":140,"stock":35,"reorderLevel":10}
+]
