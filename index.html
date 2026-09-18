@@ -9,16 +9,16 @@
 </head>
 <body>
 <header class="top">
-<div><div class="eyebrow">LOCAL SHOP OPERATIONS</div><h1>Raghava Paints & Hardwares</h1><div class="muted">Simple paint-shop management using a local Excel workbook.</div></div>
-<div><div class="connection"><span id="dot" class="dot"></span><span id="connectionText">Excel storage not connected</span></div><button id="connectBtn" class="btn primary">Connect Excel Storage</button></div>
+<div><div class="eyebrow">LOCAL SHOP OPERATIONS</div><h1>Raghava Paints & Hardwares</h1><div class="muted">Simple paint-shop management using your Google Drive Excel workbook.</div></div>
+<div><div class="connection"><span id="dot" class="dot"></span><span id="connectionText">Google Drive storage not connected</span></div><button id="connectBtn" class="btn primary">Connect Google Drive</button></div>
 </header>
 <nav class="nav">
-<button class="navbtn active" data-page="dashboard">01 Manage</button><button class="navbtn" data-page="sales">02 Sell</button><button class="navbtn" data-page="purchases">03 Purchase</button><button class="navbtn" data-page="products">04 Track</button><button class="navbtn" data-page="accounts">05 Analyze</button><button id="saveBtn" class="btn save">Save Excel</button>
+<button class="navbtn active" data-page="dashboard">01 Manage</button><button class="navbtn" data-page="sales">02 Sell</button><button class="navbtn" data-page="purchases">03 Purchase</button><button class="navbtn" data-page="products">04 Track</button><button class="navbtn" data-page="accounts">05 Analyze</button><button id="saveBtn" class="btn save">Save to Google Drive</button>
 </nav>
 <main>
 <div id="toast"></div>
 <section id="dashboard" class="section show">
-<div class="hero"><div class="eyebrow">SHOP CONTROL CENTER</div><h2>Manage products, sales, purchases and accounts from one place.</h2><p class="muted">Click <b>Connect Excel Storage</b> and select the <b>Raghava_Shop_Data.xlsx</b> workbook from your computer. The app reads and saves your shop data directly in that local Excel file.</p><span id="state" class="status">Ready — connect Excel to begin</span></div>
+<div class="hero"><div class="eyebrow">SHOP CONTROL CENTER</div><h2>Manage products, sales, purchases and accounts from one place.</h2><p class="muted">Click <b>Connect Google Drive</b> and select the <b>Raghava_Shop_Data.xlsx</b> workbook from your Google Drive. The app reads and saves your shop data directly in that Drive workbook.</p><span id="state" class="status">Ready — connect Google Drive to begin</span></div>
 <div class="actions"><button class="btn action" data-page="sales"><b>Record a Sale</b><br><small>Invoice + payment + stock deduction</small></button><button class="btn action" data-page="purchases"><b>Record a Purchase</b><br><small>Supplier + cost + stock increase</small></button><button class="btn action" data-page="products"><b>Manage Products</b><br><small>Brand + shade + pack + rack</small></button></div>
 <div class="stats"><div class="stat"><small>Products</small><strong id="productsCount">0</strong></div><div class="stat"><small>Stock Units</small><strong id="stockCount">0</strong></div><div class="stat"><small>Inventory Value</small><strong id="inventoryValue">₹0</strong></div><div class="stat"><small>Today's Sales</small><strong id="todaySales">₹0</strong></div><div class="stat"><small>Low Stock</small><strong id="lowStockCount">0</strong></div></div>
 <div class="grid"><div class="card"><h3>Top Selling Products</h3><div id="topProducts" class="list"><p>No sales yet.</p></div></div><div class="card"><h3>Low Stock</h3><div id="lowStock" class="list"><p>No products yet.</p></div></div></div>
@@ -33,4 +33,6 @@
 <dialog id="supplierDialog"><form id="supplierForm" class="form"><h2 class="full">Add Supplier</h2><label>Company<input id="sName" required></label><label>Contact Person<input id="sContact"></label><label>Phone<input id="sPhone"></label><label>Email<input id="sEmail"></label><label>Area<input id="sArea"></label><label>GSTIN<input id="sGstin"></label><label class="full">Address<input id="sAddress"></label><div class="form-actions"><button type="button" class="btn" onclick="supplierDialog.close()">Cancel</button><button class="btn primary">Save Supplier</button></div></form></dialog>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script src="assets/js/app.js"></script>
+<script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+<script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body></html>
