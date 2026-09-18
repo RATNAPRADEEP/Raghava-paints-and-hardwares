@@ -1,4 +1,4 @@
-# Raghava Paints & Hardwares
+# Paints & Hardwares
 
 A lightweight shop operations dashboard for managing products, sales, purchases, customers, stock, and business activity using a real Excel workbook.
 
@@ -25,7 +25,7 @@ Google Picker
     ↓
 Google Drive
     ↓
-Raghava Paints & Hardwares .xlsx workbook
+Paints & Hardwares .xlsx workbook
 ```
 
 The application has no traditional PHP/MySQL/MongoDB backend. The connected Excel workbook remains the primary operational data store.
