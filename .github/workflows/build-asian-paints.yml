@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'tmp/asian_paints_catalogue.b64'
+      - 'tmp/run-asian-build.txt'
 
 permissions:
   contents: write
