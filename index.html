@@ -9,7 +9,7 @@
 <main><div id="toast"></div>
 <section id="dashboard" class="section show"><div class="hero"><div class="eyebrow">SHOP CONTROL CENTER</div><h2>Manage products, sales, purchases and accounts from one Excel workbook.</h2><p class="muted">Connect the new <b>Raghava_Paints_Hardwares_FINAL_SYNC_MASTER.xlsx</b> from Google Drive. The app reads the workbook's products, subproducts, customer types, customers, suppliers and centralized Lists sheet. Changes made here are written back to the same .xlsx file.</p><span id="state" class="status">Ready — connect Google Drive to begin</span></div><div class="actions"><button class="btn action" data-page="sales"><b>Record a Sale</b><br><small>Customer + product/subproduct + payment + stock</small></button><button class="btn action" data-page="purchases"><b>Record a Purchase</b><br><small>Supplier + product/subproduct + cost + stock</small></button><button class="btn action" data-page="products"><b>Manage Products</b><br><small>Main products + accessories + stock</small></button></div><div class="stats"><div class="stat"><small>Main Products</small><strong id="productsCount">0</strong></div><div class="stat"><small>Total Stock Units</small><strong id="stockCount">0</strong></div><div class="stat"><small>Inventory Value</small><strong id="inventoryValue">₹0</strong></div><div class="stat"><small>Today's Sales</small><strong id="todaySales">₹0</strong></div><div class="stat"><small>Low Stock Items</small><strong id="lowStockCount">0</strong></div></div><div class="grid"><div class="card"><h3>Top Selling Items</h3><div id="topProducts" class="list"><p>No sales yet.</p></div></div><div class="card"><h3>Low Stock</h3><div id="lowStock" class="list"><p>No low-stock products.</p></div></div></div></section>
 <section id="sales" class="section"><div class="head"><div><div class="eyebrow">02 / SELL</div><h2>Sales</h2><div class="muted">Select either a main paint product OR a size-specific subproduct. The selected item's stock is reduced automatically.</div></div></div><div class="card"><form id="saleForm" class="form"><label>Customer Type<select id="saleCustomerType"></select><span class="hint">Choose the customer type for this sale.</span></label><label>Paint / Main Product<select id="saleProduct"></select><span class="hint">Choose a main paint OR a subproduct below.</span></label><label>Subproduct<select id="saleSubproduct"></select><span class="hint">Choose a simple category: Brushes, Enamels, Fillers, Rollers, Sanding Paper, Thinners / MTO, Stainers or Samples.</span></label><label>Size<select id="saleSize"></select><span class="hint">One shared size selector for the selected paint or subproduct.</span></label><label>Quantity<input id="saleQty" type="number" min="0.01" step="0.01" required></label><label>Discount<input id="saleDiscount" type="number" min="0" step="0.01" value="0"></label><label>Paid<input id="salePaid" type="number" min="0" step="0.01" value="0"></label><label>Recorded By<select id="saleRecordedBy"></select></label><label>Payment<select id="salePayment"></select></label><div class="form-actions"><button class="btn primary">Record Sale</button></div></form></div><div class="card"><h3>Sales History</h3><div class="table" id="salesTable"></div></div></section>
-<section id="purchases" class="section"><div class="head"><div><div class="eyebrow">03 / PURCHASE</div><h2>Purchases</h2><div class="muted">Purchase either a main product or a subproduct; stock and purchase cost update on save.</div></div></div><div class="card"><form id="purchaseForm" class="form"><label>Supplier<select id="purchaseSupplier"></select></label><label>Invoice No.<input id="purchaseInvoice" placeholder="Auto-generated if blank"><button type="button" class="btn" id="scanPurchaseInvoice">📷 Scan Invoice</button><input id="purchaseInvoicePhoto" type="file" accept="image/*" capture="environment" hidden><span class="hint">Printed or handwritten invoice. Review detected fields before saving.</span></label><label>Main Product<select id="purchaseProduct"></select></label><label>Subproduct<select id="purchaseSubproduct"></select><span class="hint">Thinners, enamels, brushes, rollers, fillers and other accessories.</span></label><label>Size<select id="purchaseSize"></select><span class="hint">One shared size selector for the selected main product or subproduct.</span></label><label>Quantity<input id="purchaseQty" type="number" min="0.01" step="0.01" required></label><label>Unit Cost<input id="purchaseCost" type="number" min="0" step="0.01" required></label><label>Paid<input id="purchasePaid" type="number" min="0" step="0.01" value="0"></label><label>Recorded By<select id="purchaseRecordedBy"></select></label><label>Payment<select id="purchasePayment"></select></label><div class="form-actions"><button class="btn primary">Record Purchase</button></div></form></div><div class="card"><h3>Purchase History</h3><div class="table" id="purchasesTable"></div></div></section>
+<section id="purchases" class="section"><div class="head"><div><div class="eyebrow">03 / PURCHASE</div><h2>Purchases</h2><div class="muted">Purchase either a main product or a subproduct; stock and purchase cost update on save.</div></div></div><div class="card"><form id="purchaseForm" class="form"><label>Supplier<select id="purchaseSupplier"></select></label><label>Invoice No.<input id="purchaseInvoice" placeholder="Auto-generated if blank"><button type="button" class="btn" id="scanPurchaseInvoice">📷 Scan Invoice</button><input id="purchaseInvoicePhoto" type="file" accept="image/*" capture="environment" hidden><span class="hint">Printed or handwritten invoice. Review detected fields before saving.</span></label><div id="invoiceScanResults" class="full subbox" style="display:none"><b>Detected invoice items</b><div id="invoiceItemsTable" class="table"></div><div class="hint">OCR is an assistive scan. Check quantities, sizes and prices before recording the purchase.</div></div><label>Main Product<select id="purchaseProduct"></select></label><label>Subproduct<select id="purchaseSubproduct"></select><span class="hint">Thinners, enamels, brushes, rollers, fillers and other accessories.</span></label><label>Size<select id="purchaseSize"></select><span class="hint">One shared size selector for the selected main product or subproduct.</span></label><label>Quantity<input id="purchaseQty" type="number" min="0.01" step="0.01" required></label><label>Unit Cost<input id="purchaseCost" type="number" min="0" step="0.01" required></label><label>Paid<input id="purchasePaid" type="number" min="0" step="0.01" value="0"></label><label>Recorded By<select id="purchaseRecordedBy"></select></label><label>Payment<select id="purchasePayment"></select></label><div class="form-actions"><button class="btn primary">Record Purchase</button></div></form></div><div class="card"><h3>Purchase History</h3><div class="table" id="purchasesTable"></div></div></section>
 <section id="products" class="section"><div class="head"><div><div class="eyebrow">04 / TRACK</div><h2>Products & Inventory</h2><div class="muted">Main products and size-specific accessories remain separate in Excel.</div></div><div><button id="addProduct" class="btn primary">Add Product</button></div></div><div class="card"><div class="table" id="productsTable"></div></div><div class="card"><h3>Workbook sync</h3><p class="muted">The connected workbook is the source of truth. <b>Products_Inventory</b> stores shop inventory, <b>Subproducts</b> stores accessory/size variants, <b>Customer_Types</b> stores customer types, and <b>Lists</b> stores shared dropdown options.</p></div></section>
 <section id="accounts" class="section"><div class="head"><div><div class="eyebrow">05 / ANALYZE</div><h2>Customers & Suppliers</h2><div class="muted">Customers now support business type, not only Walk-in customer.</div></div><div><button id="addCustomer" class="btn">Add Customer</button> <button id="addSupplier" class="btn">Add Supplier</button></div></div><div class="grid"><div class="card"><h3>Customers</h3><div class="table" id="customersTable"></div></div><div class="card"><h3>Suppliers</h3><div class="table" id="suppliersTable"></div></div></div></section>
 </main>
@@ -192,6 +192,7 @@ async function scanInvoiceToFields(file,mode){
  finally{btn.disabled=false;btn.textContent=old}
 }
 function findNumber(text,patterns){for(const p of patterns){const m=text.match(p);if(m)return m[1].trim()}return ''}
+let invoiceScanItems=[];
 function parsePurchaseInvoice(text){
  const inv=findNumber(text,[/(?:invoice|bill|inv)[\s#no.:\-]*([A-Z0-9][A-Z0-9\/-]{2,})/i]);
  if(inv)$('purchaseInvoice').value=inv;
@@ -199,18 +200,39 @@ function parsePurchaseInvoice(text){
  const gst=findNumber(text,[/(?:gstin|gst)[\s:.-]*([0-9A-Z]{15})/i]);
  const supplier=db.suppliers.find(s=>(phone&&String(s.phone).replace(/\D/g,'')===String(phone).replace(/\D/g,''))||(gst&&String(s.gstin).toUpperCase()===gst.toUpperCase()));
  if(supplier)$('purchaseSupplier').value=supplier.id;
- const lower=text.toLowerCase();
- const product=activeProducts().slice().sort((a,b)=>String(b.name).length-String(a.name).length).find(p=>lower.includes(String(p.name).toLowerCase()));
- if(product){
-  $('purchaseProduct').value=product.id;$('purchaseSubproduct').value='';updateSharedSize('purchase');
-  const hit=productSizes(product.id).find(x=>text.toLowerCase().includes(String(x.size).toLowerCase()));
-  if(hit)$('purchaseSize').value=String(hit.size);
- }
- const qty=findNumber(text,[/(?:qty|quantity|nos|units)[\s:.-]*(\d+(?:\.\d+)?)/i]);
- const cost=findNumber(text,[/(?:rate|unit price|price|cost)[\s:₹Rs.]*([\d,]+(?:\.\d+)?)/i]);
- if(qty)$('purchaseQty').value=qty.replace(/,/g,'');
- if(cost)$('purchaseCost').value=cost.replace(/,/g,'');
- toast('Invoice scanned. Detected values inserted — verify before saving.');
+ const lower=text.toLowerCase(),lines=text.split(/\n+/).map(x=>x.trim()).filter(Boolean),seen=new Set();
+ invoiceScanItems=[];
+ activeProducts().slice().sort((a,b)=>String(b.name).length-String(a.name).length).forEach(p=>{
+   const hitLine=lines.find(line=>line.toLowerCase().includes(String(p.name).toLowerCase()));
+   if(!hitLine||seen.has(p.id))return;
+   seen.add(p.id);
+   const nums=(hitLine.match(/\d+(?:\.\d+)?/g)||[]).map(Number);
+   const size=productSizes(p.id).find(x=>hitLine.toLowerCase().includes(String(x.size).toLowerCase()));
+   let qty=0,cost=0;
+   const q=findNumber(hitLine,[/(?:qty|quantity|nos|units)[\s:.-]*(\d+(?:\.\d+)?)/i]);
+   const r=findNumber(hitLine,[/(?:rate|unit price|price|cost)[\s:₹Rs.]*([\d,]+(?:\.\d+)?)/i]);
+   if(q)qty=+q.replace(/,/g,''); else if(nums.length>=2)qty=nums[nums.length-2];
+   if(r)cost=+r.replace(/,/g,''); else if(nums.length>=1)cost=nums[nums.length-1];
+   invoiceScanItems.push({productId:p.id,name:p.name,size:size?String(size.size):'',qty,cost});
+ });
+ if(invoiceScanItems.length){
+   const first=invoiceScanItems[0],p=activeProducts().find(x=>x.id===first.productId);
+   $('purchaseProduct').value=p.id;$('purchaseSubproduct').value='';updateSharedSize('purchase');
+   if(first.size)$('purchaseSize').value=first.size;
+   if(first.qty)$('purchaseQty').value=first.qty;
+   if(first.cost)$('purchaseCost').value=first.cost;
+   renderInvoiceItems();
+ } else toast('No catalogue product matched. You can still enter the purchase manually.',true);
+ toast('Invoice scanned. '+invoiceScanItems.length+' item(s) detected — verify before saving.');
+}
+function renderInvoiceItems(){
+ const box=$('invoiceScanResults');if(!box)return;
+ box.style.display=invoiceScanItems.length?'block':'none';
+ $('invoiceItemsTable').innerHTML=invoiceScanItems.length?'<table><tr><th>Product</th><th>Size</th><th>Qty</th><th>Unit Cost</th><th>Action</th></tr>'+invoiceScanItems.map((x,i)=>'<tr><td>'+esc(x.name)+'</td><td>'+esc(x.size)+'</td><td>'+esc(x.qty||'')+'</td><td>'+esc(x.cost||'')+'</td><td><button type="button" class="btn" data-invoice-item="'+i+'">Use</button></td></tr>').join('')+'</table>':'';
+ document.querySelectorAll('[data-invoice-item]').forEach(b=>b.addEventListener('click',()=>{
+  const x=invoiceScanItems[+b.dataset.invoiceItem],p=activeProducts().find(z=>z.id===x.productId);if(!p)return;
+  $('purchaseProduct').value=p.id;$('purchaseSubproduct').value='';updateSharedSize('purchase');if(x.size)$('purchaseSize').value=x.size;if(x.qty)$('purchaseQty').value=x.qty;if(x.cost)$('purchaseCost').value=x.cost;
+ }));
 }
 function parseCustomerScan(text){
  const phone=findNumber(text,[/(?:phone|mobile|mob|contact)[\s:.-]*(\+?\d[\d ()-]{8,})/i]);
@@ -220,7 +242,8 @@ function parseCustomerScan(text){
  if(name)$('cName').value=name;if(phone)$('cPhone').value=phone;if(gst)$('cGstin').value=gst;if(shop)$('cShop').value=shop;
  toast('Customer/invoice scan complete. Verify the fields before saving.');
 }
-function bind(){\n $('purchaseInvoicePhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'purchase');e.target.value=''});$('scanPurchaseInvoice').addEventListener('click',()=>$('purchaseInvoicePhoto').click());$('customerPhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'customer');e.target.value=''});$('scanCustomer').addEventListener('click',()=>$('customerPhoto').click());
+function bind(){
+ $('purchaseInvoicePhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'purchase');e.target.value=''});$('scanPurchaseInvoice').addEventListener('click',()=>$('purchaseInvoicePhoto').click());$('customerPhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'customer');e.target.value=''});$('scanCustomer').addEventListener('click',()=>$('customerPhoto').click());
  addPhotoOCR('photoSku','pSku','scanSku');addPhotoOCR('photoName','pName','scanName');addPhotoOCR('photoBrand','pBrand','scanBrand');addPhotoOCR('photoShade','pShade','scanShade');
  $('connectBtn').addEventListener('click',connect);$('saveBtn').addEventListener('click',async()=>{try{await writeExcel();toast('Workbook saved and synced to Google Drive.')}catch(e){toast(e.message,true)}});document.querySelectorAll('.navbtn,.action').forEach(b=>b.addEventListener('click',()=>nav(b.dataset.page)));
  $('saleProduct').addEventListener('change',()=>{if($('saleProduct').value)$('saleSubproduct').value='';updateSharedSize('sale')});$('saleSubproduct').addEventListener('change',()=>{if($('saleSubproduct').value)$('saleProduct').value='';updateSharedSize('sale')});$('purchaseProduct').addEventListener('change',()=>{if($('purchaseProduct').value)$('purchaseSubproduct').value='';updateSharedSize('purchase')});$('purchaseSubproduct').addEventListener('change',()=>{if($('purchaseSubproduct').value)$('purchaseProduct').value='';updateSharedSize('purchase')});
