@@ -1,4 +1,4 @@
-const FILES=['products.json','customers.json','suppliers.json','sales.json','purchases.json','stock-movements.json'];
+const EXCEL_FILE='Raghava_Shop_Data.xlsx';
 let folder=null;
 let db={products:[],customers:[],suppliers:[],sales:[],purchases:[],movements:[]};
 
@@ -6,41 +6,70 @@ const $=id=>document.getElementById(id);
 const money=v=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR'}).format(Number(v||0));
 const id=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-
 function message(text,type='good'){ $('message').innerHTML='<div class="notice '+(type==='danger'?'danger':'good')+'">'+esc(text)+'</div>';setTimeout(()=>{$('message').innerHTML=''},3000); }
-function setConnection(connected){if($('connectionDot'))$('connectionDot').classList.toggle('connected',connected);if($('connectionText'))$('connectionText').textContent=connected?'Local data connected':'Local data not connected';if($('systemState'))$('systemState').textContent=connected?'Connected':'Ready';if($('systemStateDetail'))$('systemStateDetail').textContent=connected?'Reading and writing JSON files on this computer.':'Connect your local data folder to begin.';}
+function setConnection(connected){if($('connectionDot'))$('connectionDot').classList.toggle('connected',connected);if($('connectionText'))$('connectionText').textContent=connected?'Excel storage connected':'Excel storage not connected';if($('systemState'))$('systemState').textContent=connected?'Connected':'Ready';if($('systemStateDetail'))$('systemStateDetail').textContent=connected?'Reading and writing Excel sheets on this computer.':'Connect your local data folder to begin.';}
 function go(section){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.section===section));document.querySelectorAll('.section').forEach(x=>x.classList.add('hidden'));$(section).classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});}
-
 
 async function connect(){
   if(!window.showDirectoryPicker){message('Use Microsoft Edge or Google Chrome for local folder storage.','danger');return;}
+  if(typeof XLSX==='undefined'){message('Excel library could not be loaded. Connect to the internet and reload the page.','danger');return;}
   try{
     folder=await window.showDirectoryPicker({mode:'readwrite'});
-    await loadFiles();
+    await loadExcel();
     setConnection(true);renderAll();
-    message('Local data folder connected.');
+    message('Excel storage connected.');
   }catch(e){if(e.name!=='AbortError')message(e.message,'danger');}
 }
-
-async function loadFiles(){
-  const keys=['products','customers','suppliers','sales','purchases','movements'];
-  for(let i=0;i<FILES.length;i++){
-    const handle=await folder.getFileHandle(FILES[i],{create:true});
-    const file=await handle.getFile();
-    const text=await file.text();
-    db[keys[i]]=text.trim()?JSON.parse(text):[];
+function rowsToObjects(ws){return ws?XLSX.utils.sheet_to_json(ws,{defval:''}):[];}
+function objectsToSheet(rows){return XLSX.utils.json_to_sheet(rows.length?rows:[{}]);}
+async function loadExcel(){
+  const handle=await folder.getFileHandle(EXCEL_FILE,{create:true});
+  const file=await handle.getFile();
+  if(file.size===0){
+    db={products:[],customers:[],suppliers:[],sales:[],purchases:[],movements:[]};
+    await saveExcel();
+    return;
   }
+  const wb=XLSX.read(await file.arrayBuffer(),{type:'array'});
+  const read=name=>rowsToObjects(wb.Sheets[name]);
+  db.products=read('Products');
+  db.customers=read('Customers');
+  db.suppliers=read('Suppliers');
+  const salesRows=read('Sales');
+  const purchaseRows=read('Purchases');
+  db.sales=groupTransactions(salesRows,'sale');
+  db.purchases=groupTransactions(purchaseRows,'purchase');
+  db.movements=read('Stock Movements');
 }
-
-async function save(key,file){
+function groupTransactions(rows,type){
+  const map=new Map();
+  rows.forEach(r=>{
+    const key=String(r.ID||r.Invoice||'');
+    if(!key)return;
+    if(!map.has(key))map.set(key,{id:r.ID,invoiceNo:r.Invoice,date:r.Date,total:Number(r.Total||0),items:[],customerId:r.CustomerID||null,customerName:r.Customer||'',supplierId:r.SupplierID||null,supplierName:r.Supplier||''});
+    const t=map.get(key);
+    if(r.ProductID!==undefined&&r.ProductID!=='')t.items.push(type==='sale'?{productId:r.ProductID,quantity:Number(r.Quantity||0),unitPrice:Number(r.UnitPrice||0)}:{productId:r.ProductID,quantity:Number(r.Quantity||0),unitCost:Number(r.UnitCost||0)});
+  });
+  return [...map.values()];
+}
+function transactionRows(rows,type){
+  return rows.flatMap(x=>(x.items||[]).map(i=>type==='sale'?{ID:x.id,Invoice:x.invoiceNo,CustomerID:x.customerId||'',Customer:x.customerName||'',ProductID:i.productId,Quantity:i.quantity,UnitPrice:i.unitPrice,Total:x.total,Date:x.date}:{ID:x.id,Invoice:x.invoiceNo,SupplierID:x.supplierId||'',Supplier:x.supplierName||'',ProductID:i.productId,Quantity:i.quantity,UnitCost:i.unitCost,Total:x.total,Date:x.date}));
+}
+async function saveExcel(){
   if(!folder){message('Connect the local data folder first.','danger');throw new Error('No data folder');}
-  const handle=await folder.getFileHandle(file,{create:true});
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,objectsToSheet(db.products),'Products');
+  XLSX.utils.book_append_sheet(wb,objectsToSheet(db.customers),'Customers');
+  XLSX.utils.book_append_sheet(wb,objectsToSheet(db.suppliers),'Suppliers');
+  XLSX.utils.book_append_sheet(wb,objectsToSheet(transactionRows(db.sales,'sale')),'Sales');
+  XLSX.utils.book_append_sheet(wb,objectsToSheet(transactionRows(db.purchases,'purchase')),'Purchases');
+  XLSX.utils.book_append_sheet(wb,objectsToSheet(db.movements.map(x=>({ID:x.id,ProductID:x.productId,Type:x.type,Quantity:x.quantity,ReferenceID:x.referenceId||'',Date:x.date,Note:x.note||''}))),'Stock Movements');
+  const handle=await folder.getFileHandle(EXCEL_FILE,{create:true});
   const writable=await handle.createWritable();
-  await writable.write(JSON.stringify(db[key],null,2));
+  await writable.write(XLSX.write(wb,{bookType:'xlsx',type:'array'}));
   await writable.close();
 }
-
-async function saveAll(){for(const [key,file] of [['products','products.json'],['customers','customers.json'],['suppliers','suppliers.json'],['sales','sales.json'],['purchases','purchases.json'],['movements','stock-movements.json']])await save(key,file);}
+async function saveAll(){await saveExcel();}
 
 function options(rows,placeholder){return '<option value="">'+placeholder+'</option>'+rows.map(r=>'<option value="'+r.id+'">'+esc(r.name)+'</option>').join('');}
 
