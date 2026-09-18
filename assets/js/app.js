@@ -1,6 +1,12 @@
-let excelFile=null;
+const CLIENT_ID='911229643443-mp5i74p1h7jdonfev8180n9i1o6f9nn1.apps.googleusercontent.com';
+const API_KEY='__GOOGLE_DRIVE_API_KEY__';
+const APP_ID='911229643443';
+const SCOPES='https://www.googleapis.com/auth/drive.file';
 const FILE='Raghava_Shop_Data.xlsx';
+let accessToken=null,driveFileId=null,tokenClient=null;
 let db={products:[],customers:[],suppliers:[],sales:[],purchases:[]};
+let gapiResolve,gisResolve;
+const gapiReady=new Promise(r=>gapiResolve=r),gisReady=new Promise(r=>gisResolve=r);
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=v=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR'}).format(Number(v||0));
@@ -18,7 +24,7 @@ Purchases:['ID','Invoice','SupplierID','Supplier','ProductID','Product','Quantit
 'Stock Movements':['ID','ProductID','Product','Type','Quantity','ReferenceID','Date']
 };
 async function writeExcel(){
- if(!excelFile)throw Error('Excel file is not connected.');
+ if(!driveFileId)throw Error('Google Drive workbook is not connected.');
  const wb=XLSX.utils.book_new();
  const p=db.products.map(x=>({ID:x.id,SKU:x.sku,Name:x.name,Brand:x.brand,Type:x.type,Shade:x.shade,Finish:x.finish,PackSize:x.packSize,Unit:x.unit,PurchasePrice:x.cost,SellingPrice:x.sell,GSTPercent:x.gst,Stock:x.stock,ReorderLevel:x.reorder,Rack:x.rack}));
  const c=db.customers.map(x=>({ID:x.id,ShopName:x.shop,CustomerName:x.name,Phone:x.phone,Area:x.area,GSTIN:x.gstin,CreditLimit:x.credit,Address:x.address}));
@@ -32,7 +38,13 @@ async function writeExcel(){
  XLSX.utils.book_append_sheet(wb,jsonSheet(sales,headers.Sales),'Sales');
  XLSX.utils.book_append_sheet(wb,jsonSheet(purchases,headers.Purchases),'Purchases');
  XLSX.utils.book_append_sheet(wb,jsonSheet(mov,headers['Stock Movements']),'Stock Movements');
- const w=await excelFile.createWritable();await w.write(XLSX.write(wb,{bookType:'xlsx',type:'array'}));await w.close();
+ const bytes=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+ const res=await fetch('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(driveFileId)+'?uploadType=media',{
+  method:'PATCH',
+  headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'},
+  body:bytes
+ });
+ if(!res.ok)throw Error('Google Drive save failed ('+res.status+').');
 }
 function read(wb,n){return wb.Sheets[n]?XLSX.utils.sheet_to_json(wb.Sheets[n],{defval:''}):[]}
 function loadData(wb){
@@ -42,24 +54,34 @@ function loadData(wb){
  db.sales=read(wb,'Sales').map(r=>({id:r.ID||uid(),invoice:r.Invoice||'',customerId:r.CustomerID||'',customer:r.Customer||'',productId:r.ProductID||'',product:r.Product||'',qty:+(r.Quantity||0),price:+(r.UnitPrice||r.Rate||0),discount:+(r.Discount||0),total:+(r.Total||0),paid:+(r.Paid||0),due:+(r.Due||0),payment:r.PaymentMethod||'',date:r.Date||''}));
  db.purchases=read(wb,'Purchases').map(r=>({id:r.ID||uid(),invoice:r.Invoice||'',supplierId:r.SupplierID||'',supplier:r.Supplier||'',productId:r.ProductID||'',product:r.Product||'',qty:+(r.Quantity||0),cost:+(r.UnitCost||0),total:+(r.Total||0),paid:+(r.Paid||0),due:+(r.Due||0),payment:r.PaymentMethod||'',date:r.Date||''}));
 }
+function gapiLoaded(){gapi.load('client:picker',()=>gapiResolve());}
+function gisLoaded(){tokenClient=google.accounts.oauth2.initTokenClient({client_id:CLIENT_ID,scope:SCOPES,callback:()=>{}});gisResolve();}
+function requestToken(prompt=''){return new Promise((resolve,reject)=>{tokenClient.callback=r=>{if(r.error)return reject(r);accessToken=r.access_token;resolve(accessToken)};tokenClient.requestAccessToken({prompt});});}
 async function connect(){
- if(!window.isSecureContext)return toast('Open the HTTPS Vercel site. Browser file access is blocked on an insecure page.',true);
- if(!window.showOpenFilePicker)return toast('Use Microsoft Edge or Google Chrome for this feature.',true);
- if(typeof XLSX==='undefined')return toast('Excel library failed to load. Check internet and refresh.',true);
+ if(API_KEY==='__GOOGLE_DRIVE_API_KEY__')return toast('Add the Google API key in assets/js/app.js before connecting.',true);
  try{
-  const [chosen]=await window.showOpenFilePicker({
-   multiple:false,
-   types:[{description:'Excel Workbook',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}]
-  });
-  if(!chosen)return;
-  excelFile=chosen;
-  const f=await excelFile.getFile();
-  if(f.size){loadData(XLSX.read(await f.arrayBuffer(),{type:'array'}))}
-  else{emptyDb();await writeExcel()}
-  setConnected();render();toast('Excel file connected.');
- }catch(e){if(e.name!=='AbortError')toast('Connection failed: '+(e.message||e.name),true)}
+  await Promise.all([gapiReady,gisReady]);
+  await requestToken(accessToken?'':'consent');
+  const view=new google.picker.DocsView(google.picker.ViewId.DOCS).setIncludeFolders(false).setMimeTypes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  const picker=new google.picker.PickerBuilder().addView(view).setOAuthToken(accessToken).setDeveloperKey(API_KEY).setAppId(APP_ID).setCallback(async data=>{
+   if(data.action!==google.picker.Action.PICKED)return;
+   try{
+    const doc=data[google.picker.Response.DOCUMENTS][0];
+    driveFileId=doc[google.picker.Document.ID];
+    const meta=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(driveFileId)+'?fields=id,name,mimeType',{headers:{Authorization:'Bearer '+accessToken}});
+    if(!meta.ok)throw Error('Could not read the selected Drive file.');
+    const file=await meta.json();
+    if(file.mimeType!=='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')throw Error('Please select an .xlsx workbook.');
+    const bin=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(driveFileId)+'?alt=media',{headers:{Authorization:'Bearer '+accessToken}});
+    if(!bin.ok)throw Error('Could not download the selected workbook.');
+    loadData(XLSX.read(await bin.arrayBuffer(),{type:'array'}));
+    setConnected(file.name||FILE);render();toast('Google Drive workbook connected.');
+   }catch(e){driveFileId=null;toast('Connection failed: '+(e.message||e),true);}
+  }).build();
+  picker.setVisible(true);
+ }catch(e){toast('Google sign-in failed. '+(e.message||e),true);}
 }
-function setConnected(){$('dot').classList.add('on');$('connectionText').textContent='Excel storage connected';$('state').textContent='Connected — '+FILE;$('state').classList.add('on')}
+function setConnected(name=FILE){$('dot').classList.add('on');$('connectionText').textContent='Google Drive connected';$('state').textContent='Connected — '+name;$('state').classList.add('on')}
 function opts(a,placeholder){return '<option value="">'+placeholder+'</option>'+a.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name||x.shop)+'</option>').join('')}
 function render(){
  $('productsCount').textContent=db.products.length;
@@ -78,12 +100,12 @@ function render(){
 }
 function bind(){
  $('connectBtn').addEventListener('click',connect);
- $('saveBtn').addEventListener('click',async()=>{try{await writeExcel();toast('Excel workbook saved.')}catch(e){toast(e.message,true)}});
+ $('saveBtn').addEventListener('click',async()=>{try{await writeExcel();toast('Workbook saved to Google Drive.')}catch(e){toast(e.message,true)}});
  document.querySelectorAll('.navbtn,.action').forEach(b=>b.addEventListener('click',()=>nav(b.dataset.page)));
  $('addProduct').addEventListener('click',()=>{$('productForm').reset();$('productDialog').showModal()});
  $('addCustomer').addEventListener('click',()=>{$('customerForm').reset();$('customerDialog').showModal()});
  $('addSupplier').addEventListener('click',()=>{$('supplierForm').reset();$('supplierDialog').showModal()});
- $('productForm').addEventListener('submit',async e=>{e.preventDefault();const p={id:uid(),sku:$('pSku').value.trim(),name:$('pName').value.trim(),brand:$('pBrand').value.trim(),type:$('pType').value.trim(),shade:$('pShade').value.trim(),finish:$('pFinish').value.trim(),packSize:$('pPack').value.trim(),unit:$('pUnit').value.trim(),cost:+$('pCost').value,sell:+$('pSell').value,gst:+$('pGst').value,stock:+$('pStock').value,reorder:+$('pReorder').value,rack:$('pRack').value.trim()};if(db.products.some(x=>x.sku===p.sku))return toast('SKU already exists.',true);db.products.push(p);await writeExcel();$('productDialog').close();render();toast('Product saved to Excel.')});
+ $('productForm').addEventListener('submit',async e=>{e.preventDefault();const p={id:uid(),sku:$('pSku').value.trim(),name:$('pName').value.trim(),brand:$('pBrand').value.trim(),type:$('pType').value.trim(),shade:$('pShade').value.trim(),finish:$('pFinish').value.trim(),packSize:$('pPack').value.trim(),unit:$('pUnit').value.trim(),cost:+$('pCost').value,sell:+$('pSell').value,gst:+$('pGst').value,stock:+$('pStock').value,reorder:+$('pReorder').value,rack:$('pRack').value.trim()};if(db.products.some(x=>x.sku===p.sku))return toast('SKU already exists.',true);db.products.push(p);await writeExcel();$('productDialog').close();render();toast('Product saved to Google Drive.')});
  $('customerForm').addEventListener('submit',async e=>{e.preventDefault();db.customers.push({id:uid(),shop:$('cShop').value.trim(),name:$('cName').value.trim(),phone:$('cPhone').value.trim(),area:$('cArea').value.trim(),gstin:$('cGstin').value.trim(),credit:+$('cCredit').value,address:$('cAddress').value.trim()});await writeExcel();$('customerDialog').close();render();toast('Customer saved.')});
  $('supplierForm').addEventListener('submit',async e=>{e.preventDefault();db.suppliers.push({id:uid(),name:$('sName').value.trim(),contact:$('sContact').value.trim(),phone:$('sPhone').value.trim(),email:$('sEmail').value.trim(),area:$('sArea').value.trim(),gstin:$('sGstin').value.trim(),address:$('sAddress').value.trim()});await writeExcel();$('supplierDialog').close();render();toast('Supplier saved.')});
  $('saleForm').addEventListener('submit',async e=>{e.preventDefault();const p=db.products.find(x=>x.id===$('saleProduct').value),q=+$('saleQty').value;if(!p||q<=0)return toast('Choose a product and quantity.',true);if(p.stock<q)return toast('Insufficient stock. Available: '+p.stock,true);const c=db.customers.find(x=>x.id===$('saleCustomer').value),sub=q*p.sell,discount=+$('saleDiscount').value||0,total=Math.max(0,sub-discount),paid=+$('salePaid').value||0,x={id:uid(),invoice:'SAL-'+Date.now(),customerId:c?.id||'',customer:c?.name||'Walk-in customer',productId:p.id,product:p.name,qty:q,price:p.sell,discount,total,paid,due:Math.max(0,total-paid),payment:$('salePayment').value,date:new Date().toISOString()};p.stock-=q;db.sales.push(x);await writeExcel();e.target.reset();render();toast(x.invoice+' saved.')});
