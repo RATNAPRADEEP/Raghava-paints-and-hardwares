@@ -1,23 +1,104 @@
 # Raghava Paints & Hardwares
 
-A local-first shop operations dashboard.
+A lightweight shop operations dashboard for managing products, sales, purchases, customers, stock, and business activity using a real Excel workbook.
+
+## Live Demo
+
+**Vercel:** https://raghava-paints-and-hardwares.vercel.app/
+
+Open the live application in Microsoft Edge or Google Chrome.
+
+## Workflow
+
+**Manage → Sell → Purchase → Track → Analyze**
+
+The application is designed for a local paint and hardware shop and keeps the operational data in an Excel `.xlsx` workbook.
 
 ## Architecture
-Browser UI → JavaScript → local Excel workbook
 
-No PHP, MySQL, MongoDB, or JSON database.
+```
+Vercel App
+    ↓
+Google Sign-in / OAuth
+    ↓
+Google Picker
+    ↓
+Google Drive
+    ↓
+Raghava Paints & Hardwares .xlsx workbook
+```
 
-## Excel storage
-Download the `Raghava_Shop_Data.xlsx` workbook from the repository and connect that file from the app. The workbook currently contains product-focused demonstration data:
-- Products
+The application has no traditional PHP/MySQL/MongoDB backend. The connected Excel workbook remains the primary operational data store.
+
+## Excel Storage
+
+The workbook can contain:
+
+- Products and product inventory
+- Size-specific products and subproducts
+- Product pack sizes and pricing
+- Customers
 - Suppliers
+- Sales
 - Purchases
-- Stock Movements
+- Stock movements
+- Business/customer type reference data
 
-Customer records and assumed customer/sales sample data have been removed. The sample product catalog is modeled around the business structure of the reference paint-shop database project by Talat Zubair: product code, brand, type, shade, size/pack, price, suppliers, purchasing, and stock tracking. The implementation here uses those business concepts with a local Excel workbook instead of the original PHP/MySQL stack.
+The application reads the connected workbook in the browser and can save the updated workbook back to the same Google Drive file.
 
-## Frontend direction
-The interface uses the VoiceCall Guru frontend as a visual/product-design reference: clear workflow navigation, strong state indicators, quick actions, cards, metrics, activity tables, responsive layout, and a focused primary action. The business workflow is adapted specifically for a paint and hardware shop: Manage → Sell → Purchase → Track → Analyze.
+## Google Drive Integration
+
+The live application uses Google OAuth and Google Picker to let the user select an existing `.xlsx` workbook from Google Drive.
+
+After connection:
+
+- Products and related data are loaded from the workbook.
+- Sales and purchases update operational data.
+- Stock is adjusted when transactions are recorded.
+- **Save to Google Drive** writes the updated Excel workbook back to the selected Drive file.
+
+## Product Pricing
+
+The workbook supports size-aware pricing so products such as paint, enamel, filler, brushes, rollers, and other hardware/subproducts can have their own pack-size selling prices.
+
+Pricing is stored in Excel rather than hard-coded into the application.
+
+## Planned AI / WhatsApp Integration
+
+A future integration will allow a shop user to:
+
+1. Take a photo of a product.
+2. Send the photo through WhatsApp.
+3. AI identifies the product and pack size.
+4. The system matches it against the Excel catalogue.
+5. WhatsApp returns the corresponding selling price.
+
+Planned flow:
+
+```
+Product Photo
+    ↓
+WhatsApp
+    ↓
+Vision AI
+    ↓
+Product + Pack Size
+    ↓
+Excel Catalogue
+    ↓
+Selling Price
+    ↓
+WhatsApp Price Response
+```
+
+The AI will identify the product, while the Excel workbook remains the source for the actual price.
+
+## Frontend
+
+The interface follows a simple shop workflow with responsive cards, forms, metrics, transaction tables, customer activity, product tracking, and Google Drive synchronization.
 
 ## Run
-Use Microsoft Edge or Google Chrome on the HTTPS Vercel deployment. Click **Connect Excel Storage** and select the local `Raghava_Shop_Data.xlsx` file. The app reads and writes that workbook directly using the browser File System Access API.
+
+For the deployed version, open the Vercel URL above and connect the shop's Excel workbook through Google Drive.
+
+For local development, serve the repository over HTTPS-compatible local hosting when testing Google OAuth and Picker integration.
