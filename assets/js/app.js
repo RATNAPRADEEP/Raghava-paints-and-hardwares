@@ -1,4 +1,4 @@
-let folder=null;
+let excelFile=null;
 const FILE='Raghava_Shop_Data.xlsx';
 let db={products:[],customers:[],suppliers:[],sales:[],purchases:[]};
 const $=id=>document.getElementById(id);
@@ -18,7 +18,7 @@ Purchases:['ID','Invoice','SupplierID','Supplier','ProductID','Product','Quantit
 'Stock Movements':['ID','ProductID','Product','Type','Quantity','ReferenceID','Date']
 };
 async function writeExcel(){
- if(!folder)throw Error('Excel folder is not connected.');
+ if(!excelFile)throw Error('Excel file is not connected.');
  const wb=XLSX.utils.book_new();
  const p=db.products.map(x=>({ID:x.id,SKU:x.sku,Name:x.name,Brand:x.brand,Type:x.type,Shade:x.shade,Finish:x.finish,PackSize:x.packSize,Unit:x.unit,PurchasePrice:x.cost,SellingPrice:x.sell,GSTPercent:x.gst,Stock:x.stock,ReorderLevel:x.reorder,Rack:x.rack}));
  const c=db.customers.map(x=>({ID:x.id,ShopName:x.shop,CustomerName:x.name,Phone:x.phone,Area:x.area,GSTIN:x.gstin,CreditLimit:x.credit,Address:x.address}));
@@ -32,7 +32,7 @@ async function writeExcel(){
  XLSX.utils.book_append_sheet(wb,jsonSheet(sales,headers.Sales),'Sales');
  XLSX.utils.book_append_sheet(wb,jsonSheet(purchases,headers.Purchases),'Purchases');
  XLSX.utils.book_append_sheet(wb,jsonSheet(mov,headers['Stock Movements']),'Stock Movements');
- const h=await folder.getFileHandle(FILE,{create:true}),w=await h.createWritable();await w.write(XLSX.write(wb,{bookType:'xlsx',type:'array'}));await w.close();
+ const w=await excelFile.createWritable();await w.write(XLSX.write(wb,{bookType:'xlsx',type:'array'}));await w.close();
 }
 function read(wb,n){return wb.Sheets[n]?XLSX.utils.sheet_to_json(wb.Sheets[n],{defval:''}):[]}
 function loadData(wb){
@@ -43,16 +43,20 @@ function loadData(wb){
  db.purchases=read(wb,'Purchases').map(r=>({id:r.ID||uid(),invoice:r.Invoice||'',supplierId:r.SupplierID||'',supplier:r.Supplier||'',productId:r.ProductID||'',product:r.Product||'',qty:+(r.Quantity||0),cost:+(r.UnitCost||0),total:+(r.Total||0),paid:+(r.Paid||0),due:+(r.Due||0),payment:r.PaymentMethod||'',date:r.Date||''}));
 }
 async function connect(){
- if(!window.isSecureContext)return toast('Open the HTTPS Vercel site. Browser folder access is blocked on an insecure page.',true);
- if(!window.showDirectoryPicker)return toast('Use Microsoft Edge or Google Chrome for this feature.',true);
+ if(!window.isSecureContext)return toast('Open the HTTPS Vercel site. Browser file access is blocked on an insecure page.',true);
+ if(!window.showOpenFilePicker)return toast('Use Microsoft Edge or Google Chrome for this feature.',true);
  if(typeof XLSX==='undefined')return toast('Excel library failed to load. Check internet and refresh.',true);
  try{
-  const chosen=await window.showDirectoryPicker({mode:'readwrite'});
-  folder=chosen;
-  const h=await folder.getFileHandle(FILE,{create:true}),f=await h.getFile();
+  const [chosen]=await window.showOpenFilePicker({
+   multiple:false,
+   types:[{description:'Excel Workbook',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}]
+  });
+  if(!chosen)return;
+  excelFile=chosen;
+  const f=await excelFile.getFile();
   if(f.size){loadData(XLSX.read(await f.arrayBuffer(),{type:'array'}))}
   else{emptyDb();await writeExcel()}
-  setConnected();render();toast('Excel storage connected.');
+  setConnected();render();toast('Excel file connected.');
  }catch(e){if(e.name!=='AbortError')toast('Connection failed: '+(e.message||e.name),true)}
 }
 function setConnected(){$('dot').classList.add('on');$('connectionText').textContent='Excel storage connected';$('state').textContent='Connected — '+FILE;$('state').classList.add('on')}
