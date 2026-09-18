@@ -3,7 +3,7 @@ name: Populate paint shop workbook
 on:
   push:
     paths:
-      - ".github/workflows/populate-shop-data.yml"
+      - "README.md"
   workflow_dispatch:
 
 permissions:
