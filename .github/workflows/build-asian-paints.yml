@@ -1,0 +1,24 @@
+name: Build Asian Paints workbook
+
+on:
+  push:
+    paths:
+      - 'tmp/asian_paints_catalogue.b64'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode workbook
+        run: base64 -d tmp/asian_paints_catalogue.b64 > Raghava_Shop_Data.xlsx
+      - name: Commit workbook
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Raghava_Shop_Data.xlsx
+          git commit -m "Update products with Asian Paints catalogue" || exit 0
+          git push
