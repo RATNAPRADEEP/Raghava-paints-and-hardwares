@@ -89,27 +89,50 @@ function fill(id,items,placeholder,selected=''){const el=$(id);if(!el)return;el.
 function activeProducts(){return db.products.filter(x=>x.active!==false)}
 function activeSubs(){return db.subproducts.filter(x=>x.active!==false)}
 function productItems(){return activeProducts().slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),undefined,{sensitivity:'base',numeric:true})).map(p=>({value:p.id,label:p.name}))}
+function simpleSubCategory(v){
+ const s=String(v||'').trim().toLowerCase();
+ if(s==='brush'||s==='brushes')return 'Brushes';
+ if(s==='enamel'||s==='enamels')return 'Enamels';
+ if(s==='filler'||s==='fillers'||s==='metal paste / filler')return 'Fillers';
+ if(s==='roller'||s==='rollers')return 'Rollers';
+ if(s==='sanding paper')return 'Sanding Paper';
+ if(s==='thinner'||s==='thinners / mto'||s==='thinners/mto')return 'Thinners / MTO';
+ if(s==='stainer'||s==='stainers')return 'Stainers';
+ if(s==='sample'||s==='samples')return 'Samples';
+ return String(v||'Other');
+}
 function subproductItems(){
  const order=['Brushes','Enamels','Fillers','Rollers','Sanding Paper','Thinners / MTO','Stainers','Samples'];
- return order.filter(cat=>activeSubs().some(p=>String(p.category||'').trim()===cat)).map(cat=>({value:cat,label:cat}));
+ return order.filter(cat=>activeSubs().some(p=>simpleSubCategory(p.category)===cat)).map(cat=>({value:cat,label:cat}));
 }
 function productSizes(id){
  const p=activeProducts().find(x=>String(x.id)===String(id));if(!p)return [];
  const rows=db.productPackSizes.filter(x=>String(x.productId)===String(id)||String(x.sku||'')===String(p.sku)||String(x.productName||'').trim().toLowerCase()===String(p.name||'').trim().toLowerCase());
  return [...new Map(rows.filter(x=>x.size).map(x=>[String(x.size)+'|'+x.unit,x])).values()];
 }
+function displaySize(size,unit){
+ const s=String(size??'').trim(),u=String(unit||'').trim().toLowerCase();
+ if(!s)return '';
+ if(/[a-z"×]/i.test(s))return s;
+ if(u==='litre'||u==='liter'||u==='l')return s+'L';
+ if(u==='kg')return s+'kg';
+ if(u==='inch')return s+'"';
+ if(u==='ml')return s+' ml';
+ if(u==='grit')return s+' grit';
+ return s;
+}
 function sharedSizes(prefix){
  const main=$(prefix+'Product').value,sub=$(prefix+'Subproduct').value;
  if(sub){
-   const rows=activeSubs().filter(x=>String(x.category||'').trim()===String(sub).trim()&&x.size);
-   return [...new Map(rows.map(x=>[String(x.size)+'|'+(x.unit||''),{value:String(x.size),label:String(x.size)+' '+(x.unit||'')}])).values()];
+   const rows=activeSubs().filter(x=>simpleSubCategory(x.category)===String(sub).trim()&&x.size);
+   return [...new Map(rows.map(x=>[String(x.size)+'|'+(x.unit||''),{value:String(x.size),label:displaySize(x.size,x.unit)}])).values()];
  }
- return productSizes(main).map(x=>({value:String(x.size),label:String(x.size)+' '+x.unit}));
+ return productSizes(main).map(x=>({value:String(x.size),label:displaySize(x.size,x.unit)}));
 }
 function selectedSubproduct(prefix){
  const cat=$(prefix+'Subproduct').value,size=$(prefix+'Size').value;
  if(!cat||!size)return null;
- return activeSubs().find(x=>String(x.category||'').trim()===String(cat).trim()&&String(x.size)===String(size))||null;
+ return activeSubs().find(x=>simpleSubCategory(x.category)===String(cat).trim()&&String(x.size)===String(size))||null;
 }
 function selectedItem(prefix){
  const sub=selectedSubproduct(prefix);
