@@ -7,28 +7,30 @@
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-<header>
+<header class="topbar">
   <div>
-    <p class="eyebrow">LOCAL SHOP MANAGEMENT</p>
+    <p class="eyebrow">LOCAL SHOP OPERATIONS</p>
     <h1>Raghava Paints & Hardwares</h1>
-    <p>Sales, purchases and inventory — stored on this computer.</p>
+    <p>Sales, purchases and inventory — stored on this computer.</p><div class="connection"><span id="connectionDot" class="dot"></span><span id="connectionText">Local data not connected</span></div>
   </div>
-  <button id="connectBtn" class="primary">Connect Local Data Folder</button>
+  <button id="connectBtn" class="primary">Connect data folder</button>
 </header>
 
 <nav>
-  <button class="tab active" data-section="dashboard">Dashboard</button>
-  <button class="tab" data-section="products">Products</button>
-  <button class="tab" data-section="sales">Sales</button>
-  <button class="tab" data-section="purchases">Purchases</button>
-  <button class="tab" data-section="people">Customers & Suppliers</button>
-  <button id="backupBtn">Backup Data</button>
+  <button class="tab active" data-section="dashboard"><span>01</span> Manage</button>
+  <button class="tab" data-section="products"><span>04</span> Track</button>
+  <button class="tab" data-section="sales"><span>02</span> Sell</button>
+  <button class="tab" data-section="purchases"><span>03</span> Purchase</button>
+  <button class="tab" data-section="people"><span>05</span> Analyze</button>
+  <button id="backupBtn">Backup data</button>
 </nav>
 
 <main>
   <div id="message"></div>
 
   <section id="dashboard" class="section">
+    <div class="hero"><div><p class="eyebrow">TODAY'S OPERATIONS</p><h2>Know what is happening in your shop.</h2><p>Manage products, record transactions and keep every stock movement traceable.</p></div><div class="hero-state"><span>SYSTEM STATE</span><strong id="systemState">Ready</strong><small id="systemStateDetail">Connect your local data folder to begin.</small></div></div>
+    <div class="quick-actions"><button class="action-card" data-go="sales"><b>Record a sale</b><span>Sell stock and update inventory →</span></button><button class="action-card" data-go="purchases"><b>Record a purchase</b><span>Add incoming stock →</span></button><button class="action-card" data-go="products"><b>Manage products</b><span>Update your catalog →</span></button></div>
     <div class="stats">
       <article><span>Products</span><strong id="productsCount">0</strong></article>
       <article><span>Stock Units</span><strong id="stockCount">0</strong></article>
@@ -39,11 +41,11 @@
     </div>
 
     <div class="grid two">
-      <div class="card"><h2>Top Selling Products</h2><div id="topProducts"></div></div>
-      <div class="card"><h2>Low Stock</h2><div id="lowStock"></div></div>
+      <div class="card"><div class="card-title"><div><p class="eyebrow">PERFORMANCE</p><h2>Top Selling Products</h2></div><span class="pill">Sales volume</span></div><div id="topProducts"></div></div>
+      <div class="card"><div class="card-title"><div><p class="eyebrow">ATTENTION</p><h2>Low Stock</h2></div><span class="pill warning-pill">Needs review</span></div><div id="lowStock"></div></div>
     </div>
 
-    <div class="card"><h2>Recent Sales</h2><div class="table-wrap"><table id="recentSales"></table></div></div>
+    <div class="card"><div class="card-title"><div><p class="eyebrow">ACTIVITY</p><h2>Recent Sales</h2></div><span class="pill">Latest records</span></div><div class="table-wrap"><table id="recentSales"></table></div></div>
   </section>
 
   <section id="products" class="section hidden">
