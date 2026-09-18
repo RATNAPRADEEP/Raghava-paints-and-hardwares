@@ -4,7 +4,7 @@ const APP_ID='911229643443';
 const SCOPES='https://www.googleapis.com/auth/drive.file';
 const FILE='Raghava_Paints_Hardwares_Asian_Paints_Master_Expanded.xlsx';
 let accessToken=null,driveFileId=null,tokenClient=null;
-let db={products:[],subproducts:[],customers:[],suppliers:[],sales:[],purchases:[],myRecords:[],otherRecords:[],customerTypes:[],lists:{}};
+let db={products:[],subproducts:[],customers:[],suppliers:[],sales:[],purchases:[],receipts:[],myRecords:[],otherRecords:[],customerTypes:[],lists:{}};
 let sourceWorkbook=null;
 let workbookName=FILE;
 let gapiResolve,gisResolve;
