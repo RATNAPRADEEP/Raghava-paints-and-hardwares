@@ -562,6 +562,12 @@ function bind(){
  $('supplierForm').addEventListener('submit',async e=>{e.preventDefault();const x={id:uid(),name:$('sName').value.trim(),contact:$('sContact').value.trim(),phone:$('sPhone').value.trim(),email:$('sEmail').value.trim(),area:$('sArea').value.trim(),gstin:$('sGstin').value.trim(),address:$('sAddress').value.trim()};if(!x.name)return toast('Company is required.',true);db.suppliers.push(x);try{await writeExcel();$('supplierDialog').close();render();toast('Supplier saved and synced.')}catch(err){db.suppliers.pop();toast(err.message,true)}});
 
 }
-bind();render();
+function forceInvoiceToday(){
+ const el=$('receiptDateInput');if(!el)return;
+ const today=formatInvoiceDate(todayISO());
+ if(!el.textContent.trim()||el.textContent.trim()==='DD-MM-YYYY')el.textContent=today;
+ $('receiptDatePrint').textContent=el.textContent;
+}
+bind();render();forceInvoiceToday();
 </script><script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script><script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body></html>
