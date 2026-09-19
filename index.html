@@ -762,46 +762,55 @@ function renderInvoiceTable(){
  const list=$('invoiceList');if(!list)return;
  if(!rows.length){list.innerHTML='<div class="muted">No sales yet. Record a sale to create the first invoice.</div>';invoiceCursor=0;renderReceipt();return}
  if(invoiceCursor>=rows.length)invoiceCursor=rows.length-1;
- const selectedInvoice=loadReceiptSelection()[0]||'';
+ const selectedInvoices=loadReceiptSelection();
  list.innerHTML=rows.map((x,i)=>{
-   const selected=String(x.invoice)===String(selectedInvoice);
+   const selected=selectedInvoices.includes(String(x.invoice));
    return '<div class="invoice-list-item '+(selected?'active selected':'')+'" data-invoice-row="'+i+'"><b>'+esc(x.invoice)+'</b><span>'+esc(new Date(x.date).toLocaleDateString('en-IN'))+'</span><span>'+esc(x.product||'Sale')+' · '+money(x.total)+'</span><button type="button" class="invoice-add-btn" data-add-sale-receipt="'+i+'" title="'+(selected?'Already added to receipt':'Add this sale to receipt')+'" aria-label="'+(selected?'Already added to receipt':'Add this sale to receipt')+'" '+(selected?'disabled':'')+'>'+(selected?'✓':'+')+'</button></div>';
  }).join('');
  list.querySelectorAll('[data-invoice-row]').forEach(el=>el.onclick=()=>{invoiceCursor=+el.dataset.invoiceRow});
  list.querySelectorAll('[data-add-sale-receipt]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();if(btn.disabled)return;addSaleToReceipt(rows[+btn.dataset.addSaleReceipt]?.invoice)});
  renderReceipt();
 }
-const receiptSelectionKey='raghava_receipt_selection_v1';
-let receiptSelectedInvoice='';
+const receiptSelectionKey='raghava_receipt_selection_v2';
+let receiptSelectedInvoices=[];
 function loadReceiptSelection(){
- if(receiptSelectedInvoice)return [receiptSelectedInvoice];
+ if(Array.isArray(receiptSelectedInvoices)&&receiptSelectedInvoices.length)return receiptSelectedInvoices.slice();
  try{
-   const inv=String(sessionStorage.getItem(receiptSelectionKey)||'').trim();
-   receiptSelectedInvoice=inv;
-   return inv?[inv]:[];
- }catch(e){return[]}
+   const raw=String(sessionStorage.getItem(receiptSelectionKey)||'').trim();
+   const parsed=raw?JSON.parse(raw):[];
+   receiptSelectedInvoices=Array.isArray(parsed)?parsed.map(v=>String(v).trim()).filter(Boolean):[];
+   return receiptSelectedInvoices.slice();
+ }catch(e){
+   receiptSelectedInvoices=[];
+   return [];
+ }
 }
 function saveReceiptSelection(list){
- const inv=String(Array.isArray(list)?list[0]||'':list||'').trim();
- receiptSelectedInvoice=inv;
+ const values=Array.isArray(list)?list:[list];
+ const cleaned=[...new Set(values.map(v=>String(v??'').trim()).filter(Boolean))];
+ receiptSelectedInvoices=cleaned;
  try{
-   if(inv)sessionStorage.setItem(receiptSelectionKey,inv);
+   if(cleaned.length)sessionStorage.setItem(receiptSelectionKey,JSON.stringify(cleaned));
    else sessionStorage.removeItem(receiptSelectionKey);
    localStorage.removeItem(receiptSelectionKey);
  }catch(e){}
 }
 function clearReceiptSelection(){
- receiptSelectedInvoice='';
+ receiptSelectedInvoices=[];
  try{
    sessionStorage.removeItem(receiptSelectionKey);
+   sessionStorage.removeItem('raghava_receipt_selection_v1');
    localStorage.removeItem(receiptSelectionKey);
+   localStorage.removeItem('raghava_receipt_selection_v1');
  }catch(e){}
 }
 function addSaleToReceipt(invoice){
  const inv=String(invoice||'').trim();if(!inv)return;
  const rows=db.sales.slice().reverse(),sale=rows.find(x=>String(x.invoice)===inv);
  if(!sale)return;
- saveReceiptSelection(inv);
+ const selected=loadReceiptSelection();
+ if(!selected.includes(inv))selected.push(inv);
+ saveReceiptSelection(selected);
  invoiceCursor=Math.max(0,rows.findIndex(x=>String(x.invoice)===inv));
  invoiceManualMode=false;
  renderInvoiceTable();
