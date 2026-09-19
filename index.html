@@ -826,7 +826,16 @@ function renderReceipt(){
    const saved=savedItems?.[i]||[];const v=[saved[0]??z.product??'',saved[1]??z.size??'',saved[2]??z.qty??'',saved[3]??money(z.price||0)];
    return '<div class="receipt-item" data-receipt-item="'+i+'">'+v.map((value,j)=>'<span contenteditable="plaintext-only" spellcheck="false" data-receipt-cell="'+j+'">'+esc(value)+'</span>').join('')+'<span data-receipt-total style="display:none"></span></div>';
  }).join('');
- $('receiptDetails').textContent=String(draft.details||'').trim();
+ const legacyAutoDetails=items.map(z=>{
+   const product=String(z.product||'Sale').trim(),size=String(z.size||'').trim(),qty=String(z.qty??'').trim(),price=money(z.price||0),total=money(z.total||((Number(z.qty)||0)*(Number(z.price)||0)));
+   return [product,size,qty?'Qty: '+qty:'',price?'Rate: '+price:'',total?'Total: '+total:''].filter(Boolean).join('  ');
+ }).join('\n').trim();
+ const savedDetails=String(draft.details||'').trim();
+ if(savedDetails&&legacyAutoDetails&&savedDetails===legacyAutoDetails){
+   draft.details='';
+   saveInvoiceDraft(x.invoice,{details:''});
+ }
+ $('receiptDetails').textContent=(savedDetails&&savedDetails!==legacyAutoDetails)?savedDetails:'';
  bindReceiptEditing(x.invoice);
  updateInvoiceWritingTotal();
  $('invoicePage').textContent='Page '+(invoiceCursor+1)+' of '+rows.length;
