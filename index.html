@@ -391,12 +391,28 @@ function sourcePackSizesForProduct(p){
 }
 function productSizes(id){
  const p=activeProducts().find(x=>String(x.id)===String(id));if(!p)return [];
- const pid=String(id).trim(),sku=String(p.sku||'').trim().toLowerCase(),name=String(p.name||'').trim().toLowerCase();
+ const norm=v=>String(v??'').replace(/[^a-z0-9]/gi,'').toLowerCase();
+ const pid=norm(id),sku=norm(p.sku),name=norm(p.name);
  const rows=[
-   ...db.productPackSizes.filter(x=>String(x.productId||'').trim()===pid||String(x.sku||'').trim().toLowerCase()===sku||String(x.productName||'').trim().toLowerCase()===name),
+   ...db.productPackSizes.filter(x=>{
+     const xid=norm(x.productId),xsku=norm(x.sku),xname=norm(x.productName);
+     return (pid&&xid===pid)||(sku&&xsku===sku)||(sku&&xname===sku)||(name&&xname===name);
+   }),
    ...sourcePackSizesForProduct(p)
  ];
- return [...new Map(rows.filter(x=>x.size).map(x=>[String(x.size)+'|'+String(x.unit||''),x])).values()];
+ const unique=[...new Map(rows.filter(x=>String(x.size||'').trim()).map(x=>[norm(x.size)+'|'+norm(x.unit||''),{...x,size:String(x.size).trim(),unit:String(x.unit||p.unit||'Litre').trim()}])).values()];
+ if(unique.length)return unique;
+ // Last-resort paint-pack fallback for older/minimal workbooks whose pack-size sheet
+ // was omitted. This is deliberately limited to litre-based paint products.
+ const unit=String(p.unit||'').trim().toLowerCase();
+ const type=String(p.type||'').trim().toLowerCase();
+ const pack=String(p.packSize||'').trim();
+ if((unit==='litre'||unit==='liter'||unit==='l') &&
+    /paint|emulsion|primer|putty|waterproof|enamel|distemper|undercoat|texture|wood|metal/.test(type) &&
+    (!pack||/see pack sizes sheet|various|not yet verified/i.test(pack))){
+   return ['1','4','10','20'].map(size=>({productId:String(p.id),sku:p.sku||'',productName:p.name||'',size,unit:'Litre',fallback:true}));
+ }
+ return unique;
 }
 function displaySize(size,unit){
  const s=String(size??'').trim(),u=String(unit||'').trim().toLowerCase();
@@ -476,7 +492,13 @@ function updateSalePricePreview(){
  const unit=getTransactionPrice('sale',p),total=Math.max(0,q*unit-discount);
  box.textContent='Selling price: '+money(unit)+' per selected size/unit · Sale total: '+money(total);
 }
-function updateSharedSize(prefix){fill(prefix+'Size',sharedSizes(prefix),'Choose size');}
+function updateSharedSize(prefix){
+ const el=$(prefix+'Size');
+ if(!el)return;
+ const current=el.value;
+ fill(prefix+'Size',sharedSizes(prefix),'Choose size');
+ if(current&&Array.from(el.options).some(o=>o.value===current))el.value=current;
+}
 function customerItems(){return db.customers.filter(c=>c.active!==false).map(c=>({value:c.id,label:`${c.name}${c.shop?' — '+c.shop:''} — ${c.type||'Walk-in Customer'}`}))}
 function supplierItems(){return db.suppliers.map(s=>({value:s.id,label:`${s.name}${s.contact?' — '+s.contact:''}`}))}function customerTypeItems(){return db.customerTypes.length?db.customerTypes:['Walk-in Customer','Painter','Contractor','Builder / Developer','Interior Designer / Architect','Commercial / Institutional','Hardware / Paint Dealer','Carpenter / Fabricator','Property / Facility Manager','Other']}
 function categories(){return [...new Set(activeSubs().map(x=>x.category).filter(Boolean))].sort()}
