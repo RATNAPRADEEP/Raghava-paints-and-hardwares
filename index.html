@@ -44,12 +44,12 @@
  #invoices.section{display:block!important}
 }<style>
 .invoice-stage{position:relative}
-.receipt-print-animation{position:absolute;inset:0;z-index:50;pointer-events:none;display:none;overflow:hidden;background:transparent}
+.receipt-print-animation{position:absolute;inset:0;z-index:80;pointer-events:none;display:none;overflow:hidden;background:transparent}
 .receipt-print-animation.show{display:block}
-.receipt-print-animation .tear-old{position:absolute;left:0;right:0;bottom:0;height:62%;background:#fbfaf5;box-shadow:0 -8px 24px rgba(31,41,55,.12);transform:translateY(0);animation:tearOld 2s cubic-bezier(.22,.61,.36,1) forwards;clip-path:polygon(0 0,100% 0,100% 91%,97% 96%,94% 91%,91% 97%,88% 92%,85% 98%,82% 91%,79% 96%,76% 92%,73% 98%,70% 91%,67% 97%,64% 92%,61% 98%,58% 91%,55% 96%,52% 92%,49% 98%,46% 91%,43% 97%,40% 92%,37% 98%,34% 91%,31% 96%,28% 92%,25% 98%,22% 91%,19% 97%,16% 92%,13% 98%,10% 91%,7% 96%,4% 92%,0 97%)}
-.receipt-print-animation .tear-new{position:absolute;left:0;right:0;bottom:-62%;height:62%;background:#fbfaf5;box-shadow:0 -8px 24px rgba(31,41,55,.16);animation:tearNew 2s cubic-bezier(.22,.61,.36,1) forwards;clip-path:polygon(0 8%,4% 14%,8% 7%,12% 15%,16% 8%,20% 14%,24% 7%,28% 15%,32% 8%,36% 14%,40% 7%,44% 15%,48% 8%,52% 14%,56% 7%,60% 15%,64% 8%,68% 14%,72% 7%,76% 15%,80% 8%,84% 14%,88% 7%,92% 15%,96% 8%,100% 14%,100% 100%,0 100%)}
-@keyframes tearOld{to{transform:translateY(-105%);opacity:.98}}
-@keyframes tearNew{to{bottom:0}}
+.receipt-print-animation .tear-old{position:absolute;inset:0;background:#fbfaf5;box-shadow:0 14px 26px rgba(31,41,55,.22);transform-origin:50% 100%;transform:translateY(0) rotateX(0deg);backface-visibility:hidden;clip-path:polygon(0 0,100% 0,100% 97%,97% 98%,94% 96%,91% 99%,88% 96%,85% 98%,82% 95%,79% 99%,76% 96%,73% 98%,70% 95%,67% 99%,64% 96%,61% 98%,58% 95%,55% 99%,52% 96%,49% 98%,46% 95%,43% 99%,40% 96%,37% 98%,34% 95%,31% 99%,28% 96%,25% 98%,22% 95%,19% 99%,16% 96%,13% 98%,10% 95%,7% 99%,4% 96%,0 98%);animation:liftAndTear 2s cubic-bezier(.22,.61,.36,1) forwards}
+.receipt-print-animation .tear-new{position:absolute;left:0;right:0;top:100%;height:100%;background:#fbfaf5;box-shadow:0 -10px 24px rgba(31,41,55,.16);clip-path:polygon(0 3%,4% 1%,8% 4%,12% 1%,16% 3%,20% 0,24% 3%,28% 1%,32% 4%,36% 1%,40% 3%,44% 0,48% 3%,52% 1%,56% 4%,60% 1%,64% 3%,68% 0,72% 3%,76% 1%,80% 4%,84% 1%,88% 3%,92% 0,96% 3%,100% 1%,100% 100%,0 100%);animation:feedNew 2s cubic-bezier(.22,.61,.36,1) forwards}
+@keyframes liftAndTear{0%{transform:translateY(0) rotateX(0deg);filter:drop-shadow(0 0 0 rgba(0,0,0,0))}55%{transform:translateY(-18%) rotateX(1.5deg);filter:drop-shadow(0 10px 9px rgba(0,0,0,.12))}100%{transform:translateY(-108%) rotateX(2deg);filter:drop-shadow(0 14px 12px rgba(0,0,0,.16))}}
+@keyframes feedNew{0%{top:100%}55%{top:18%}100%{top:0}}
 @media print{.receipt-print-animation{display:none!important}}
 </style></style></head>
 <body>
@@ -601,7 +601,16 @@ function printInvoice(){
  const oldTitle=document.title;
  document.title=' ';
  const anim=$('receiptPrintAnimation');
- if(anim){
+ const paper=$('receiptPaper');
+ if(anim&&paper){
+   const old=anim.querySelector('.tear-old');
+   const fresh=anim.querySelector('.tear-new');
+   if(old){
+     old.innerHTML=paper.innerHTML;
+     const nested=old.querySelector('#receiptPrintAnimation');
+     if(nested)nested.remove();
+   }
+   if(fresh)fresh.innerHTML='';
    anim.classList.remove('show');
    void anim.offsetWidth;
    anim.classList.add('show');
