@@ -772,21 +772,26 @@ function renderInvoiceTable(){
  renderReceipt();
 }
 const receiptSelectionKey='raghava_receipt_selection_v1';
+let receiptSelectedInvoice='';
 function loadReceiptSelection(){
+ if(receiptSelectedInvoice)return [receiptSelectedInvoice];
  try{
    const inv=String(sessionStorage.getItem(receiptSelectionKey)||'').trim();
+   receiptSelectedInvoice=inv;
    return inv?[inv]:[];
  }catch(e){return[]}
 }
 function saveReceiptSelection(list){
+ const inv=String(Array.isArray(list)?list[0]||'':list||'').trim();
+ receiptSelectedInvoice=inv;
  try{
-   const inv=String(Array.isArray(list)?list[0]||'':list||'').trim();
    if(inv)sessionStorage.setItem(receiptSelectionKey,inv);
    else sessionStorage.removeItem(receiptSelectionKey);
    localStorage.removeItem(receiptSelectionKey);
  }catch(e){}
 }
 function clearReceiptSelection(){
+ receiptSelectedInvoice='';
  try{
    sessionStorage.removeItem(receiptSelectionKey);
    localStorage.removeItem(receiptSelectionKey);
@@ -797,10 +802,8 @@ function addSaleToReceipt(invoice){
  const rows=db.sales.slice().reverse(),sale=rows.find(x=>String(x.invoice)===inv);
  if(!sale)return;
  saveReceiptSelection(inv);
- try{localStorage.removeItem('raghava_invoice_drafts_v1')}catch(e){}
  invoiceCursor=Math.max(0,rows.findIndex(x=>String(x.invoice)===inv));
  invoiceManualMode=false;
- renderReceipt();
  renderInvoiceTable();
  toast('Sale added to receipt.',false);
 }
