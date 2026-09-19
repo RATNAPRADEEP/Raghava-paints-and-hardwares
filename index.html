@@ -871,7 +871,7 @@ function receiptSizeLabel(z){
 function renderReceipt(){
  const rows=db.sales.slice().reverse();
  if(invoiceManualMode){
-   const key='__blank_invoice__',draft=loadInvoiceDrafts()[key]||{customer:'',date:todayISO(),items:Array.from({length:7},()=>['','','','',''])};
+   const key='__blank_invoice__',draft=loadInvoiceDrafts()[key]||{customer:'',date:todayISO(),items:[]};
    $('receiptCustomer').textContent=draft.customer||'';
    syncInvoiceDateDisplay(key);
    $('receiptItems').innerHTML=(draft.items||[]).map((row,i)=>'<div class="receipt-item" data-receipt-item="'+i+'">'+row.map((value,j)=>'<span contenteditable="true" spellcheck="false" data-receipt-cell="'+j+'">'+esc(value)+'</span>').join('')+'</div>').join('');
