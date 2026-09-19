@@ -146,11 +146,27 @@ Purchases:['ID','Invoice','SupplierID','Supplier','ProductID','ProductClass','Pr
 function read(wb,n){return wb.Sheets[n]?XLSX.utils.sheet_to_json(wb.Sheets[n],{defval:''}):[]}
 function setSheet(wb,name,data,cols){wb.Sheets[name]=jsonSheet(data,cols);if(!wb.SheetNames.includes(name))XLSX.utils.book_append_sheet(wb,wb.Sheets[name],name)}
 function optList(name,fallback=[]){return db.lists[name]?.length?db.lists[name]:fallback}
+function sheetCell(row,...names){
+ const keys=Object.keys(row||{});
+ for(const name of names){
+   if(row?.[name]!==undefined&&row?.[name]!==null)return row[name];
+   const target=String(name).replace(/[^a-z0-9]/gi,'').toLowerCase();
+   const key=keys.find(k=>String(k).replace(/[^a-z0-9]/gi,'').toLowerCase()===target);
+   if(key)return row[key];
+ }
+ return '';
+}
 function loadData(wb){
  sourceWorkbook=wb;
  let pr=read(wb,'Products_Inventory');if(!pr.length)pr=read(wb,'Products_Catalogue');if(!pr.length)pr=read(wb,'Products');
  db.lists={};const lr=read(wb,'Lists');if(lr.length){const keys=Object.keys(lr[0]);keys.forEach(k=>{db.lists[k]=lr.map(r=>r[k]).filter(v=>v!==''&&v!=null).map(String)})}
- db.customerTypes=read(wb,'Customer_Types').map(r=>r.CustomerType||r.Type||'').filter(Boolean);db.productPackSizes=read(wb,'Product_Pack_Sizes').map(r=>({productId:String(r.ProductID??'').trim(),productName:String(r.ProductName||r.Name||'').trim(),size:String(r.PackSize??r.Size??'').trim(),unit:r.Unit||'Litre'})).filter(r=>r.size&&(r.productId||r.productName));
+ db.customerTypes=read(wb,'Customer_Types').map(r=>r.CustomerType||r.Type||'').filter(Boolean);db.productPackSizes=read(wb,'Product_Pack_Sizes').map(r=>({
+  productId:String(sheetCell(r,'ProductID','Product ID','ID')).trim(),
+  sku:String(sheetCell(r,'SKU','ProductSKU','Product SKU')).trim(),
+  productName:String(sheetCell(r,'ProductName','Product Name','Product','Name')).trim(),
+  size:String(sheetCell(r,'PackSize','Pack Size','Size','Pack')).trim(),
+  unit:String(sheetCell(r,'Unit','UOM','Units')||'Litre').trim()
+})).filter(r=>r.size&&(r.productId||r.productName||r.sku));
  db.subproducts=read(wb,'Subproducts').map(r=>({id:r.ID||uid(),sku:r.SKU||'',category:r.Category||'Other',brand:r.Brand||'',name:r.ProductName||r.Name||'',variant:r.Variant||'',size:String(r.Size??''),unit:r.Unit||'Piece',cost:+(r.PurchasePrice||0),sell:+(r.SellingPrice||0),gst:+(r.GSTPercent||0),stock:+(r.Stock||0),reorder:(r.ReorderLevel===''||r.ReorderLevel==null)?0:+r.ReorderLevel,supplier:r.Supplier||'',barcode:r.Barcode||'',rack:r.Rack||'',active:String(r.Active).toLowerCase()!=='false',source:r.Source||'',verifiedOn:r.VerifiedOn||'',notes:r.Notes||''}));
  if(!db.subproducts.length)db.subproducts=FALLBACK_SUBPRODUCTS.map(x=>({...x}));
  db.products=pr.map(r=>({id:r.ID||uid(),sku:r.SKU||'',name:r.Name||r.ProductName||'',brand:r.Brand||'',type:r.Type||r.ProductType||'',shade:r.Shade||'',finish:r.Finish||'',packSize:r.PackSize||r.Size||'',unit:r.Unit||'Litre',cost:+(r.PurchasePrice||0),sell:+(r.SellingPrice||r.Price||0),gst:+(r.GSTPercent||r.GST||0),stock:+(r.Stock||0),reorder:(r.ReorderLevel===''||r.ReorderLevel==null)?0:+r.ReorderLevel,rack:r.Rack||'',supplier:r.Supplier||'',barcode:r.Barcode||'',active:String(r.Active).toLowerCase()!=='false',createdAt:r.CreatedAt||'',priceBasis:r.PriceBasis||'',source:r.Source||'',verifiedOn:r.VerifiedOn||''}));
@@ -290,8 +306,9 @@ function subproductItems(){
 }
 function productSizes(id){
  const p=activeProducts().find(x=>String(x.id)===String(id));if(!p)return [];
- const rows=db.productPackSizes.filter(x=>String(x.productId)===String(id)||String(x.sku||'')===String(p.sku)||String(x.productName||'').trim().toLowerCase()===String(p.name||'').trim().toLowerCase());
- return [...new Map(rows.filter(x=>x.size).map(x=>[String(x.size)+'|'+x.unit,x])).values()];
+ const pid=String(id).trim(),sku=String(p.sku||'').trim().toLowerCase(),name=String(p.name||'').trim().toLowerCase();
+ const rows=db.productPackSizes.filter(x=>String(x.productId||'').trim()===pid||String(x.sku||'').trim().toLowerCase()===sku||String(x.productName||'').trim().toLowerCase()===name);
+ return [...new Map(rows.filter(x=>x.size).map(x=>[String(x.size)+'|'+String(x.unit||''),x])).values()];
 }
 function displaySize(size,unit){
  const s=String(size??'').trim(),u=String(unit||'').trim().toLowerCase();
@@ -312,7 +329,10 @@ function sharedSizes(prefix){
  }
  const rows=productSizes(main);if(rows.length)return rows.map(x=>({value:String(x.size),label:displaySize(x.size,x.unit)}));
  const p=activeProducts().find(x=>String(x.id)===String(main));
- if(p&&String(p.packSize||'').trim())return [{value:String(p.packSize),label:displaySize(p.packSize,p.unit)}];
+ if(p&&String(p.packSize||'').trim()){
+   const parts=String(p.packSize).split(/[,;|\n]+/).map(x=>x.trim()).filter(Boolean);
+   return [...new Map(parts.map(size=>[size+'|'+String(p.unit||''),{value:size,label:displaySize(size,p.unit)}])).values()];
+ }
  return [];
 }
 function selectedSubproduct(prefix){
