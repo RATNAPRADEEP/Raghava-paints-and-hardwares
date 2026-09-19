@@ -625,17 +625,17 @@ function printInvoice(){
  const printStyles=`
 @page{size:A4 portrait;margin:0}
 *{box-sizing:border-box}
-html,body{margin:0!important;padding:0!important;background:#fff!important}
+html,body{margin:0;padding:0;background:#fff}
 body{width:760px;height:1060px;overflow:hidden}
-.receipt-paper{position:relative!important;display:block!important;width:760px!important;height:1060px!important;min-height:1060px!important;margin:0!important;padding:58px 58px 50px!important;background:#fbfaf5!important;color:#27156f!important;overflow:hidden!important;font-family:"Noto Sans Telugu","Nirmala UI",Georgia,serif!important;box-shadow:none!important}
+.receipt-paper{position:relative;display:block;width:760px;height:1060px;min-height:1060px;margin:0;padding:58px 58px 50px;background:#fbfaf5;color:#27156f;overflow:hidden;font-family:"Noto Sans Telugu","Nirmala UI",Georgia,serif;box-shadow:none}
 .receipt-paper:before{content:"";position:absolute;left:0;right:0;top:0;height:62px;background:linear-gradient(#ecebe7,#faf9f5);border-bottom:1px solid #ddd9cf;border-radius:0 0 7px 7px;z-index:0}
 .receipt-paper>*{position:relative;z-index:1}
 .receipt-top{margin-top:8px;display:flex;justify-content:center;align-items:flex-start;min-height:70px}
 .receipt-est{font-family:Georgia,serif;text-decoration:underline;font-weight:800;font-size:22px;letter-spacing:.5px}
 .receipt-phone{position:absolute;right:0;top:0;text-align:right;font-weight:800;font-size:16px;line-height:1.25}
-.receipt-banner{position:relative!important;margin:8px 0 0!important;height:45px!important;padding:7px 18px!important;text-align:center!important;font-weight:900!important;font-size:29px!important;line-height:1.25!important;color:#fff!important;overflow:hidden!important;background:transparent!important}
-.receipt-banner svg{position:absolute!important;left:0!important;top:0!important;width:100%!important;height:100%!important;display:block!important}
-.receipt-banner span{position:relative!important;z-index:2!important;color:#fff!important}
+.receipt-banner{position:relative;height:45px;margin:8px 0 0;padding:7px 18px;text-align:center;font-weight:900;font-size:29px;line-height:1.25;color:#fff;overflow:hidden;background:transparent}
+.receipt-banner svg{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+.receipt-banner span{position:relative;z-index:2;color:#fff}
 .receipt-address{text-align:center;font-weight:800;font-size:18px;margin-top:8px}
 .receipt-line{border-top:2px solid #35147b;margin:8px 0}
 .receipt-dealer{text-align:center;font-weight:900;font-size:21px}
@@ -644,22 +644,22 @@ body{width:760px;height:1060px;overflow:hidden}
 .receipt-meta i{font-style:normal;font-weight:500;letter-spacing:2px}
 .receipt-customer{display:inline-block;vertical-align:top;min-width:250px;max-width:calc(100% - 150px);margin-left:8px;font-weight:800;white-space:normal;overflow:hidden;outline:none;border-bottom:2px dotted #35147b;min-height:24px;max-height:52px;line-height:26px;padding:0 2px}
 .receipt-date-wrap{display:inline-flex;align-items:center;gap:4px;position:relative;top:-2px}
-.receipt-date-print{display:inline-block!important;width:125px;min-height:28px;padding:0 2px 1px;border-bottom:2px dotted #35147b;text-align:center;box-sizing:border-box;color:#27156f;font-weight:800}
+.receipt-date-print{display:inline-block;width:125px;min-height:28px;padding:0 2px 1px;border-bottom:2px dotted #35147b;text-align:center;box-sizing:border-box;color:#27156f;font-weight:800}
 .receipt-body{position:relative;min-height:690px;border-left:2px solid #35147b;padding:16px 0 0 14px}
 .receipt-items{min-height:0}
 .receipt-item{display:grid;grid-template-columns:2.6fr 1fr .7fr .8fr 1fr;gap:8px;font-family:"Segoe Print","Bradley Hand","Comic Sans MS",cursive;font-size:17px;line-height:1.75;color:#27156f;padding:2px 4px}
 .receipt-item span:nth-child(n+3){text-align:right}
 .receipt-details{display:block;position:relative;width:100%;height:650px;margin:10px 4px 0;padding:8px 4px;border:0;outline:none;background:transparent;font-family:"Times New Roman",Times,serif;font-size:24px;line-height:1.7;color:#27156f;white-space:pre-wrap}
-.invoice-writing-total{display:none!important}
+.invoice-writing-total{display:none}
 .receipt-footer{position:absolute;left:58px;right:58px;bottom:34px;border-top:1px solid #35147b;height:1px}
-.invoice-bottom{display:none!important}
 `;
+ const html='<!doctype html><html><head><meta charset="utf-8"><title>Invoice</title><style>'+printStyles+'</style></head><body>'+printPaper.outerHTML+'</body></html>';
  w.document.open();
- w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Invoice</title><style>'+printStyles+'</style></head><body></body></html>');
+ w.document.write(html);
  w.document.close();
- w.document.body.appendChild(printPaper);
  w.focus();
- setTimeout(()=>{w.print();setTimeout(()=>w.close(),1000)},500);
+ const doPrint=()=>setTimeout(()=>{w.print();setTimeout(()=>w.close(),1000)},150);
+ if(w.document.fonts&&w.document.fonts.ready){w.document.fonts.ready.then(doPrint).catch(doPrint)}else{doPrint()}
 }
 function bind(){
  $('purchaseInvoicePhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'purchase');e.target.value=''});$('scanPurchaseInvoice').addEventListener('click',()=>$('purchaseInvoicePhoto').click());$('customerPhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'customer');e.target.value=''});$('scanCustomer').addEventListener('click',()=>$('customerPhoto').click());
