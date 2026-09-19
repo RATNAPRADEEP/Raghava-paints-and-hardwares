@@ -501,6 +501,9 @@ function bindReceiptEditing(key){
  $('receiptCustomer').onkeydown=e=>{if(e.key==='Enter'){const lines=$('receiptCustomer').innerText.split(/\n/);if(lines.length>=2)e.preventDefault()}};
  $('receiptCustomer').oninput=()=>{const el=$('receiptCustomer'),lines=el.innerText.split(/\n/).slice(0,2);if(el.innerText.split(/\n/).length>2){el.innerText=lines.join('\n');const r=document.createRange(),s=window.getSelection();r.selectNodeContents(el);r.collapse(false);s.removeAllRanges();s.addRange(r)}saveInvoiceDraft(key,{customer:el.innerText})};
  $('receiptItems').querySelectorAll('[data-receipt-cell]').forEach(el=>el.addEventListener('input',()=>{
+   const row=el.closest('.receipt-item'),cells=Array.from(row.querySelectorAll('[data-receipt-cell]'));
+   const qty=Number(cells[2]?.textContent||0),price=Number(String(cells[3]?.textContent||'').replace(/[^0-9.-]/g,'')||0);
+   const totalEl=row.querySelector('[data-receipt-total]');if(totalEl)totalEl.textContent=qty&&price?money(qty*price):'';
    const current=Array.from($('receiptItems').querySelectorAll('.receipt-item')).map(row=>Array.from(row.querySelectorAll('[data-receipt-cell]')).map(cell=>cell.textContent));
    saveInvoiceDraft(key,{items:current});
  }));
@@ -538,8 +541,8 @@ function renderReceipt(){
  const items=rows.filter(z=>String(z.invoice)===String(x.invoice));
  const savedItems=Array.isArray(draft.items)&&draft.items.length===items.length?draft.items:null;
  $('receiptItems').innerHTML=items.map((z,i)=>{
-   const v=savedItems?.[i]||[z.product||'',z.size||'',z.qty||'',money(z.price||0),money(z.total||0)];
-   return '<div class="receipt-item" data-receipt-item="'+i+'">'+v.map((value,j)=>'<span contenteditable="plaintext-only" spellcheck="false" data-receipt-cell="'+j+'">'+esc(value)+'</span>').join('')+'</div>';
+   const saved=savedItems?.[i]||[];const v=[saved[0]??z.product??'',saved[1]??z.size??'',saved[2]??z.qty??'',saved[3]??money(z.price||0),''];
+   const total=Number(v[2])&&Number(v[3])?money(Number(v[2])*Number(String(v[3]).replace(/[^0-9.-]/g,''))):'';return '<div class="receipt-item" data-receipt-item="'+i+'">'+v.slice(0,4).map((value,j)=>'<span contenteditable="plaintext-only" spellcheck="false" data-receipt-cell="'+j+'">'+esc(value)+'</span>').join('')+'<span data-receipt-total>'+esc(total)+'</span></div>';
  }).join('');
  $('receiptDetails').textContent=draft.details||'';
  bindReceiptEditing(x.invoice);
