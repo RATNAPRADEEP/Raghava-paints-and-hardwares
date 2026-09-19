@@ -763,9 +763,25 @@ function renderInvoiceTable(){
  if(!rows.length){list.innerHTML='<div class="muted">No sales yet. Record a sale to create the first invoice.</div>';invoiceCursor=0;renderReceipt();return}
  if(invoiceCursor>=rows.length)invoiceCursor=rows.length-1;
  list.innerHTML=rows.map((x,i)=>'<div class="invoice-list-item '+(i===invoiceCursor?'active':'')+'" data-invoice-row="'+i+'"><b>'+esc(x.invoice)+'</b><span>'+esc(new Date(x.date).toLocaleDateString('en-IN'))+'</span><span>'+esc(x.product||'Sale')+' · '+money(x.total)+'</span><button type="button" class="invoice-add-btn" data-add-sale-receipt="'+i+'" title="Add this sale to receipt" aria-label="Add this sale to receipt">+</button></div>').join('');
- list.querySelectorAll('[data-invoice-row]').forEach(el=>el.onclick=()=>{invoiceCursor=+el.dataset.invoiceRow;invoiceManualMode=false;renderReceipt()});
- list.querySelectorAll('[data-add-sale-receipt]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();invoiceCursor=+btn.dataset.addSaleReceipt;invoiceManualMode=false;renderReceipt();toast('Sale added to receipt.',false)});
+ list.querySelectorAll('[data-invoice-row]').forEach(el=>el.onclick=()=>{invoiceCursor=+el.dataset.invoiceRow;clearReceiptSelection();invoiceManualMode=false;renderReceipt()});
+ list.querySelectorAll('[data-add-sale-receipt]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();addSaleToReceipt(rows[+btn.dataset.addSaleReceipt]?.invoice)});
  renderReceipt();
+}
+const receiptSelectionKey='raghava_receipt_selection_v1';
+function loadReceiptSelection(){try{return JSON.parse(localStorage.getItem(receiptSelectionKey)||'[]')||[]}catch(e){return[]}}
+function saveReceiptSelection(list){try{localStorage.setItem(receiptSelectionKey,JSON.stringify([...new Set(list)]))}catch(e){}}
+function clearReceiptSelection(){try{localStorage.removeItem(receiptSelectionKey)}catch(e){}}
+function addSaleToReceipt(invoice){
+ const inv=String(invoice||'').trim();if(!inv)return;
+ const rows=db.sales.slice().reverse(),sale=rows.find(x=>String(x.invoice)===inv);
+ if(!sale)return;
+ const selected=loadReceiptSelection();
+ if(selected.includes(inv)){toast('This sale is already in the receipt.',false);invoiceCursor=Math.max(0,rows.findIndex(x=>String(x.invoice)===inv));invoiceManualMode=false;renderReceipt();return}
+ selected.push(inv);saveReceiptSelection(selected);
+ invoiceCursor=Math.max(0,rows.findIndex(x=>String(x.invoice)===inv));
+ invoiceManualMode=false;
+ renderReceipt();
+ toast('Sale added to receipt.',false);
 }
 let invoiceManualMode=false;
 function syncInvoiceDateDisplay(key){
@@ -813,29 +829,39 @@ function renderReceipt(){
    document.querySelectorAll('[data-invoice-row]').forEach(el=>el.classList.remove('active'));
    return;
  }
+ const selected=loadReceiptSelection();
+ const selectedSales=selected.map(inv=>rows.find(z=>String(z.invoice)===String(inv))).filter(Boolean);
+ if(selectedSales.length){
+   const key='__combined_receipt__',draft=loadInvoiceDrafts()[key]||{};
+   const first=selectedSales[0];
+   $('receiptCustomer').textContent=draft.customer??(first.customer||'');
+   syncInvoiceDateDisplay(key);
+   const hasSavedItems=Array.isArray(draft.items)&&draft.items.length===selectedSales.length&&draft.items.some(row=>Array.isArray(row)&&row.some(v=>String(v??'').trim()!==''));
+   const savedItems=hasSavedItems?draft.items:null;
+   $('receiptItems').innerHTML=selectedSales.map((z,i)=>{
+     const saved=savedItems?.[i]||[];const v=[saved[0]??z.product??'',saved[1]??z.size??'',saved[2]??z.qty??'',saved[3]??money(z.price||0)];
+     return '<div class="receipt-item" data-receipt-item="'+i+'">'+v.map((value,j)=>'<span contenteditable="plaintext-only" spellcheck="false" data-receipt-cell="'+j+'">'+esc(value)+'</span>').join('')+'<span data-receipt-total style="display:none"></span></div>';
+   }).join('');
+   $('receiptDetails').textContent=String(draft.details||'').trim();
+   bindReceiptEditing(key);
+   updateInvoiceWritingTotal();
+   $('invoicePage').textContent=selectedSales.length+' sale'+(selectedSales.length===1?'':'s')+' added';
+   document.querySelectorAll('[data-invoice-row]').forEach((el)=>el.classList.toggle('active',selected.includes(rows[+el.dataset.invoiceRow]?.invoice)));
+   return;
+ }
  const x=rows[invoiceCursor];
  if(!x){invoiceManualMode=true;renderReceipt();return}
  const drafts=loadInvoiceDrafts(),draft=drafts[String(x.invoice)]||{};
- const invoiceDate=draft.date||String(x.date||'').slice(0,10)||todayISO();
  $('receiptCustomer').textContent=draft.customer??(x.customer||'');
  syncInvoiceDateDisplay(x.invoice);
- const items=rows.filter(z=>String(z.invoice)===String(x.invoice));
- const hasSavedItems=Array.isArray(draft.items)&&draft.items.length===items.length&&draft.items.some(row=>Array.isArray(row)&&row.some(v=>String(v??'').trim()!==''));
+ const items=[x];
+ const hasSavedItems=Array.isArray(draft.items)&&draft.items.length===1&&draft.items.some(row=>Array.isArray(row)&&row.some(v=>String(v??'').trim()!==''));
  const savedItems=hasSavedItems?draft.items:null;
  $('receiptItems').innerHTML=items.map((z,i)=>{
    const saved=savedItems?.[i]||[];const v=[saved[0]??z.product??'',saved[1]??z.size??'',saved[2]??z.qty??'',saved[3]??money(z.price||0)];
    return '<div class="receipt-item" data-receipt-item="'+i+'">'+v.map((value,j)=>'<span contenteditable="plaintext-only" spellcheck="false" data-receipt-cell="'+j+'">'+esc(value)+'</span>').join('')+'<span data-receipt-total style="display:none"></span></div>';
  }).join('');
- const legacyAutoDetails=items.map(z=>{
-   const product=String(z.product||'Sale').trim(),size=String(z.size||'').trim(),qty=String(z.qty??'').trim(),price=money(z.price||0),total=money(z.total||((Number(z.qty)||0)*(Number(z.price)||0)));
-   return [product,size,qty?'Qty: '+qty:'',price?'Rate: '+price:'',total?'Total: '+total:''].filter(Boolean).join('  ');
- }).join('\n').trim();
- const savedDetails=String(draft.details||'').trim();
- if(savedDetails&&legacyAutoDetails&&savedDetails===legacyAutoDetails){
-   draft.details='';
-   saveInvoiceDraft(x.invoice,{details:''});
- }
- $('receiptDetails').textContent=(savedDetails&&savedDetails!==legacyAutoDetails)?savedDetails:'';
+ $('receiptDetails').textContent=String(draft.details||'').trim();
  bindReceiptEditing(x.invoice);
  updateInvoiceWritingTotal();
  $('invoicePage').textContent='Page '+(invoiceCursor+1)+' of '+rows.length;
