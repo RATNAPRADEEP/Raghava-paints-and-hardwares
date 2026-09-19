@@ -329,6 +329,7 @@ async function restoreDriveConnection(){
    if(!bin.ok)throw Error('Saved Google Drive workbook could not be loaded.');
    loadData(XLSX.read(await bin.arrayBuffer(),{type:'array'}));
    cacheWorkbook(sourceWorkbook);
+   await syncPendingPurchases();
    if(!db.products.length)throw Error('No products were found in the saved Google Drive workbook.');
    setConnected(file.name||FILE);
    render();
