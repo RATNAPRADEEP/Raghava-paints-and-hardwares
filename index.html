@@ -46,10 +46,10 @@
 .invoice-stage{position:relative}
 .receipt-print-animation{position:absolute;inset:0;z-index:50;pointer-events:none;display:none;overflow:hidden;background:transparent}
 .receipt-print-animation.show{display:block}
-.receipt-print-animation .tear-old{position:absolute;left:8%;right:8%;top:12%;height:55%;background:#fbfaf5;box-shadow:0 8px 28px rgba(31,41,55,.15);transform:translateY(0);animation:tearOld 2s ease-in forwards;clip-path:polygon(0 0,100% 0,100% 88%,97% 94%,94% 89%,91% 96%,88% 90%,85% 95%,82% 89%,79% 96%,76% 90%,73% 95%,70% 89%,67% 96%,64% 90%,61% 95%,58% 89%,55% 96%,52% 90%,49% 95%,46% 89%,43% 96%,40% 90%,37% 95%,34% 89%,31% 96%,28% 90%,25% 95%,22% 89%,19% 96%,16% 90%,13% 95%,10% 89%,7% 96%,4% 90%,0 94%)}
-.receipt-print-animation .tear-new{position:absolute;left:8%;right:8%;bottom:-60%;height:58%;background:#fbfaf5;box-shadow:0 8px 28px rgba(31,41,55,.15);animation:tearNew 2s ease-out forwards;clip-path:polygon(0 8%,4% 14%,8% 7%,12% 15%,16% 8%,20% 14%,24% 7%,28% 15%,32% 8%,36% 14%,40% 7%,44% 15%,48% 8%,52% 14%,56% 7%,60% 15%,64% 8%,68% 14%,72% 7%,76% 15%,80% 8%,84% 14%,88% 7%,92% 15%,96% 8%,100% 14%,100% 100%,0 100%)}
-@keyframes tearOld{to{transform:translateY(-115%);opacity:.92}}
-@keyframes tearNew{to{bottom:4%}}
+.receipt-print-animation .tear-old{position:absolute;left:0;right:0;bottom:0;height:62%;background:#fbfaf5;box-shadow:0 -8px 24px rgba(31,41,55,.12);transform:translateY(0);animation:tearOld 2s cubic-bezier(.22,.61,.36,1) forwards;clip-path:polygon(0 0,100% 0,100% 91%,97% 96%,94% 91%,91% 97%,88% 92%,85% 98%,82% 91%,79% 96%,76% 92%,73% 98%,70% 91%,67% 97%,64% 92%,61% 98%,58% 91%,55% 96%,52% 92%,49% 98%,46% 91%,43% 97%,40% 92%,37% 98%,34% 91%,31% 96%,28% 92%,25% 98%,22% 91%,19% 97%,16% 92%,13% 98%,10% 91%,7% 96%,4% 92%,0 97%)}
+.receipt-print-animation .tear-new{position:absolute;left:0;right:0;bottom:-62%;height:62%;background:#fbfaf5;box-shadow:0 -8px 24px rgba(31,41,55,.16);animation:tearNew 2s cubic-bezier(.22,.61,.36,1) forwards;clip-path:polygon(0 8%,4% 14%,8% 7%,12% 15%,16% 8%,20% 14%,24% 7%,28% 15%,32% 8%,36% 14%,40% 7%,44% 15%,48% 8%,52% 14%,56% 7%,60% 15%,64% 8%,68% 14%,72% 7%,76% 15%,80% 8%,84% 14%,88% 7%,92% 15%,96% 8%,100% 14%,100% 100%,0 100%)}
+@keyframes tearOld{to{transform:translateY(-105%);opacity:.98}}
+@keyframes tearNew{to{bottom:0}}
 @media print{.receipt-print-animation{display:none!important}}
 </style></style></head>
 <body>
@@ -111,8 +111,8 @@
 <div class="invoice-layout">
   <aside class="invoice-list card"><h3>Sales History</h3><div id="invoiceList"></div><div class="hint" style="margin-top:10px">Blank Invoice does not create a sale or change Sales History.</div></aside>
   <div class="invoice-stage">
-    <div id="receiptPrintAnimation" class="receipt-print-animation" aria-hidden="true"><div class="tear-old"></div><div class="tear-new"></div></div>
     <div id="receiptPaper" class="receipt-paper">
+      <div id="receiptPrintAnimation" class="receipt-print-animation" aria-hidden="true"><div class="tear-old"></div><div class="tear-new"></div></div>
       <div class="receipt-top">
         <div class="receipt-est">ESTIMATION</div>
         <div class="receipt-phone">Cell : 9701167287<br>7013735636</div>
