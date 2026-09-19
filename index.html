@@ -994,12 +994,40 @@ body{width:760px;height:1060px;overflow:hidden}
  }
 
  let printed=false;
+ const resetReceiptForNextCustomer=()=>{
+   try{
+     clearReceiptSelection();
+     invoiceManualMode=true;
+     const drafts=loadInvoiceDrafts();
+     delete drafts['__combined_receipt__'];
+     delete drafts['__blank_invoice__'];
+     localStorage.setItem(invoiceDraftKey,JSON.stringify(drafts));
+   }catch(e){}
+   const customerEl=document.getElementById('receiptCustomer');
+   const dateEl=document.getElementById('receiptDateInput');
+   const detailsEl=document.getElementById('receiptDetails');
+   if(customerEl)customerEl.textContent='';
+   if(dateEl)dateEl.value=formatInvoiceDate(todayISO());
+   if(detailsEl)detailsEl.value='';
+   if(typeof renderInvoiceTable==='function')renderInvoiceTable();
+   if(typeof renderReceipt==='function')renderReceipt();
+   toast('Invoice printed. Receipt cleared for the next customer.',false);
+ };
  const printWhenReady=()=>{
    if(printed)return;
    printed=true;
    setTimeout(()=>{
-     try{w.focus();w.print()}catch(e){console.error('Invoice print failed:',e)}
-     setTimeout(()=>{URL.revokeObjectURL(url);try{w.close()}catch(e){}},1500);
+     try{
+       w.focus();
+       w.addEventListener('afterprint',()=>{
+         resetReceiptForNextCustomer();
+         setTimeout(()=>{URL.revokeObjectURL(url);try{w.close()}catch(e){}},300);
+       },{once:true});
+       w.print();
+     }catch(e){
+       console.error('Invoice print failed:',e);
+       printed=false;
+     }
    },500);
  };
 
