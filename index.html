@@ -42,7 +42,16 @@
  #printArea{display:none!important;visibility:hidden!important}
  .section{display:none!important}
  #invoices.section{display:block!important}
-}</style></head>
+}<style>
+.invoice-stage{position:relative}
+.receipt-print-animation{position:absolute;inset:0;z-index:50;pointer-events:none;display:none;overflow:hidden;background:transparent}
+.receipt-print-animation.show{display:block}
+.receipt-print-animation .tear-old{position:absolute;left:8%;right:8%;top:12%;height:55%;background:#fbfaf5;box-shadow:0 8px 28px rgba(31,41,55,.15);transform:translateY(0);animation:tearOld .75s ease-in forwards;clip-path:polygon(0 0,100% 0,100% 88%,97% 94%,94% 89%,91% 96%,88% 90%,85% 95%,82% 89%,79% 96%,76% 90%,73% 95%,70% 89%,67% 96%,64% 90%,61% 95%,58% 89%,55% 96%,52% 90%,49% 95%,46% 89%,43% 96%,40% 90%,37% 95%,34% 89%,31% 96%,28% 90%,25% 95%,22% 89%,19% 96%,16% 90%,13% 95%,10% 89%,7% 96%,4% 90%,0 94%)}
+.receipt-print-animation .tear-new{position:absolute;left:8%;right:8%;bottom:-60%;height:58%;background:#fbfaf5;box-shadow:0 8px 28px rgba(31,41,55,.15);animation:tearNew .75s ease-out forwards;clip-path:polygon(0 8%,4% 14%,8% 7%,12% 15%,16% 8%,20% 14%,24% 7%,28% 15%,32% 8%,36% 14%,40% 7%,44% 15%,48% 8%,52% 14%,56% 7%,60% 15%,64% 8%,68% 14%,72% 7%,76% 15%,80% 8%,84% 14%,88% 7%,92% 15%,96% 8%,100% 14%,100% 100%,0 100%)}
+@keyframes tearOld{to{transform:translateY(-115%);opacity:.92}}
+@keyframes tearNew{to{bottom:4%}}
+@media print{.receipt-print-animation{display:none!important}}
+</style></style></head>
 <body>
 <header class="top"><div><div class="eyebrow">LOCAL SHOP OPERATIONS</div><h1>Raghava Paints and Hardwares</h1></div><div><div class="connection"><span id="dot" class="dot"></span><span id="connectionText">Google Drive storage not connected</span></div><button id="connectBtn" class="btn primary">Connect Google Drive</button></div></header>
 <nav class="nav"><button class="navbtn active" data-page="dashboard">Manage</button><button class="navbtn" data-page="sales">Sell</button><button class="navbtn" data-page="purchases">Purchase</button><button class="navbtn" data-page="products">Track</button><button class="navbtn" data-page="accounts">Analyze</button><button class="navbtn" data-page="invoices">Invoice Print</button><button id="saveBtn" class="btn save">Save to Google Drive</button></nav>
@@ -102,6 +111,7 @@
 <div class="invoice-layout">
   <aside class="invoice-list card"><h3>Sales History</h3><div id="invoiceList"></div><div class="hint" style="margin-top:10px">Blank Invoice does not create a sale or change Sales History.</div></aside>
   <div class="invoice-stage">
+    <div id="receiptPrintAnimation" class="receipt-print-animation" aria-hidden="true"><div class="tear-old"></div><div class="tear-new"></div></div>
     <div id="receiptPaper" class="receipt-paper">
       <div class="receipt-top">
         <div class="receipt-est">ESTIMATION</div>
