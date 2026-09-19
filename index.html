@@ -384,19 +384,27 @@ function displaySize(size,unit){
  if(u==='grit')return s+' grit';
  return s;
 }
+function commonSizeRows(prefix){
+ const mainId=String($(prefix+'Product')?.value||'').trim();
+ const subCategory=String($(prefix+'Subproduct')?.value||'').trim();
+ const out=[];
+ if(subCategory){
+   activeSubs().forEach(x=>{
+     if(simpleSubCategory(x.category)===subCategory&&String(x.size||'').trim())out.push({size:String(x.size).trim(),unit:String(x.unit||'Piece').trim()});
+   });
+ }else if(mainId){
+   const p=activeProducts().find(x=>String(x.id)===mainId);
+   if(p){
+     productSizes(p.id).forEach(x=>out.push({size:String(x.size||'').trim(),unit:String(x.unit||p.unit||'Litre').trim()}));
+     if(!out.length&&String(p.packSize||'').trim()&&!/^(see pack sizes sheet|various|not yet verified)$/i.test(String(p.packSize).trim())){
+       String(p.packSize).split(/[,;|\n]+/).map(x=>x.trim()).filter(Boolean).forEach(size=>out.push({size,unit:String(p.unit||'Litre').trim()}));
+     }
+   }
+ }
+ return [...new Map(out.filter(x=>x.size).map(x=>[x.size.toLowerCase()+'|'+x.unit.toLowerCase(),x])).values()];
+}
 function sharedSizes(prefix){
- const main=$(prefix+'Product').value,sub=$(prefix+'Subproduct').value;
- if(sub){
-   const rows=activeSubs().filter(x=>simpleSubCategory(x.category)===String(sub).trim()&&x.size);
-   return [...new Map(rows.map(x=>[String(x.size)+'|'+(x.unit||''),{value:String(x.size),label:displaySize(x.size,x.unit)}])).values()];
- }
- const rows=productSizes(main);if(rows.length)return rows.map(x=>({value:String(x.size),label:displaySize(x.size,x.unit)}));
- const p=activeProducts().find(x=>String(x.id)===String(main));
- if(p&&String(p.packSize||'').trim()&&!/^(see pack sizes sheet|various|not yet verified)/i.test(String(p.packSize).trim())){
-   const parts=String(p.packSize).split(/[,;|\n]+/).map(x=>x.trim()).filter(Boolean);
-   return [...new Map(parts.map(size=>[size+'|'+String(p.unit||''),{value:size,label:displaySize(size,p.unit)}])).values()];
- }
- return [];
+ return commonSizeRows(prefix).map(x=>({value:x.size,label:displaySize(x.size,x.unit)}));
 }
 function selectedSubproduct(prefix){
  const cat=$(prefix+'Subproduct').value,size=$(prefix+'Size').value;
