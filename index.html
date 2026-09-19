@@ -77,7 +77,7 @@
  #invoicePrintSnapshot .receipt-date-print{display:inline-block!important;width:125px!important;min-height:28px!important;padding:0 2px 1px!important;border-bottom:2px dotted #35147b!important;text-align:center!important;box-sizing:border-box!important;color:#27156f!important;font-weight:800!important}
  #invoicePrintSnapshot .invoice-writing-total{display:none!important}
  #invoicePrintSnapshot .receipt-details{display:block!important;height:650px!important;font-family:"Times New Roman",Times,serif!important;font-size:24px!important;line-height:1.7!important;white-space:pre-wrap!important}
-}@media screen{#invoicePrintSnapshot{display:none!important}}</style><style id="receipt-banner-svg-print-fix">.receipt-banner{position:relative;isolation:isolate;overflow:hidden}.receipt-banner-print-bg{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:block}.receipt-banner-text{position:relative;z-index:1}@media print{.receipt-banner{background:transparent!important;color:#fff!important}.receipt-banner-print-bg{display:block!important;visibility:visible!important}.receipt-banner-text{display:inline!important;visibility:visible!important;color:#fff!important}}</style></head>
+}@media screen{#invoicePrintSnapshot{display:none!important}}</style></head>
 <body>
 <header class="top"><div><div class="eyebrow">LOCAL SHOP OPERATIONS</div><h1>Raghava Paints and Hardwares</h1></div><div><div class="connection"><span id="dot" class="dot"></span><span id="connectionText">Google Drive storage not connected</span></div><button id="connectBtn" class="btn primary">Connect Google Drive</button></div></header>
 <nav class="nav"><button class="navbtn active" data-page="dashboard">Manage</button><button class="navbtn" data-page="sales">Sell</button><button class="navbtn" data-page="purchases">Purchase</button><button class="navbtn" data-page="products">Track</button><button class="navbtn" data-page="accounts">Analyze</button><button class="navbtn" data-page="invoices">Invoice Print</button><button id="saveBtn" class="btn save">Save to Google Drive</button></nav>
@@ -142,7 +142,7 @@
         <div class="receipt-est">ESTIMATION</div>
         <div class="receipt-phone">Cell : 9701167287<br>7013735636</div>
       </div>
-      <div class="receipt-banner"><svg class="receipt-banner-print-bg" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><polygon points="6,0 100,0 94,20 0,20" fill="#35147b"></polygon></svg><span class="receipt-banner-text">రాఘవ పెయింట్స్ & హార్డ్వేర్స్</span></div>
+      <div class="receipt-banner">రాఘవ పెయింట్స్ & హార్డ్వేర్స్</div>
       <div class="receipt-address">నం. 5, జమునా కాంప్లెక్స్, ఆర్.టి.సి. బస్టాండ్ దగ్గర, కావలి.</div>
       <div class="receipt-line"></div>
       <div class="receipt-dealer">డీలర్ : ఏషియన్ పెయింట్స్</div>
@@ -636,7 +636,7 @@ function printInvoice(){
  if(!w){toast('Please allow pop-ups for this shop app to print the invoice.',true);return}
  const styles=Array.from(document.querySelectorAll('style')).map(s=>'<style>'+s.textContent+'</style>').join('');
  w.document.open();
- w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Invoice</title>'+styles+'<style>@page{size:A4 portrait;margin:0}html,body{margin:0!important;padding:0!important;background:#fff!important}body{width:760px;height:1060px;overflow:hidden}.receipt-paper{display:block!important;position:relative!important;width:760px!important;height:1060px!important;min-height:1060px!important;margin:0!important;padding:58px 58px 50px!important;box-sizing:border-box!important;box-shadow:none!important;transform:none!important;overflow:hidden!important}.receipt-details{height:650px!important;font-family:"Times New Roman",Times,serif!important;font-size:24px!important;line-height:1.7!important;white-space:pre-wrap!important}.receipt-date-print{display:inline-block!important}.invoice-writing-total{display:none!important}</style></head><body></body></html>');
+ w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Invoice</title>'+styles+'<style>@page{size:A4 portrait;margin:0}html,body{margin:0!important;padding:0!important;background:#fff!important}body{width:760px;height:1060px;overflow:hidden}.receipt-paper{display:block!important;position:relative!important;width:760px!important;height:1060px!important;min-height:1060px!important;margin:0!important;padding:58px 58px 50px!important;box-sizing:border-box!important;box-shadow:none!important;transform:none!important;overflow:hidden!important}.receipt-details{height:650px!important;font-family:"Times New Roman",Times,serif!important;font-size:24px!important;line-height:1.7!important;white-space:pre-wrap!important}.receipt-date-print{display:inline-block!important}.invoice-writing-total{display:none!important}.receipt-banner{display:block!important;background:#35147b!important;color:#fff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;opacity:1!important;visibility:visible!important}</style></head><body></body></html>');
  w.document.close();
  w.document.body.appendChild(printPaper);
  w.focus();
