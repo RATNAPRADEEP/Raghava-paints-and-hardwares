@@ -437,8 +437,23 @@ function commonSizeRows(prefix){
    const p=activeProducts().find(x=>String(x.id)===mainId);
    if(p){
      productSizes(p.id).forEach(x=>out.push({size:String(x.size||'').trim(),unit:String(x.unit||p.unit||'Litre').trim()}));
+     // Direct ID lookup protects the selector when a workbook row is loaded but
+     // the product's runtime ID/SKU mapping differs between workbook versions.
+     db.productPackSizes.filter(x=>String(x.productId||'').trim()===mainId).forEach(x=>{
+       out.push({size:String(x.size||'').trim(),unit:String(x.unit||p.unit||'Litre').trim()});
+     });
      if(!out.length&&String(p.packSize||'').trim()&&!/^(see pack sizes sheet|various|not yet verified)$/i.test(String(p.packSize).trim())){
        String(p.packSize).split(/[,;|\n]+/).map(x=>x.trim()).filter(Boolean).forEach(size=>out.push({size,unit:String(p.unit||'Litre').trim()}));
+     }
+     // Guaranteed paint fallback: if this is a litre-based paint and the source
+     // workbook did not expose its pack rows to the selector, still show the
+     // standard paint pack choices instead of leaving "Choose size" only.
+     if(!out.length){
+       const unit=String(p.unit||'').trim().toLowerCase();
+       const text=(String(p.name||'')+' '+String(p.type||'')).toLowerCase();
+       if((unit==='litre'||unit==='liter'||unit==='l')&&/paint|emulsion|primer|putty|waterproof|enamel|distemper|undercoat|texture|wood|metal/.test(text)){
+         ['1','4','10','20'].forEach(size=>out.push({size,unit:'Litre'}));
+       }
      }
    }
  }
