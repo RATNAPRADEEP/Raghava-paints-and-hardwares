@@ -25,8 +25,9 @@
  @page{size:A4 portrait;margin:0}
  html,body{width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;background:#fff!important}
  body{overflow:hidden!important}
- body>header,body>nav,body>main{display:none!important}
- body>.section{display:none!important}
+ body>header,body>nav{display:none!important}
+ body>main{display:block!important;visibility:visible!important;width:100%!important;margin:0!important;padding:0!important}
+ body>main>*{display:none!important}
  #invoices{display:block!important;visibility:visible!important;position:static!important;width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;overflow:hidden!important}
  #invoices *{visibility:visible!important}
  #invoices .invoice-toolbar,#invoices .invoice-list,#invoices .invoice-bottom,#invoices .invoice-writing-total{display:none!important}
