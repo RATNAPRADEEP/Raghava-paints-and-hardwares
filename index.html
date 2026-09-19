@@ -252,7 +252,9 @@ async function connect(){try{await Promise.all([gapiReady,gisReady]);await reque
  setConnected(file.name||FILE);render();toast('Synced: '+file.name)}catch(e){driveFileId=null;localStorage.removeItem(DRIVE_FILE_KEY);toast('Connection failed: '+(e.message||e),true)}}).build();picker.setVisible(true)}catch(e){toast('Google sign-in failed. '+(e.message||e),true)}}
 function setConnected(name=FILE){$('dot').classList.add('on');$('connectionText').textContent='Google Drive connected';const state=$('state');if(state){state.textContent='Synced — '+name;state.classList.add('on')}}
 async function restoreDriveConnection(){
- if(!driveFileId)return;
+ const savedFileId=getDriveFileId();
+ if(!savedFileId)return;
+ driveFileId=savedFileId;
  try{
    await Promise.all([gapiReady,gisReady]);
    await requestToken('');
