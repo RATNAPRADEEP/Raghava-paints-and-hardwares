@@ -78,7 +78,7 @@
       <div class="receipt-line"></div>
       <div class="receipt-dealer">డీలర్ : ఏషియన్ పెయింట్స్</div>
       <div class="receipt-subtitle">నిప్పన్ పెయింట్స్, పెయింట్ బ్రష్‌లు మొదలగునవి హోల్‌సేల్ గా లభించును.</div>
-      <div class="receipt-meta"><span>రాజ శ్రీ <span id="receiptCustomer" class="receipt-customer" contenteditable="plaintext-only" spellcheck="false"></span></span><span class="receipt-date-wrap">Date <input id="receiptDateInput" class="receipt-date-input" type="text" inputmode="numeric" maxlength="10" aria-label="Invoice date" autocomplete="off" placeholder="DD-MM-YYYY"><span id="receiptDatePrint" class="receipt-date-print"></span></span></div>
+      <div class="receipt-meta"><span>రాజ శ్రీ <span id="receiptCustomer" class="receipt-customer" contenteditable="plaintext-only" spellcheck="false"></span></span><span class="receipt-date-wrap">Date <input id="receiptDateInput" class="receipt-date-input" type="text" inputmode="text" maxlength="10" aria-label="Invoice date" autocomplete="off" placeholder="DD-MM-YYYY"><span id="receiptDatePrint" class="receipt-date-print"></span></span></div>
       <div class="receipt-body">
         <div class="receipt-items" id="receiptItems"></div><div id="receiptDetails" class="receipt-details" contenteditable="true" spellcheck="true" tabindex="0" role="textbox" aria-multiline="true" aria-label="Invoice details" onmousedown="this.focus()"></div>
       </div>
@@ -505,12 +505,15 @@ function bindReceiptEditing(key){
    saveInvoiceDraft(key,{items:current});
  }));
  $('receiptDateInput').oninput=()=>{
-   const el=$('receiptDateInput'),display=el.value.trim(),value=parseInvoiceDate(display);
-   if(value){el.value=formatInvoiceDate(value);saveInvoiceDraft(key,{date:value});$('receiptDatePrint').textContent=el.value}
+   const el=$('receiptDateInput');
+   let display=String(el.value||'').replace(/[^0-9-]/g,'').slice(0,10);
+   el.value=display;
+   const value=parseInvoiceDate(display);
+   if(value){saveInvoiceDraft(key,{date:value});$('receiptDatePrint').textContent=formatInvoiceDate(value)}
  };
  $('receiptDateInput').onblur=()=>{
-   const el=$('receiptDateInput'),value=parseInvoiceDate(el.textContent.trim())||todayISO();
-   el.textContent=formatInvoiceDate(value);saveInvoiceDraft(key,{date:value});$('receiptDatePrint').textContent=formatInvoiceDate(value);
+   const el=$('receiptDateInput'),value=parseInvoiceDate(el.value.trim())||todayISO();
+   el.value=formatInvoiceDate(value);saveInvoiceDraft(key,{date:value});$('receiptDatePrint').textContent=el.value;
  };
 }
 function renderReceipt(){
