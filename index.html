@@ -621,25 +621,17 @@ function printInvoice(){
  const pc=printPaper.querySelector('#receiptCustomer');if(pc)pc.textContent=customer?.textContent||'';
  const pi=printPaper.querySelector('#receiptItems');if(pi)pi.innerHTML=items?.innerHTML||'';
  const pdi=printPaper.querySelector('#receiptDateInput'),pdp=printPaper.querySelector('#receiptDatePrint');
- if(pdi)pdi.style.display='none';
+ if(pdi)pdi.remove();
  if(pdp){pdp.style.display='inline-block';pdp.textContent=formatInvoiceDate(parseInvoiceDate(date?.value||'')||todayISO())}
- const iframe=document.createElement('iframe');
- iframe.setAttribute('aria-hidden','true');
- iframe.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
- document.body.appendChild(iframe);
- const doc=iframe.contentDocument;
+ const w=window.open('','_blank','width=900,height=1200');
+ if(!w){toast('Please allow pop-ups for this shop app to print the invoice.',true);return}
  const styles=Array.from(document.querySelectorAll('style')).map(s=>'<style>'+s.textContent+'</style>').join('');
- doc.open();
- doc.write('<!doctype html><html><head><meta charset="utf-8">'+styles+'<style>@page{size:A4 portrait;margin:0}html,body{margin:0!important;padding:0!important;background:#fff!important}body{width:760px;height:1060px;overflow:hidden}.receipt-paper{display:block!important;position:relative!important;left:0!important;top:0!important;width:760px!important;height:1060px!important;min-height:1060px!important;margin:0!important;padding:58px 58px 50px!important;box-sizing:border-box!important;transform:none!important;box-shadow:none!important;overflow:hidden!important}.receipt-details{height:650px!important;font-family:"Times New Roman",Times,serif!important;font-size:24px!important;line-height:1.7!important;white-space:pre-wrap!important}.receipt-date-input{display:none!important}.receipt-date-print{display:inline-block!important}.invoice-writing-total{display:none!important}</style></head><body></body></html>');
- doc.close();
- doc.body.appendChild(printPaper);
- const oldTitle=document.title;document.title='Invoice';
- iframe.onload=()=>{};
- setTimeout(()=>{
-   try{iframe.contentWindow.focus();iframe.contentWindow.print();}finally{
-     setTimeout(()=>{document.title=oldTitle;iframe.remove()},1200);
-   }
- },150);
+ w.document.open();
+ w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Invoice</title>'+styles+'<style>@page{size:A4 portrait;margin:0}html,body{margin:0!important;padding:0!important;background:#fff!important}body{width:760px;height:1060px;overflow:hidden}.receipt-paper{display:block!important;position:relative!important;width:760px!important;height:1060px!important;min-height:1060px!important;margin:0!important;padding:58px 58px 50px!important;box-sizing:border-box!important;box-shadow:none!important;transform:none!important;overflow:hidden!important}.receipt-details{height:650px!important;font-family:"Times New Roman",Times,serif!important;font-size:24px!important;line-height:1.7!important;white-space:pre-wrap!important}.receipt-date-print{display:inline-block!important}.invoice-writing-total{display:none!important}</style></head><body></body></html>');
+ w.document.close();
+ w.document.body.appendChild(printPaper);
+ w.focus();
+ setTimeout(()=>{w.print();setTimeout(()=>w.close(),1000)},250);
 }
 function bind(){
  $('purchaseInvoicePhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'purchase');e.target.value=''});$('scanPurchaseInvoice').addEventListener('click',()=>$('purchaseInvoicePhoto').click());$('customerPhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'customer');e.target.value=''});$('scanCustomer').addEventListener('click',()=>$('customerPhoto').click());
