@@ -494,7 +494,7 @@ async function recordPurchaseNow(e){
  const show=(msg,err=true)=>{if(status){status.textContent=msg;status.style.color=err?'#b42318':'#067647';status.scrollIntoView({block:'nearest',behavior:'smooth'})}toast(msg,err)};
  if(btn?.disabled)return;
  try{
-  if(!driveFileId)throw Error('Google Drive workbook is not connected. Click Connect Google Drive first.');
+  const activeDriveFileId=getDriveFileId();if(!activeDriveFileId)throw Error('Google Drive workbook is not connected. Click Connect Google Drive first.');
   const main=db.products.find(x=>String(x.id)===String($('purchaseProduct').value)),subp=selectedSubproduct('purchase'),p=subp||main,q=+$('purchaseQty').value,cost=Math.max(0,+$('purchaseCost').value||0);
   if(!p)throw Error('Select a Main Product, or choose a Subproduct category and Size.');
   if(!q||q<=0)throw Error('Enter a Quantity greater than 0.');
