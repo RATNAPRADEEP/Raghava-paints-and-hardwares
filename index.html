@@ -328,10 +328,49 @@ function subproductItems(){
  const order=['Brushes','Enamels','Fillers','Rollers','Sanding Paper','Thinners / MTO','Stainers','Samples'];
  return order.filter(cat=>activeSubs().some(p=>simpleSubCategory(p.category)===cat)).map(cat=>({value:cat,label:cat}));
 }
+function sourcePackSizesForProduct(p){
+ if(!p||typeof XLSX==='undefined'||!sourceWorkbook)return [];
+ const normalize=s=>String(s??'').replace(/[^a-z0-9]/gi,'').toLowerCase();
+ const wantedId=String(p.id??'').trim(),wantedSku=String(p.sku??'').trim().toLowerCase(),wantedName=String(p.name??'').trim().toLowerCase();
+ const names=sourceWorkbook.SheetNames||[];
+ const sheetName=names.find(n=>normalize(n)==='productpacksizes'||normalize(n)==='packsizes'||normalize(n)==='productpacksize'||normalize(n)==='packsize');
+ if(!sheetName)return [];
+ const matrix=XLSX.utils.sheet_to_json(sourceWorkbook.Sheets[sheetName],{header:1,defval:'',raw:false});
+ let headerIndex=-1;
+ for(let i=0;i<Math.min(matrix.length,12);i++){
+   const keys=(matrix[i]||[]).map(normalize);
+   if(keys.includes('productid')&&(keys.includes('packsize')||keys.includes('size'))){headerIndex=i;break}
+ }
+ if(headerIndex<0)return [];
+ const headers=matrix[headerIndex]||[];
+ const col=(...aliases)=>{
+   const a=aliases.map(normalize);
+   return headers.findIndex(h=>a.includes(normalize(h)));
+ };
+ const idCol=col('ProductID','Product ID','ID'), productCol=col('ProductName','Product Name','Product','Name'), skuCol=col('SKU','ProductSKU','Product SKU'), sizeCol=col('PackSize','Pack Size','Size','Pack'), unitCol=col('Unit','UOM','Units');
+ if(sizeCol<0)return [];
+ const out=[];
+ for(let i=headerIndex+1;i<matrix.length;i++){
+   const row=matrix[i]||[];
+   const productId=String(idCol>=0?row[idCol]:'').trim();
+   const productField=String(productCol>=0?row[productCol]:'').trim();
+   const skuField=String(skuCol>=0?row[skuCol]:'').trim();
+   const sku=/^[A-Z]{2,8}-[A-Z0-9][A-Z0-9_-]*$/i.test(skuField)?skuField:(/^AP-[A-Z0-9_-]+$/i.test(productField)?productField:'');
+   const size=String(row[sizeCol]??'').trim();
+   const unit=String(unitCol>=0?row[unitCol]:'Litre').trim()||'Litre';
+   if(!size||/^(see pack sizes sheet|various|not yet verified)$/i.test(size))continue;
+   const matches=productId===wantedId||(sku&&sku.toLowerCase()===wantedSku)||(productField.toLowerCase()===wantedName);
+   if(matches)out.push({productId,sku,productName:productField,size,unit});
+ }
+ return out;
+}
 function productSizes(id){
  const p=activeProducts().find(x=>String(x.id)===String(id));if(!p)return [];
  const pid=String(id).trim(),sku=String(p.sku||'').trim().toLowerCase(),name=String(p.name||'').trim().toLowerCase();
- const rows=db.productPackSizes.filter(x=>String(x.productId||'').trim()===pid||String(x.sku||'').trim().toLowerCase()===sku||String(x.productName||'').trim().toLowerCase()===name);
+ const rows=[
+   ...db.productPackSizes.filter(x=>String(x.productId||'').trim()===pid||String(x.sku||'').trim().toLowerCase()===sku||String(x.productName||'').trim().toLowerCase()===name),
+   ...sourcePackSizesForProduct(p)
+ ];
  return [...new Map(rows.filter(x=>x.size).map(x=>[String(x.size)+'|'+String(x.unit||''),x])).values()];
 }
 function displaySize(size,unit){
