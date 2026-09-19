@@ -21,6 +21,23 @@
  .receipt-date-print{display:inline!important}
  .receipt-paper:before{display:block!important}
  .receipt-items,.receipt-details,.receipt-body,.receipt-meta,.receipt-customer,.receipt-item{visibility:visible!important}
+}@media print{
+ @page{size:A4 portrait;margin:0}
+ html,body{width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;background:#fff!important}
+ body{overflow:hidden!important}
+ body>*{visibility:hidden!important}
+ #invoices{display:block!important;visibility:visible!important;position:static!important;width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;overflow:hidden!important}
+ #invoices *{visibility:visible!important}
+ #invoices .invoice-toolbar,#invoices .invoice-list,#invoices .invoice-bottom,#invoices .invoice-writing-total{display:none!important}
+ #invoices .invoice-layout{display:block!important;width:210mm!important;height:297mm!important;margin:0!important;padding:0!important}
+ #invoices .invoice-stage{display:block!important;width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;border:0!important;background:#fff!important;overflow:hidden!important}
+ #invoices .receipt-paper{display:block!important;position:relative!important;left:0!important;top:0!important;width:760px!important;height:1060px!important;min-height:1060px!important;max-height:1060px!important;margin:0!important;padding:58px 58px 50px!important;box-sizing:border-box!important;box-shadow:none!important;transform:none!important;overflow:hidden!important;break-inside:avoid!important;page-break-inside:avoid!important}
+ #invoices .receipt-date-input{display:none!important}
+ #invoices .receipt-date-print{display:inline!important}
+ #invoices .receipt-details{height:650px!important}
+ #printArea{display:none!important;visibility:hidden!important}
+ .section{display:none!important}
+ #invoices.section{display:block!important}
 }</style></head>
 <body>
 <header class="top"><div><div class="eyebrow">LOCAL SHOP OPERATIONS</div><h1>Raghava Paints and Hardwares</h1></div><div><div class="connection"><span id="dot" class="dot"></span><span id="connectionText">Google Drive storage not connected</span></div><button id="connectBtn" class="btn primary">Connect Google Drive</button></div></header>
@@ -567,7 +584,7 @@ function renderReceipt(){
 }
 function printInvoice(){
  if(!invoiceManualMode&&!db.sales.length){invoiceManualMode=true;renderReceipt();}
- const oldTitle=document.title;document.title='';
+ const oldTitle=document.title;document.title=' ';
  window.print();
  setTimeout(()=>{document.title=oldTitle},1000);
 }
