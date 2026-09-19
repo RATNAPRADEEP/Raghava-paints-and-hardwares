@@ -119,7 +119,8 @@ const API_KEY='AIzaSyCoRIWkMUrYNzvJxHKjOCZqvLVvoUhj2jM';
 const APP_ID='911229643443';
 const SCOPES='https://www.googleapis.com/auth/drive.file';
 const FILE='Raghava_Paints_Hardwares_FINAL_SYNC_MASTER.xlsx';
-let accessToken=null,driveFileId=null,tokenClient=null,sourceWorkbook=null,workbookName=FILE;let saleReceiptOCR='';
+const DRIVE_FILE_KEY='raghava_drive_file_id_v1';
+let accessToken=null,driveFileId=localStorage.getItem(DRIVE_FILE_KEY)||null,tokenClient=null,sourceWorkbook=null,workbookName=FILE;let saleReceiptOCR='';
 let db={products:[],productPackSizes:[],subproducts:[],customers:[],suppliers:[],sales:[],purchases:[],receipts:[],myRecords:[],otherRecords:[],customerTypes:[],lists:{}};
 let gapiResolve,gisResolve;
 const gapiReady=new Promise(r=>gapiResolve=r),gisReady=new Promise(r=>gisResolve=r);
@@ -149,7 +150,7 @@ function loadData(wb){
  sourceWorkbook=wb;
  let pr=read(wb,'Products_Inventory');if(!pr.length)pr=read(wb,'Products_Catalogue');if(!pr.length)pr=read(wb,'Products');
  db.lists={};const lr=read(wb,'Lists');if(lr.length){const keys=Object.keys(lr[0]);keys.forEach(k=>{db.lists[k]=lr.map(r=>r[k]).filter(v=>v!==''&&v!=null).map(String)})}
- db.customerTypes=read(wb,'Customer_Types').map(r=>r.CustomerType||r.Type||'').filter(Boolean);db.productPackSizes=read(wb,'Product_Pack_Sizes').map(r=>({productId:String(r.ProductID??''),productName:r.ProductName||'',size:String(r.PackSize??''),unit:r.Unit||'Litre'})).filter(r=>r.productId&&r.size);
+ db.customerTypes=read(wb,'Customer_Types').map(r=>r.CustomerType||r.Type||'').filter(Boolean);db.productPackSizes=read(wb,'Product_Pack_Sizes').map(r=>({productId:String(r.ProductID??'').trim(),productName:String(r.ProductName||r.Name||'').trim(),size:String(r.PackSize??r.Size??'').trim(),unit:r.Unit||'Litre'})).filter(r=>r.size&&(r.productId||r.productName));
  db.subproducts=read(wb,'Subproducts').map(r=>({id:r.ID||uid(),sku:r.SKU||'',category:r.Category||'Other',brand:r.Brand||'',name:r.ProductName||r.Name||'',variant:r.Variant||'',size:String(r.Size??''),unit:r.Unit||'Piece',cost:+(r.PurchasePrice||0),sell:+(r.SellingPrice||0),gst:+(r.GSTPercent||0),stock:+(r.Stock||0),reorder:(r.ReorderLevel===''||r.ReorderLevel==null)?0:+r.ReorderLevel,supplier:r.Supplier||'',barcode:r.Barcode||'',rack:r.Rack||'',active:String(r.Active).toLowerCase()!=='false',source:r.Source||'',verifiedOn:r.VerifiedOn||'',notes:r.Notes||''}));
  if(!db.subproducts.length)db.subproducts=FALLBACK_SUBPRODUCTS.map(x=>({...x}));
  db.products=pr.map(r=>({id:r.ID||uid(),sku:r.SKU||'',name:r.Name||r.ProductName||'',brand:r.Brand||'',type:r.Type||r.ProductType||'',shade:r.Shade||'',finish:r.Finish||'',packSize:r.PackSize||r.Size||'',unit:r.Unit||'Litre',cost:+(r.PurchasePrice||0),sell:+(r.SellingPrice||r.Price||0),gst:+(r.GSTPercent||r.GST||0),stock:+(r.Stock||0),reorder:(r.ReorderLevel===''||r.ReorderLevel==null)?0:+r.ReorderLevel,rack:r.Rack||'',supplier:r.Supplier||'',barcode:r.Barcode||'',active:String(r.Active).toLowerCase()!=='false',createdAt:r.CreatedAt||'',priceBasis:r.PriceBasis||'',source:r.Source||'',verifiedOn:r.VerifiedOn||''}));
@@ -191,11 +192,30 @@ async function writeExcel(){if(!driveFileId)throw Error('Google Drive workbook i
 function gapiLoaded(){gapi.load('client:picker',()=>gapiResolve())}
 function gisLoaded(){tokenClient=google.accounts.oauth2.initTokenClient({client_id:CLIENT_ID,scope:SCOPES,callback:()=>{}});gisResolve()}
 function requestToken(prompt=''){return new Promise((resolve,reject)=>{tokenClient.callback=r=>{if(r.error)return reject(r);accessToken=r.access_token;resolve(accessToken)};tokenClient.requestAccessToken({prompt})})}
-async function connect(){try{await Promise.all([gapiReady,gisReady]);await requestToken(accessToken?'':'consent');const view=new google.picker.DocsView(google.picker.ViewId.DOCS).setIncludeFolders(false).setMimeTypes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');const picker=new google.picker.PickerBuilder().addView(view).setOAuthToken(accessToken).setDeveloperKey(API_KEY).setAppId(APP_ID).setCallback(async data=>{if(data.action!==google.picker.Action.PICKED)return;try{const doc=data[google.picker.Response.DOCUMENTS][0];driveFileId=doc[google.picker.Document.ID];const meta=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(driveFileId)+'?fields=id,name,mimeType',{headers:{Authorization:'Bearer '+accessToken}});if(!meta.ok)throw Error('Could not read the selected Drive file.');const file=await meta.json();if(file.mimeType!=='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')throw Error('Please select an .xlsx workbook.');const bin=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(driveFileId)+'?alt=media',{headers:{Authorization:'Bearer '+accessToken}});if(!bin.ok)throw Error('Could not download the selected workbook.');loadData(XLSX.read(await bin.arrayBuffer(),{type:'array'}));
+async function connect(){try{await Promise.all([gapiReady,gisReady]);await requestToken(accessToken?'':'consent');const view=new google.picker.DocsView(google.picker.ViewId.DOCS).setIncludeFolders(false).setMimeTypes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');const picker=new google.picker.PickerBuilder().addView(view).setOAuthToken(accessToken).setDeveloperKey(API_KEY).setAppId(APP_ID).setCallback(async data=>{if(data.action!==google.picker.Action.PICKED)return;try{const doc=data[google.picker.Response.DOCUMENTS][0];driveFileId=doc[google.picker.Document.ID];localStorage.setItem(DRIVE_FILE_KEY,driveFileId);const meta=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(driveFileId)+'?fields=id,name,mimeType',{headers:{Authorization:'Bearer '+accessToken}});if(!meta.ok)throw Error('Could not read the selected Drive file.');const file=await meta.json();if(file.mimeType!=='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')throw Error('Please select an .xlsx workbook.');const bin=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(driveFileId)+'?alt=media',{headers:{Authorization:'Bearer '+accessToken}});if(!bin.ok)throw Error('Could not download the selected workbook.');loadData(XLSX.read(await bin.arrayBuffer(),{type:'array'}));
  if(!db.products.length){try{const fallbackRes=await fetch('Raghava_Shop_Data.xlsx?fallback='+Date.now());if(fallbackRes.ok){const fallbackWb=XLSX.read(await fallbackRes.arrayBuffer(),{type:'array'});const fallbackRows=read(fallbackWb,'Products');db.products=fallbackRows.map(r=>({id:r.ID||uid(),sku:r.SKU||'',name:r.Name||r.ProductName||'',brand:r.Brand||'',type:r.Type||r.Category||r.ProductType||'',shade:r.Shade||'',finish:r.Finish||'',packSize:r.PackSize||r.Size||'',unit:r.Unit||'Litre',cost:+(r.PurchasePrice||0),sell:+(r.SellingPrice||r.Price||0),gst:+(r.GSTPercent||r.GST||0),stock:+(r.Stock||0),reorder:(r.ReorderLevel===''||r.ReorderLevel==null)?0:+r.ReorderLevel,rack:r.Rack||'',supplier:r.Supplier||'',barcode:r.Barcode||'',active:String(r.Active).toLowerCase()!=='false',createdAt:r.CreatedAt||'',priceBasis:r.PriceBasis||'',source:r.Source||'Repository catalogue',verifiedOn:r.VerifiedOn||''}));}}catch(fallbackErr){console.warn('Catalogue fallback failed',fallbackErr)}}
  if(!db.products.length){toast('No products were found in the selected workbook. Please choose an .xlsx containing the Products or Products_Inventory sheet.',true);return;}
- setConnected(file.name||FILE);render();toast('Synced: '+file.name)}catch(e){driveFileId=null;toast('Connection failed: '+(e.message||e),true)}}).build();picker.setVisible(true)}catch(e){toast('Google sign-in failed. '+(e.message||e),true)}}
+ setConnected(file.name||FILE);render();toast('Synced: '+file.name)}catch(e){driveFileId=null;localStorage.removeItem(DRIVE_FILE_KEY);toast('Connection failed: '+(e.message||e),true)}}).build();picker.setVisible(true)}catch(e){toast('Google sign-in failed. '+(e.message||e),true)}}
 function setConnected(name=FILE){$('dot').classList.add('on');$('connectionText').textContent='Google Drive connected';const state=$('state');if(state){state.textContent='Synced — '+name;state.classList.add('on')}}
+async function restoreDriveConnection(){
+ if(!driveFileId)return;
+ try{
+   await Promise.all([gapiReady,gisReady]);
+   await requestToken('');
+   const meta=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(driveFileId)+'?fields=id,name,mimeType',{headers:{Authorization:'Bearer '+accessToken}});
+   if(!meta.ok)throw Error('Saved Google Drive connection could not be verified.');
+   const file=await meta.json();
+   if(file.mimeType!=='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')throw Error('Saved Drive file is not an .xlsx workbook.');
+   const bin=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(driveFileId)+'?alt=media',{headers:{Authorization:'Bearer '+accessToken}});
+   if(!bin.ok)throw Error('Saved Google Drive workbook could not be loaded.');
+   loadData(XLSX.read(await bin.arrayBuffer(),{type:'array'}));
+   if(!db.products.length)throw Error('No products were found in the saved Google Drive workbook.');
+   setConnected(file.name||FILE);
+   render();
+ }catch(e){
+   console.warn('Google Drive restore skipped:',e);
+ }
+}
 function optionHtml(value,label,selected=false){return '<option value="'+esc(value)+'"'+(selected?' selected':'')+'>'+esc(label)+'</option>'}
 function fill(id,items,placeholder,selected=''){const el=$(id);if(!el)return;el.innerHTML=optionHtml('',placeholder)+items.map(x=>optionHtml(x.value??x.id,x.label??x.name??x.shop??x)).join('');if(selected)el.value=selected}
 const FALLBACK_SUBPRODUCTS=[
@@ -661,6 +681,6 @@ function forceInvoiceToday(){
  if(!el.textContent.trim()||el.textContent.trim()==='DD-MM-YYYY')el.textContent=today;
  $('receiptDatePrint').textContent=el.textContent;
 }
-bind();render();forceInvoiceToday();
+bind();render();forceInvoiceToday();restoreDriveConnection();
 </script><script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script><script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body></html>
