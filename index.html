@@ -929,8 +929,11 @@ function printInvoice(){
 
  const pd=clone.querySelector('#receiptDetails');
  if(pd){
-   pd.textContent=details?.value||'';
-   pd.value=details?.value||'';
+   const detailText=details?.value||'';
+   pd.textContent=detailText;
+   pd.value=detailText;
+   pd.removeAttribute('placeholder');
+   pd.setAttribute('aria-label','Invoice details');
  }
 
  const pc=clone.querySelector('#receiptCustomer');
