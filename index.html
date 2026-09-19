@@ -790,9 +790,8 @@ function addSaleToReceipt(invoice){
  const inv=String(invoice||'').trim();if(!inv)return;
  const rows=db.sales.slice().reverse(),sale=rows.find(x=>String(x.invoice)===inv);
  if(!sale)return;
- const selected=loadReceiptSelection();
- if(selected.includes(inv)){toast('This sale is already in the receipt.',false);invoiceCursor=Math.max(0,rows.findIndex(x=>String(x.invoice)===inv));invoiceManualMode=false;renderReceipt();return}
- selected.push(inv);saveReceiptSelection(selected);
+ clearReceiptSelection();
+ saveReceiptSelection([inv]);
  invoiceCursor=Math.max(0,rows.findIndex(x=>String(x.invoice)===inv));
  invoiceManualMode=false;
  renderReceipt();
