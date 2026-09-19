@@ -532,7 +532,7 @@ function renderReceipt(){
  document.querySelectorAll('[data-invoice-row]').forEach((el,i)=>el.classList.toggle('active',i===invoiceCursor));
 }
 function printInvoice(){
- if(!db.sales.length)return toast('No sales available to print.',true);
+ if(!invoiceManualMode&&!db.sales.length){invoiceManualMode=true;renderReceipt();}
  window.print();
 }
 function bind(){
