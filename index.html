@@ -768,9 +768,24 @@ function renderInvoiceTable(){
  renderReceipt();
 }
 const receiptSelectionKey='raghava_receipt_selection_v1';
-function loadReceiptSelection(){try{return JSON.parse(localStorage.getItem(receiptSelectionKey)||'[]')||[]}catch(e){return[]}}
-function saveReceiptSelection(list){try{localStorage.setItem(receiptSelectionKey,JSON.stringify([...new Set(list)]))}catch(e){}}
-function clearReceiptSelection(){try{localStorage.removeItem(receiptSelectionKey)}catch(e){}}
+function loadReceiptSelection(){
+ try{
+   const raw=sessionStorage.getItem(receiptSelectionKey)||'[]';
+   return JSON.parse(raw)||[];
+ }catch(e){return[]}
+}
+function saveReceiptSelection(list){
+ try{
+   sessionStorage.setItem(receiptSelectionKey,JSON.stringify([...new Set(list)]));
+   localStorage.removeItem(receiptSelectionKey);
+ }catch(e){}
+}
+function clearReceiptSelection(){
+ try{
+   sessionStorage.removeItem(receiptSelectionKey);
+   localStorage.removeItem(receiptSelectionKey);
+ }catch(e){}
+}
 function addSaleToReceipt(invoice){
  const inv=String(invoice||'').trim();if(!inv)return;
  const rows=db.sales.slice().reverse(),sale=rows.find(x=>String(x.invoice)===inv);
