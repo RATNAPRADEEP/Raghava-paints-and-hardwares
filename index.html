@@ -60,7 +60,16 @@
   #invoices .receipt-details{display:block!important;height:650px!important;font-family:"Times New Roman",Times,serif!important;font-size:24px!important;line-height:1.7!important}
   #invoices .receipt-banner{display:block!important;background:#35147b!important;color:#fff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
 }
-</style></style><style id="invoice-live-print-fix">@media print{
+</style></style><style id="invoice-banner-print-fix">@media print{
+ .receipt-banner,#invoicePrintSnapshot .receipt-banner{
+   background:#35147b!important;
+   color:#fff!important;
+   -webkit-print-color-adjust:exact!important;
+   print-color-adjust:exact!important;
+   opacity:1!important;
+   visibility:visible!important;
+ }
+}</style><style id="invoice-live-print-fix">@media print{
  #invoicePrintSnapshot{display:block!important;visibility:visible!important;position:absolute!important;left:0!important;top:0!important;width:760px!important;height:1060px!important;margin:0!important;padding:58px 58px 50px!important;box-sizing:border-box!important;background:#fbfaf5!important;color:#27156f!important;overflow:hidden!important;box-shadow:none!important;font-family:"Noto Sans Telugu","Nirmala UI",Georgia,serif!important}
  #invoicePrintSnapshot *{visibility:visible!important}
  body>header,body>nav,body>main{display:none!important}
