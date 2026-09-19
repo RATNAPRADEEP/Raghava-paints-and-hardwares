@@ -186,6 +186,22 @@ function readPackSizeRows(wb){
  }
  return discovered;
 }
+const WORKBOOK_CACHE_KEY='raghava_workbook_cache_v1';
+function cacheWorkbook(wb){
+ try{
+   const base64=XLSX.write(wb,{bookType:'xlsx',type:'base64'});
+   if(base64&&base64.length<4500000)localStorage.setItem(WORKBOOK_CACHE_KEY,base64);
+ }catch(e){console.warn('Workbook cache skipped:',e)}
+}
+function restoreCachedWorkbook(){
+ try{
+   const base64=localStorage.getItem(WORKBOOK_CACHE_KEY);
+   if(!base64)return false;
+   const wb=XLSX.read(base64,{type:'base64'});
+   loadData(wb);
+   return !!db.products.length;
+ }catch(e){console.warn('Cached workbook restore failed:',e);return false}
+}
 function loadData(wb){
  sourceWorkbook=wb;
  let pr=read(wb,'Products_Inventory');if(!pr.length)pr=read(wb,'Products_Catalogue');if(!pr.length)pr=read(wb,'Products');
@@ -265,10 +281,16 @@ async function restoreDriveConnection(){
    const bin=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(driveFileId)+'?alt=media',{headers:{Authorization:'Bearer '+accessToken}});
    if(!bin.ok)throw Error('Saved Google Drive workbook could not be loaded.');
    loadData(XLSX.read(await bin.arrayBuffer(),{type:'array'}));
+   cacheWorkbook(sourceWorkbook);
    if(!db.products.length)throw Error('No products were found in the saved Google Drive workbook.');
    setConnected(file.name||FILE);
    render();
  }catch(e){
+   if(restoreCachedWorkbook()){
+     $('dot').classList.add('on');
+     $('connectionText').textContent='Google Drive workbook loaded';
+     render();
+   }
    console.warn('Google Drive restore skipped:',e);
  }
 }
@@ -448,7 +470,7 @@ function getTransactionPrice(prefix,item){
 }
 function updateSalePricePreview(){
  const p=selectedItem('sale'),q=+$('saleQty').value||0,discount=Math.max(0,+$('saleDiscount').value||0),box=$('salePricePreview');
- if(!box){return}
+ if(!box)return;
  if(!p){box.textContent='Select a main product or subproduct and size to see the selling price.';return}
  const unit=getTransactionPrice('sale',p),total=Math.max(0,q*unit-discount);
  box.textContent='Selling price: '+money(unit)+' per selected size/unit · Sale total: '+money(total);
