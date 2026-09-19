@@ -605,62 +605,42 @@ function renderReceipt(){
  document.querySelectorAll('[data-invoice-row]').forEach((el,i)=>el.classList.toggle('active',i===invoiceCursor));
 }
 function printInvoice(){
+ const invoice=document.getElementById('invoices');
  const paper=document.getElementById('receiptPaper');
- if(!paper)return;
- const details=document.getElementById('receiptDetails');
- const customer=document.getElementById('receiptCustomer');
- const date=document.getElementById('receiptDateInput');
- const items=document.getElementById('receiptItems');
- const clone=paper.cloneNode(true);
- const pd=clone.querySelector('#receiptDetails');if(pd)pd.textContent=details?.textContent||'';
- const pc=clone.querySelector('#receiptCustomer');if(pc)pc.textContent=customer?.textContent||'';
- const pi=clone.querySelector('#receiptItems');if(pi)pi.innerHTML=items?.innerHTML||'';
- const pdi=clone.querySelector('#receiptDateInput'),pdp=clone.querySelector('#receiptDatePrint');
- if(pdi)pdi.remove();
- if(pdp){pdp.style.display='inline-block';pdp.textContent=formatInvoiceDate(parseInvoiceDate(date?.value||'')||todayISO())}
- const banner=clone.querySelector('.receipt-banner');
- if(banner){
-   banner.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20" preserveAspectRatio="none"><polygon points="6,0 100,0 94,20 0,20" fill="#35147b"/></svg><span>రాఘవ పెయింట్స్ &amp; హార్డ్వేర్స్</span>';
- }
- const css=`
-@page{size:A4 portrait;margin:0}
-html,body{margin:0!important;padding:0!important;background:#fff!important}
-body{width:760px;height:1060px;overflow:hidden!important}
-*{box-sizing:border-box}
-.receipt-paper{display:block!important;position:relative!important;width:760px!important;height:1060px!important;margin:0!important;padding:58px 58px 50px!important;background:#fbfaf5!important;color:#27156f!important;overflow:hidden!important;font-family:"Noto Sans Telugu","Nirmala UI",Georgia,serif!important}
-.receipt-paper:before{content:"";position:absolute;left:0;right:0;top:0;height:62px;background:#f2f1ed;border-bottom:1px solid #ddd9cf;z-index:0}
-.receipt-paper>*{position:relative;z-index:1}
-.receipt-top{display:flex;justify-content:center;align-items:flex-start;min-height:70px;margin-top:8px}
-.receipt-est{font-family:Georgia,serif;text-decoration:underline;font-weight:800;font-size:22px}
-.receipt-phone{position:absolute;right:0;top:0;font-weight:800;font-size:16px;line-height:1.25;text-align:right}
-.receipt-banner{position:relative!important;height:45px!important;margin:8px 0 0!important;padding:7px 18px!important;text-align:center!important;font-weight:900!important;font-size:29px!important;line-height:1.25!important;color:#fff!important;overflow:hidden!important}
-.receipt-banner svg{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
-.receipt-banner span{position:relative;z-index:2;color:#fff}
-.receipt-address{text-align:center;font-weight:800;font-size:18px;margin-top:8px}
-.receipt-line{border-top:2px solid #35147b;margin:8px 0}
-.receipt-dealer{text-align:center;font-weight:900;font-size:21px}
-.receipt-subtitle{text-align:center;font-size:15px;font-weight:700;margin-top:4px}
-.receipt-meta{display:flex;justify-content:space-between;align-items:end;font-size:18px;font-weight:800;margin-top:18px;padding-bottom:7px;border-bottom:2px dotted #35147b}
-.receipt-meta i{font-style:normal;font-weight:500;letter-spacing:2px}
-.receipt-customer{display:inline-block;min-width:250px;max-width:calc(100% - 150px);margin-left:8px;min-height:24px;max-height:52px;line-height:26px;padding:0 2px;border-bottom:2px dotted #35147b;font-weight:800}
-.receipt-date-wrap{display:inline-flex;align-items:center;gap:4px}
-.receipt-date-print{display:inline-block!important;width:125px;min-height:28px;padding:0 2px 1px;border-bottom:2px dotted #35147b;text-align:center;color:#27156f;font-weight:800}
-.receipt-body{position:relative;min-height:690px;border-left:2px solid #35147b;padding:16px 0 0 14px}
-.receipt-item{display:grid;grid-template-columns:2.6fr 1fr .7fr .8fr 1fr;gap:8px;font-family:"Segoe Print","Bradley Hand","Comic Sans MS",cursive;font-size:17px;line-height:1.75;color:#27156f;padding:2px 4px}
-.receipt-item span:nth-child(n+3){text-align:right}
-.receipt-details{display:block!important;width:100%;height:650px!important;margin:10px 4px 0;padding:8px 4px;background:transparent;border:0;outline:0;font-family:"Times New Roman",Times,serif!important;font-size:24px!important;line-height:1.7!important;color:#27156f!important;white-space:pre-wrap!important}
-.receipt-footer{position:absolute;left:58px;right:58px;bottom:34px;border-top:1px solid #35147b;height:1px}
-`;
- const w=window.open('','_blank','width=900,height=1200');
- if(!w){toast('Please allow pop-ups for this shop app to print the invoice.',true);return}
- w.document.open();
- w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Invoice</title><style>'+css+'</style></head><body></body></html>');
- w.document.close();
- w.document.body.appendChild(clone);
- w.document.title='Invoice';
- w.focus();
- const printNow=()=>{setTimeout(()=>w.print(),1000)};
- if(w.document.readyState==='complete')printNow();else w.onload=printNow;
+ if(!invoice||!paper)return;
+ nav('invoices');
+ const details=$('receiptDetails'),customer=$('receiptCustomer'),date=$('receiptDateInput');
+ const printDate=$('receiptDatePrint');
+ if(printDate)printDate.textContent=formatInvoiceDate(parseInvoiceDate(date?.value||'')||todayISO());
+ const oldTitle=document.title;
+ document.title='Invoice';
+ const style=document.createElement('style');
+ style.id='liveInvoicePrintStyle';
+ style.textContent=`
+@media print{
+ @page{size:A4 portrait;margin:0}
+ html,body{margin:0!important;padding:0!important;background:#fff!important;width:210mm!important;height:297mm!important;overflow:hidden!important}
+ body *{visibility:hidden!important}
+ #invoices,#invoices *{visibility:visible!important}
+ body>header,body>nav,body>main>section:not(#invoices){display:none!important}
+ body>main{display:block!important;width:100%!important;margin:0!important;padding:0!important}
+ #invoices{display:block!important;position:static!important;width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;overflow:hidden!important}
+ #invoices .invoice-toolbar,#invoices .invoice-list,#invoices .invoice-bottom,#invoices .invoice-writing-total{display:none!important}
+ #invoices .invoice-layout{display:block!important;width:210mm!important;height:297mm!important;margin:0!important;padding:0!important}
+ #invoices .invoice-stage{display:block!important;width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;border:0!important;background:#fff!important;overflow:hidden!important}
+ #receiptPaper{display:block!important;visibility:visible!important;position:relative!important;width:760px!important;height:1060px!important;min-height:1060px!important;margin:0!important;padding:58px 58px 50px!important;box-sizing:border-box!important;box-shadow:none!important;transform:none!important;overflow:hidden!important;background:#fbfaf5!important;color:#27156f!important}
+ #receiptPaper *{visibility:visible!important}
+ #receiptPaper:before{display:block!important}
+ #receiptDateInput{display:none!important}
+ #receiptDatePrint{display:inline-block!important}
+ #receiptDetails{display:block!important;height:650px!important;font-family:"Times New Roman",Times,serif!important;font-size:24px!important;line-height:1.7!important;white-space:pre-wrap!important}
+ #receiptPaper .receipt-banner{background:#35147b!important;color:#fff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+ }`;
+ document.head.appendChild(style);
+ const cleanup=()=>{style.remove();document.title=oldTitle};
+ const before=window.onafterprint;
+ window.onafterprint=()=>{cleanup();window.onafterprint=before};
+ requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
 }
 function bind(){
  $('purchaseInvoicePhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'purchase');e.target.value=''});$('scanPurchaseInvoice').addEventListener('click',()=>$('purchaseInvoicePhoto').click());$('customerPhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'customer');e.target.value=''});$('scanCustomer').addEventListener('click',()=>$('customerPhoto').click());
