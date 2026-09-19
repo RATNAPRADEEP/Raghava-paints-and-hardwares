@@ -60,7 +60,15 @@
   #invoices .receipt-details{display:block!important;height:650px!important;font-family:"Times New Roman",Times,serif!important;font-size:24px!important;line-height:1.7!important}
   #invoices .receipt-banner{display:block!important;background:#35147b!important;color:#fff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
 }
-</style></style></head>
+</style></style><style id="invoice-live-print-fix">@media print{
+ #invoicePrintSnapshot{display:block!important;visibility:visible!important;position:absolute!important;left:0!important;top:0!important;width:760px!important;height:1060px!important;margin:0!important;padding:58px 58px 50px!important;box-sizing:border-box!important;background:#fbfaf5!important;color:#27156f!important;overflow:hidden!important;box-shadow:none!important;font-family:"Noto Sans Telugu","Nirmala UI",Georgia,serif!important}
+ #invoicePrintSnapshot *{visibility:visible!important}
+ body>header,body>nav,body>main{display:none!important}
+ #invoicePrintSnapshot .receipt-date-input{display:none!important}
+ #invoicePrintSnapshot .receipt-date-print{display:inline-block!important;width:125px!important;min-height:28px!important;padding:0 2px 1px!important;border-bottom:2px dotted #35147b!important;text-align:center!important;box-sizing:border-box!important;color:#27156f!important;font-weight:800!important}
+ #invoicePrintSnapshot .invoice-writing-total{display:none!important}
+ #invoicePrintSnapshot .receipt-details{display:block!important;height:650px!important;font-family:"Times New Roman",Times,serif!important;font-size:24px!important;line-height:1.7!important;white-space:pre-wrap!important}
+}@media screen{#invoicePrintSnapshot{display:none!important}}</style></head>
 <body>
 <header class="top"><div><div class="eyebrow">LOCAL SHOP OPERATIONS</div><h1>Raghava Paints and Hardwares</h1></div><div><div class="connection"><span id="dot" class="dot"></span><span id="connectionText">Google Drive storage not connected</span></div><button id="connectBtn" class="btn primary">Connect Google Drive</button></div></header>
 <nav class="nav"><button class="navbtn active" data-page="dashboard">Manage</button><button class="navbtn" data-page="sales">Sell</button><button class="navbtn" data-page="purchases">Purchase</button><button class="navbtn" data-page="products">Track</button><button class="navbtn" data-page="accounts">Analyze</button><button class="navbtn" data-page="invoices">Invoice Print</button><button id="saveBtn" class="btn save">Save to Google Drive</button></nav>
@@ -605,16 +613,29 @@ function renderReceipt(){
  document.querySelectorAll('[data-invoice-row]').forEach((el,i)=>el.classList.toggle('active',i===invoiceCursor));
 }
 function printInvoice(){
- if(!invoiceManualMode&&!db.sales.length){invoiceManualMode=true;renderReceipt();}
  const invoice=document.getElementById('invoices');
  if(!invoice)return;
  nav('invoices');
- const oldTitle=document.title;
- document.title='Invoice';
- requestAnimationFrame(()=>requestAnimationFrame(()=>{
-   window.print();
-   setTimeout(()=>{document.title=oldTitle},500);
- }));
+ const key=invoiceManualMode?'__blank_invoice__':String(db.sales.slice().reverse()[invoiceCursor]?.invoice||'');
+ const details=$('receiptDetails'),customer=$('receiptCustomer'),date=$('receiptDateInput'),items=$('receiptItems');
+ if(key){
+   const currentItems=Array.from(items?.querySelectorAll('.receipt-item')||[]).map(row=>Array.from(row.querySelectorAll('[data-receipt-cell]')).map(cell=>cell.textContent));
+   saveInvoiceDraft(key,{customer:customer?.textContent||'',details:details?.textContent||'',items:currentItems,date:parseInvoiceDate(date?.value||'')||todayISO()});
+ }
+ let oldSnap=document.getElementById('invoicePrintSnapshot');if(oldSnap)oldSnap.remove();
+ const paper=document.querySelector('#invoices .receipt-paper');
+ if(!paper)return;
+ const snap=paper.cloneNode(true);snap.id='invoicePrintSnapshot';
+ const sd=snap.querySelector('#receiptDetails');if(sd)sd.textContent=details?.textContent||'';
+ const sc=snap.querySelector('#receiptCustomer');if(sc)sc.textContent=customer?.textContent||'';
+ const si=snap.querySelector('#receiptItems');if(si)si.innerHTML=items?.innerHTML||'';
+ const sdate=snap.querySelector('#receiptDateInput'),sp=snap.querySelector('#receiptDatePrint');
+ if(sdate)sdate.style.display='none';
+ if(sp){sp.style.display='inline-block';sp.textContent=formatInvoiceDate(parseInvoiceDate(date?.value||'')||todayISO())}
+ document.body.appendChild(snap);
+ const oldTitle=document.title;document.title='Invoice';
+ requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
+ setTimeout(()=>{document.title=oldTitle;const el=document.getElementById('invoicePrintSnapshot');if(el)el.remove()},1000);
 }
 function bind(){
  $('purchaseInvoicePhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'purchase');e.target.value=''});$('scanPurchaseInvoice').addEventListener('click',()=>$('purchaseInvoicePhoto').click());$('customerPhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'customer');e.target.value=''});$('scanCustomer').addEventListener('click',()=>$('customerPhoto').click());
