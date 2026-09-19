@@ -163,13 +163,14 @@ function readPackSizeRows(wb){
    const n=normalize(name);
    return ['productpacksizes','packsizes','productpacksize','packsize'].includes(n);
  });
- const parseRows=rows=>rows.map(r=>({
-   productId:String(sheetCell(r,'ProductID','Product ID','ID')).trim(),
-   sku:String(sheetCell(r,'SKU','ProductSKU','Product SKU')).trim(),
-   productName:String(sheetCell(r,'ProductName','Product Name','Product','Name')).trim(),
-   size:String(sheetCell(r,'PackSize','Pack Size','Size','Pack')).trim(),
-   unit:String(sheetCell(r,'Unit','UOM','Units')||'Litre').trim()
- })).filter(r=>r.size&&!/^(see pack sizes sheet|various|not yet verified)/i.test(r.size)&&(r.productId||r.productName||r.sku));
+ const parseRows=rows=>rows.map(r=>{
+   const productId=String(sheetCell(r,'ProductID','Product ID','ID')).trim();
+   const productField=String(sheetCell(r,'ProductName','Product Name','Product','Name')).trim();
+   const skuField=String(sheetCell(r,'SKU','ProductSKU','Product SKU')).trim();
+   const sku=/^[A-Z]{2,8}-[A-Z0-9][A-Z0-9_-]*$/i.test(skuField)?skuField:(/^AP-[A-Z0-9_-]+$/i.test(productField)?productField:'');
+   const productName=sku?String(sheetCell(r,'Product Name','Name')).trim():productField;
+   return {productId,sku,productName,size:String(sheetCell(r,'PackSize','Pack Size','Size','Pack')).trim(),unit:String(sheetCell(r,'Unit','UOM','Units')||'Litre').trim()};
+ }).filter(r=>r.size&&!/^(see pack sizes sheet|various|not yet verified)/i.test(r.size)&&(r.productId||r.productName||r.sku));
  if(preferred){
    const rows=parseRows(read(wb,preferred));
    if(rows.length)return rows;
