@@ -609,10 +609,12 @@ function printInvoice(){
  const invoice=document.getElementById('invoices');
  if(!invoice)return;
  nav('invoices');
- renderReceipt();
  const oldTitle=document.title;
  document.title='Invoice';
- setTimeout(()=>{window.print();setTimeout(()=>{document.title=oldTitle},500)},80);
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+   window.print();
+   setTimeout(()=>{document.title=oldTitle},500);
+ }));
 }
 function bind(){
  $('purchaseInvoicePhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'purchase');e.target.value=''});$('scanPurchaseInvoice').addEventListener('click',()=>$('purchaseInvoicePhoto').click());$('customerPhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'customer');e.target.value=''});$('scanCustomer').addEventListener('click',()=>$('customerPhoto').click());
