@@ -420,7 +420,7 @@ function sourcePackSizesForProduct(p){
    const a=aliases.map(normalize);
    return headers.findIndex(h=>a.includes(normalize(h)));
  };
- const idCol=col('ProductID','Product ID','ID'), productCol=col('ProductName','Product Name','Product','Name'), skuCol=col('SKU','ProductSKU','Product SKU'), sizeCol=col('PackSize','Pack Size','Size','Pack'), unitCol=col('Unit','UOM','Units'), costCol=col('PurchasePrice','Purchase Price','Cost','UnitCost','Unit Cost'), sellCol=col('SellingPrice','Selling Price','Sell','SalePrice','Sale Price','UnitPrice','Unit Price');
+ const idCol=col('ProductID','Product ID','ID'), productCol=col('ProductName','Product Name','Product','Name'), skuCol=col('SKU','ProductSKU','Product SKU'), sizeCol=col('PackSize','Pack Size','Size','Pack'), unitCol=col('Unit','UOM','Units'), costCol=col('PurchasePrice','Purchase Price','Cost','UnitCost','Unit Cost'), standardCol=col('StandardSellingPrice','Standard Selling Price','StandardSell','Standard Price'), sellCol=col('SellingPrice','Selling Price','Sell','SalePrice','Sale Price','UnitPrice','Unit Price');
  if(sizeCol<0)return [];
  const out=[];
  for(let i=headerIndex+1;i<matrix.length;i++){
@@ -433,10 +433,11 @@ function sourcePackSizesForProduct(p){
    const unit=String(unitCol>=0?row[unitCol]:'Litre').trim()||'Litre';
    const toPrice=v=>{const s=String(v??'').replace(/,/g,'').replace(/₹|Rs\\.?/gi,'').trim();const n=Number(s);return Number.isFinite(n)?n:0};
    const cost=toPrice(costCol>=0?row[costCol]:'');
+   const standardSell=toPrice(standardCol>=0?row[standardCol]:'');
    const sell=toPrice(sellCol>=0?row[sellCol]:'');
    if(!size||/^(see pack sizes sheet|various|not yet verified)$/i.test(size))continue;
    const matches=productId===wantedId||(sku&&sku.toLowerCase()===wantedSku)||(productField.toLowerCase()===wantedName);
-   if(matches)out.push({productId,sku,productName:productField,size,unit,cost,sell});
+   if(matches)out.push({productId,sku,productName:productField,size,unit,cost,standardSell,sell});
  }
  return out;
 }
@@ -534,7 +535,14 @@ function getStandardSellingPrice(prefix,item){
  const size=$(prefix+'Size')?.value||item.size||item.packSize||'';
  const rows=productSizes(item.id),pack=rows.find(x=>String(x.size).trim().toLowerCase()===String(size).trim().toLowerCase());
  const v=Number(pack?.standardSell??pack?.standardSellingPrice??0);
- return v>0?v:Number(item.standardSell||item.sell||0);
+ const n=numericSize(size),u=String(pack?.unit||item.unit||'').trim().toLowerCase();
+ if(v>0){
+   if(n>1&&(u==='litre'||u==='liter'||u==='l'||u==='kg')&&v<1000)return v*n;
+   return v;
+ }
+ const base=Number(item.standardSell||item.sell||0);
+ if(n>1&&(u==='litre'||u==='liter'||u==='l'||u==='kg')&&base>0&&base<1000)return base*n;
+ return base;
 }
 function setSalePriceFromStandard(){const el=$('salePrice'),p=selectedItem('sale');if(!el)return;const v=getStandardSellingPrice('sale',p);el.value=v>0?v:'';}
 function getTransactionPrice(prefix,item){
