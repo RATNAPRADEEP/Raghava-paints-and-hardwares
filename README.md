@@ -102,3 +102,18 @@ The interface follows a simple shop workflow with responsive cards, forms, metri
 For the deployed version, open the Vercel URL above and connect the shop's Excel workbook through Google Drive.
 
 For local development, serve the repository over HTTPS-compatible local hosting when testing Google OAuth and Picker integration.
+
+## First Commit 2026 — AWS Hackathon Layer
+
+This repository is being extended during the September 17–20, 2026 First Commit hackathon with an AWS-powered SmartShop layer. The original shop workflow remains intact while the new layer adds a reproducible serverless backend and an AWS Strands Agents prototype.
+
+### AWS stack
+
+- AWS SAM — reproducible infrastructure and local development
+- API Gateway — transaction API
+- AWS Lambda — serverless transaction processing
+- DynamoDB — transaction storage
+- Amazon S3 — receipt/document storage foundation
+- Strands Agents SDK — constrained shop-operations assistant prototype
+
+See aws/README.md for the architecture and local execution path.
