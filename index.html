@@ -608,7 +608,7 @@ async function scanInvoiceToFields(file,mode){
  btn.disabled=true;btn.textContent='Scanning…';
  try{
   const r=await Tesseract.recognize(file,'eng',{logger:m=>{if(m.status==='recognizing text')btn.textContent='Scanning '+Math.round((m.progress||0)*100)+'%…'}});
-  const text=(r.data.text||'').replace(/\r/g,' ').replace(/[ \t]+/g,' ').trim();
+  const text=(r.data.text||'').replace(/\r\n?/g,'\n').replace(/[ \t]+/g,' ').trim();
   if(!text){toast('No readable text found. Take a close, well-lit photo.',true);return}
   if(mode==='customer') parseCustomerScan(text); else parsePurchaseInvoice(text);
  }catch(e){toast('Invoice scan failed. Use a clearer, straight-on photo.',true)}
@@ -616,38 +616,82 @@ async function scanInvoiceToFields(file,mode){
 }
 function findNumber(text,patterns){for(const p of patterns){const m=text.match(p);if(m)return m[1].trim()}return ''}
 let invoiceScanItems=[];
+function normalizeOCRText(v){
+ return String(v??'').toLowerCase().replace(/&/g,' and ').replace(/[^a-z0-9.]+/g,' ').replace(/\\s+/g,' ').trim();
+}
+function bestOCRProductMatch(lines,p){
+ const name=normalizeOCRText(p.name);
+ if(!name)return null;
+ const nameTokens=name.split(' ').filter(x=>x.length>1);
+ let best=null;
+ lines.forEach((line,index)=>{
+   const raw=String(line||'').trim();if(!raw)return;
+   const n=normalizeOCRText(raw);
+   if(!n)return;
+   let score=0;
+   if(n.includes(name))score+=100;
+   const matched=nameTokens.filter(t=>n.includes(t)).length;
+   score+=matched*12;
+   const ratio=nameTokens.length?matched/nameTokens.length:0;
+   if(ratio>=.65)score+=50;
+   if(score>0&&(!best||score>best.score))best={line:raw,index,score,ratio};
+ });
+ return best&&best.score>=60?best:null;
+}
 function parsePurchaseInvoice(text){
- const inv=findNumber(text,[/(?:invoice|bill|inv)[\s#no.:\-]*([A-Z0-9][A-Z0-9\/-]{2,})/i]);
+ const inv=findNumber(text,[/(?:invoice|bill|inv)[\\s#no.:\\-]*([A-Z0-9][A-Z0-9\\/-]{2,})/i]);
  if(inv)$('purchaseInvoice').value=inv;
- const phone=findNumber(text,[/(?:phone|mobile|mob|contact)[\s:.-]*(\+?\d[\d ()-]{8,})/i]);
- const gst=findNumber(text,[/(?:gstin|gst)[\s:.-]*([0-9A-Z]{15})/i]);
- const supplier=db.suppliers.find(s=>(phone&&String(s.phone).replace(/\D/g,'')===String(phone).replace(/\D/g,''))||(gst&&String(s.gstin).toUpperCase()===gst.toUpperCase()));
+ const phone=findNumber(text,[/(?:phone|mobile|mob|contact)[\\s:.-]*(\\+?\\d[\\d ()-]{8,})/i]);
+ const gst=findNumber(text,[/(?:gstin|gst)[\\s:.-]*([0-9A-Z]{15})/i]);
+ const supplier=db.suppliers.find(s=>(phone&&String(s.phone).replace(/\\D/g,'')===String(phone).replace(/\\D/g,''))||(gst&&String(s.gstin).toUpperCase()===gst.toUpperCase()));
  if(supplier)$('purchaseSupplier').value=supplier.id;
- const lower=text.toLowerCase(),lines=text.split(/\n+/).map(x=>x.trim()).filter(Boolean),seen=new Set();
+
+ const lines=String(text||'').split(/\\n+/).map(x=>x.trim()).filter(Boolean);
+ const seen=new Set();
  invoiceScanItems=[];
+
  activeProducts().slice().sort((a,b)=>String(b.name).length-String(a.name).length).forEach(p=>{
-   const hitLine=lines.find(line=>line.toLowerCase().includes(String(p.name).toLowerCase()));
-   if(!hitLine||seen.has(p.id))return;
+   const hit=bestOCRProductMatch(lines,p);
+   if(!hit||seen.has(p.id))return;
    seen.add(p.id);
-   const nums=(hitLine.match(/\d+(?:\.\d+)?/g)||[]).map(Number);
-   const size=productSizes(p.id).find(x=>hitLine.toLowerCase().includes(String(x.size).toLowerCase()));
+   const hitLine=hit.line;
+   const nums=(hitLine.match(/\\d+(?:\\.\\d+)?/g)||[]).map(Number);
+   const size=productSizes(p.id).find(x=>{
+     const sn=normalizeOCRText(x.size);
+     return sn&&normalizeOCRText(hitLine).includes(sn);
+   });
    let qty=0,cost=0;
-   const q=findNumber(hitLine,[/(?:qty|quantity|nos|units)[\s:.-]*(\d+(?:\.\d+)?)/i]);
-   const r=findNumber(hitLine,[/(?:rate|unit price|price|cost)[\s:₹Rs.]*([\d,]+(?:\.\d+)?)/i]);
-   if(q)qty=+q.replace(/,/g,''); else if(nums.length>=2)qty=nums[nums.length-2];
-   if(r)cost=+r.replace(/,/g,''); else if(nums.length>=1)cost=nums[nums.length-1];
+   const q=findNumber(hitLine,[/(?:qty|quantity|nos|units|pcs|pieces)[\\s:.-]*(\\d+(?:\\.\\d+)?)/i]);
+   const rate=findNumber(hitLine,[/(?:rate|unit price|price|cost|purchase price|basic)[\\s:₹Rs.]*([\\d,]+(?:\\.\\d+)?)/i]);
+   if(q)qty=+q.replace(/,/g,'');
+   else if(nums.length>=2)qty=nums[nums.length-2];
+   else if(nums.length===1)qty=nums[0];
+
+   if(rate)cost=+rate.replace(/,/g,'');
+   else if(nums.length>=1)cost=nums[nums.length-1];
+
    invoiceScanItems.push({productId:p.id,name:p.name,size:size?String(size.size):'',qty,cost});
  });
+
  if(invoiceScanItems.length){
-   const first=invoiceScanItems[0],p=activeProducts().find(x=>x.id===first.productId);
-   $('purchaseProduct').value=p.id;$('purchaseSubproduct').value='';updateSharedSize('purchase');
-   if(first.size)$('purchaseSize').value=first.size;
-   if(first.qty)$('purchaseQty').value=first.qty;
-   if(first.cost)$('purchaseCost').value=first.cost;
+   const first=invoiceScanItems[0],p=activeProducts().find(x=>String(x.id)===String(first.productId));
+   if(p){
+     $('purchaseProduct').value=p.id;
+     $('purchaseSubproduct').value='';
+     updateSharedSize('purchase');
+     if(first.size)$('purchaseSize').value=first.size;
+     if(first.qty)$('purchaseQty').value=first.qty;
+     if(first.cost)$('purchaseCost').value=first.cost;
+     updatePurchasePricePreview();
+   }
    renderInvoiceItems();
- } else toast('No catalogue product matched. You can still enter the purchase manually.',true);
- toast('Invoice scanned. '+invoiceScanItems.length+' item(s) detected — verify before saving.');
+ }else{
+   $('invoiceScanResults').style.display='none';
+   toast('Receipt was read, but no catalogue product matched. Try a clearer photo or use the Scan Invoice button.',true);
+ }
+ toast(invoiceScanItems.length?'Receipt scanned. Product, quantity and cost were filled automatically — verify before recording.':'Receipt text detected, but product matching needs manual review.',!invoiceScanItems.length);
 }
+
 function renderInvoiceItems(){
  const box=$('invoiceScanResults');if(!box)return;
  box.style.display=invoiceScanItems.length?'block':'none';
@@ -1102,7 +1146,7 @@ function bind(){
  $('purchaseInvoicePhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'purchase');e.target.value=''});$('scanPurchaseInvoice').addEventListener('click',()=>$('purchaseInvoicePhoto').click());$('customerPhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'customer');e.target.value=''});$('scanCustomer').addEventListener('click',()=>$('customerPhoto').click());
  addPhotoOCR('photoSku','pSku','scanSku');addPhotoOCR('photoName','pName','scanName');addPhotoOCR('photoBrand','pBrand','scanBrand');addPhotoOCR('photoShade','pShade','scanShade');
  $('connectBtn').addEventListener('click',connect);
- if($('attachPurchaseReceipt')){$('attachPurchaseReceipt').addEventListener('click',e=>{e.preventDefault();$('purchaseReceiptPhoto').click()});$('purchaseReceiptPhoto').addEventListener('change',async()=>{const f=$('purchaseReceiptPhoto').files?.[0];if(!f)return;$('purchaseReceiptName').textContent='Attached: '+f.name;$('purchaseReceiptOCRStatus').textContent='Reading receipt…';try{const r=await Tesseract.recognize(f,'eng');const t=(r.data.text||'').replace(/\r/g,' ').replace(/[ \t]+/g,' ').trim();parsePurchaseInvoice(t);$('purchaseReceiptOCRStatus').textContent=invoiceScanItems.length?'✓ Receipt scanned and product/quantity/cost filled automatically.':'No catalogue product matched.'}catch(e){$('purchaseReceiptOCRStatus').textContent='Receipt scan failed. Enter details manually.'}})}
+ if($('attachPurchaseReceipt')){$('attachPurchaseReceipt').addEventListener('click',e=>{e.preventDefault();$('purchaseReceiptPhoto').click()});$('purchaseReceiptPhoto').addEventListener('change',async()=>{const f=$('purchaseReceiptPhoto').files?.[0];if(!f)return;$('purchaseReceiptName').textContent='Attached: '+f.name;$('purchaseReceiptOCRStatus').textContent='Reading receipt…';try{const r=await Tesseract.recognize(f,'eng');const t=(r.data.text||'').replace(/\r\n?/g,'\n').replace(/[ \t]+/g,' ').trim();parsePurchaseInvoice(t);$('purchaseReceiptOCRStatus').textContent=invoiceScanItems.length?'✓ Receipt scanned and product/quantity/cost filled automatically.':'Receipt text was read, but no catalogue product was matched. Please check the product name or enter it manually.'}catch(e){$('purchaseReceiptOCRStatus').textContent='Receipt scan failed. Enter details manually.'}})}
 
  if($('attachSaleReceipt')){$('attachSaleReceipt').addEventListener('click',e=>{e.preventDefault();$('saleReceiptPhoto').click()});$('saleReceiptPhoto').addEventListener('change',async()=>{const f=$('saleReceiptPhoto').files?.[0];saleReceiptOCR='';if(!f){$('saleReceiptName').textContent='Optional — handwritten or printed receipt.';return}$('saleReceiptName').textContent='Attached: '+f.name;$('saleReceiptOCRStatus').textContent='Reading receipt…';try{if(!window.Tesseract)throw Error('OCR library not loaded');const r=await Tesseract.recognize(f,'eng');saleReceiptOCR=(r.data.text||'').replace(/\s+/g,' ').trim();$('saleReceiptOCRStatus').textContent=saleReceiptOCR?'✓ Receipt text detected and ready to save.':'No readable text detected — photo will still be saved.'}catch(err){$('saleReceiptOCRStatus').textContent='Photo attached. OCR could not read it; the image can still be saved.'}});}
 
