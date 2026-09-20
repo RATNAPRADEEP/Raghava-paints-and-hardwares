@@ -26,6 +26,13 @@ Test a sale:
 sam local invoke SmartShopFunction --event aws/events/sale.json
 
 ## Hackathon integration
-The existing shop workflow remains intact. This AWS layer adds the new hackathon capability without replacing inventory, sales, purchase, invoice, or workbook workflows.
+The existing shop workflow remains intact. The Sell -> Record Sale action now optionally syncs the same sale to `POST /sales` while keeping Google Drive/local recording independent.
 
-Next: connect Sell/Invoice save to POST /sales, upload receipt photos to S3, add an AWS AI assistant, and demonstrate the AWS-backed flow.
+### Connect the frontend
+After deploying the SAM stack, copy the API Gateway URL and set it in the browser console:
+
+`localStorage.setItem('smartshop_api_url_v1','https://YOUR-API-ID.execute-api.YOUR-REGION.amazonaws.com/Prod')`
+
+Then reload the shop. When the URL is configured, each new sale is sent to AWS after the local/Google Drive sale record is created. If AWS is unavailable, the sale is still retained locally and the UI reports the AWS sync error.
+
+This separation keeps the existing shop workflow usable while providing a real AWS-backed transaction path for the hackathon demo.
