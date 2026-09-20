@@ -987,31 +987,36 @@ async function recordSaleNow(e){
   p.stock-=q;db.sales.push(x);
   const rec={id:uid(),type:'Sale',recordedBy:x.recordedBy||'Other',date:x.date,referenceId:x.invoice,productId:p.id,productClass:x.productClass,product:x.product,category:x.category,size:x.size,qty:q,amountBase:x.price,amount:total,payment:x.payment,notes:''};
   (rec.recordedBy==='Me'?db.myRecords:db.otherRecords).push(rec);
-  let uploaded=null;
-  try{
-   if(driveReady){
+  let uploaded=null,receiptSyncError='',workbookSyncError='';
+  if(driveReady){
+   try{
     uploaded=await uploadReceipt($('saleReceiptPhoto')?.files?.[0],'SALE',x.id,x.invoice,saleReceiptOCR);
     if(uploaded){db.receipts.push(uploaded);x.receiptId=uploaded.id;x.receiptOcr=uploaded.ocrText||''}
+   }catch(err){
+    receiptSyncError=err?.message||'Receipt upload failed.';
+    console.warn('Sales receipt upload failed:',err);
+   }
+   try{
     await writeExcel();
-   }else if(sourceWorkbook){
-    await buildWorkbook();cacheWorkbook(sourceWorkbook);
+   }catch(err){
+    workbookSyncError=err?.message||'Google Drive workbook save failed.';
+    console.warn('Sales workbook sync failed:',err);
    }
-   $('saleForm').reset();if($('saleCustomerName'))$('saleCustomerName').value='';saleReceiptOCR='';
-   if($('saleReceiptName'))$('saleReceiptName').textContent='Optional — handwritten or printed receipt.';
-   if($('saleReceiptOCRStatus'))$('saleReceiptOCRStatus').textContent='';
-   invoiceManualMode=false;invoiceCursor=0;render();
-   show(driveReady?x.invoice+' recorded and synced to Google Drive.':x.invoice+' recorded. Sales History updated; Google Drive sync is pending.',false);
-  }catch(err){
-   if(uploaded)await deleteDriveFile(uploaded.id);
-   if(driveReady){
-    if(sourceWorkbook){try{await buildWorkbook();cacheWorkbook(sourceWorkbook)}catch(cacheErr){console.warn('Sale local cache failed:',cacheErr)} }
-    render();
-    show(x.invoice+' recorded in Sales History, but Google Drive sync failed. Reconnect Google Drive to sync it.',true);
-   }else{
-    if(sourceWorkbook){try{await buildWorkbook();cacheWorkbook(sourceWorkbook)}catch(cacheErr){console.warn('Sale local cache failed:',cacheErr)} }
-    render();
-    show(x.invoice+' recorded in Sales History. Google Drive is not connected, so it remains pending sync.',false);
-   }
+  }else if(sourceWorkbook){
+   try{await buildWorkbook();cacheWorkbook(sourceWorkbook)}catch(cacheErr){console.warn('Sale local cache failed:',cacheErr)}
+  }
+  $('saleForm').reset();if($('saleCustomerName'))$('saleCustomerName').value='';saleReceiptOCR='';
+  if($('saleReceiptName'))$('saleReceiptName').textContent='Optional — handwritten or printed receipt.';
+  if($('saleReceiptOCRStatus'))$('saleReceiptOCRStatus').textContent='';
+  invoiceManualMode=false;invoiceCursor=0;render();
+  if(!driveReady){
+   show(x.invoice+' recorded in Sales History. Google Drive is not connected, so it remains pending sync.',false);
+  }else if(!workbookSyncError&&!receiptSyncError){
+   show(x.invoice+' recorded and synced to Google Drive.',false);
+  }else if(!workbookSyncError&&receiptSyncError){
+   show(x.invoice+' recorded and workbook synced to Google Drive. Receipt photo upload failed: '+receiptSyncError,false);
+  }else{
+   show(x.invoice+' recorded in Sales History, but Google Drive workbook sync failed: '+workbookSyncError,true);
   }
  }catch(err){console.error('Record Sale failed:',err);show(err?.message||'Record Sale failed. Check the form.',true)}
  finally{if(submitBtn)submitBtn.disabled=false}
