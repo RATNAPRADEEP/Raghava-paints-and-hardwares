@@ -170,7 +170,8 @@ function readPackSizeRows(wb){
    const skuField=String(sheetCell(r,'SKU','ProductSKU','Product SKU')).trim();
    const sku=/^[A-Z]{2,8}-[A-Z0-9][A-Z0-9_-]*$/i.test(skuField)?skuField:(/^AP-[A-Z0-9_-]+$/i.test(productField)?productField:'');
    const productName=sku?String(sheetCell(r,'Product Name','Name')).trim():productField;
-   return {productId,sku,productName,size:String(sheetCell(r,'PackSize','Pack Size','Size','Pack')).trim(),unit:String(sheetCell(r,'Unit','UOM','Units')||'Litre').trim()};
+   const toPrice=v=>{const s=String(v??'').replace(/,/g,'').replace(/₹|Rs\\.?/gi,'').trim();const n=Number(s);return Number.isFinite(n)?n:0};
+   return {productId,sku,productName,size:String(sheetCell(r,'PackSize','Pack Size','Size','Pack')).trim(),unit:String(sheetCell(r,'Unit','UOM','Units')||'Litre').trim(),cost:toPrice(sheetCell(r,'PurchasePrice','Purchase Price','Cost','UnitCost','Unit Cost')),sell:toPrice(sheetCell(r,'SellingPrice','Selling Price','Sell','SalePrice','Sale Price','UnitPrice','Unit Price'))};
  }).filter(r=>r.size&&!/^(see pack sizes sheet|various|not yet verified)/i.test(r.size)&&(r.productId||r.productName||r.sku));
  if(preferred){
    const rows=parseRows(read(wb,preferred));
@@ -419,7 +420,7 @@ function sourcePackSizesForProduct(p){
    const a=aliases.map(normalize);
    return headers.findIndex(h=>a.includes(normalize(h)));
  };
- const idCol=col('ProductID','Product ID','ID'), productCol=col('ProductName','Product Name','Product','Name'), skuCol=col('SKU','ProductSKU','Product SKU'), sizeCol=col('PackSize','Pack Size','Size','Pack'), unitCol=col('Unit','UOM','Units');
+ const idCol=col('ProductID','Product ID','ID'), productCol=col('ProductName','Product Name','Product','Name'), skuCol=col('SKU','ProductSKU','Product SKU'), sizeCol=col('PackSize','Pack Size','Size','Pack'), unitCol=col('Unit','UOM','Units'), costCol=col('PurchasePrice','Purchase Price','Cost','UnitCost','Unit Cost'), sellCol=col('SellingPrice','Selling Price','Sell','SalePrice','Sale Price','UnitPrice','Unit Price');
  if(sizeCol<0)return [];
  const out=[];
  for(let i=headerIndex+1;i<matrix.length;i++){
@@ -430,9 +431,12 @@ function sourcePackSizesForProduct(p){
    const sku=/^[A-Z]{2,8}-[A-Z0-9][A-Z0-9_-]*$/i.test(skuField)?skuField:(/^AP-[A-Z0-9_-]+$/i.test(productField)?productField:'');
    const size=String(row[sizeCol]??'').trim();
    const unit=String(unitCol>=0?row[unitCol]:'Litre').trim()||'Litre';
+   const toPrice=v=>{const s=String(v??'').replace(/,/g,'').replace(/₹|Rs\\.?/gi,'').trim();const n=Number(s);return Number.isFinite(n)?n:0};
+   const cost=toPrice(costCol>=0?row[costCol]:'');
+   const sell=toPrice(sellCol>=0?row[sellCol]:'');
    if(!size||/^(see pack sizes sheet|various|not yet verified)$/i.test(size))continue;
    const matches=productId===wantedId||(sku&&sku.toLowerCase()===wantedSku)||(productField.toLowerCase()===wantedName);
-   if(matches)out.push({productId,sku,productName:productField,size,unit});
+   if(matches)out.push({productId,sku,productName:productField,size,unit,cost,sell});
  }
  return out;
 }
