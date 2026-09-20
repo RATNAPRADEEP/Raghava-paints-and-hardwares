@@ -273,7 +273,47 @@ async function buildWorkbook(){
  return XLSX.write(wb,{bookType:'xlsx',type:'array'});
 }
 async function ensureReceiptFolder(){const q="name='Raghava_Paints_Hardwares_Receipts' and mimeType='application/vnd.google-apps.folder' and trashed=false";const f=await driveFetch('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent(q)+'&fields=files(id,name)&pageSize=10');if(!f.ok)throw Error('Could not access the receipts folder.');const d=await f.json();if(d.files?.length)return d.files[0].id;const x=await driveFetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Raghava_Paints_Hardwares_Receipts',mimeType:'application/vnd.google-apps.folder'})});if(!x.ok)throw Error('Could not create the receipts folder.');return(await x.json()).id}
-async function uploadReceipt(file,type,txId,invoice,providedOCR=''){if(!file)return null;let ocrText=providedOCR||'';if(!ocrText)try{if(window.Tesseract){const r=await Tesseract.recognize(file,'eng');ocrText=(r.data.text||'').replace(/\s+/g,' ').trim();}}catch(e){ocrText=''}const folder=await ensureReceiptFolder();const safe=(file.name||'receipt.jpg').replace(/[^a-zA-Z0-9._-]/g,'_');const filename=type+'_'+invoice+'_'+Date.now()+'_'+safe;const boundary='----RaghavaReceipt'+Math.random().toString(16).slice(2);const meta={name:filename,parents:[folder],mimeType:file.type||'image/jpeg'};const body=new Blob(['--'+boundary+'\\r\\nContent-Type: application/json; charset=UTF-8\\r\\n\\r\\n',JSON.stringify(meta),'\\r\\n--'+boundary+'\\r\\nContent-Type: '+(file.type||'image/jpeg')+'\\r\\n\\r\\n',file,'\\r\\n--'+boundary+'--\\r\\n']);const res=await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink,mimeType&supportsAllDrives=true',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+boundary},body});if(!res.ok)throw Error('Receipt upload failed ('+res.status+').');const out=await res.json();return{id:out.id,transactionType:type,transactionId:txId,invoice,date:new Date().toISOString(),fileName:out.name||filename,driveFileId:out.id,webViewLink:out.webViewLink||'',ocrText}}
+async function uploadReceipt(file,type,txId,invoice,providedOCR=''){
+ if(!file)return null;
+ let ocrText=providedOCR||'';
+ if(!ocrText)try{
+  if(window.Tesseract){
+   const r=await Tesseract.recognize(file,'eng');
+   ocrText=(r.data.text||'').replace(/\s+/g,' ').trim();
+  }
+ }catch(e){ocrText=''}
+ const folder=await ensureReceiptFolder();
+ const safe=(file.name||'receipt.jpg').replace(/[^a-zA-Z0-9._-]/g,'_');
+ const filename=type+'_'+invoice+'_'+Date.now()+'_'+safe;
+ const mime=file.type||'image/jpeg';
+ const metaRes=await driveFetch('https://www.googleapis.com/drive/v3/files?fields=id,name,webViewLink,mimeType&supportsAllDrives=true',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({name:filename,parents:[folder],mimeType:mime})
+ });
+ if(!metaRes.ok){
+  let detail='';
+  try{const j=await metaRes.json();detail=j?.error?.message||''}catch(e){}
+  throw Error('Receipt file creation failed ('+metaRes.status+')'+(detail?': '+detail:'.'));
+ }
+ const created=await metaRes.json();
+ try{
+  const media=await driveFetch('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(created.id)+'?uploadType=media&supportsAllDrives=true',{
+   method:'PATCH',
+   headers:{'Content-Type':mime},
+   body:file
+  });
+  if(!media.ok){
+   let detail='';
+   try{const j=await media.json();detail=j?.error?.message||''}catch(e){}
+   throw Error('Receipt photo upload failed ('+media.status+')'+(detail?': '+detail:'.'));
+  }
+ }catch(e){
+  try{await deleteDriveFile(created.id)}catch(ignore){}
+  throw e;
+ }
+ return{id:created.id,transactionType:type,transactionId:txId,invoice,date:new Date().toISOString(),fileName:created.name||filename,driveFileId:created.id,webViewLink:created.webViewLink||'',ocrText};
+}
 async function deleteDriveFile(id){if(!id)return;try{await driveFetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(id),{method:'DELETE'})}catch(e){}}
 async function viewReceipt(id){try{const res=await driveFetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(id)+'?alt=media');if(!res.ok)throw Error('Could not open receipt.');const url=URL.createObjectURL(await res.blob());const w=window.open('','_blank','noopener');if(w){w.document.write('<title>Receipt</title><body style="margin:0;background:#111;display:flex;justify-content:center;align-items:center;min-height:100vh"><img src="'+url+'" style="max-width:100%;max-height:100vh;object-fit:contain"></body>');w.document.close()}}catch(e){toast(e.message||'Could not open receipt.',true)}}
 function renderReceiptTables(){const rows=db.receipts.slice().reverse();const sales=rows.filter(x=>x.transactionType==='SALE'),purchases=rows.filter(x=>x.transactionType==='PURCHASE');const row=x=>'<tr><td>'+esc(x.invoice)+'</td><td>'+esc(x.fileName)+'</td><td>'+esc(String(x.date).slice(0,10))+'</td><td><button type="button" class="btn" data-view-receipt="'+esc(x.driveFileId)+'">View</button></td></tr>';if($('salesReceiptsTable'))$('salesReceiptsTable').innerHTML=sales.length?'<table><tr><th>Invoice</th><th>Receipt</th><th>Date</th><th>Action</th></tr>'+sales.map(row).join('')+'</table>':'<p class="muted">No scanned sales receipts yet.</p>';if($('purchaseReceiptsTable'))$('purchaseReceiptsTable').innerHTML=purchases.length?'<table><tr><th>Invoice</th><th>Invoice Photo</th><th>Date</th><th>Action</th></tr>'+purchases.map(row).join('')+'</table>':'<p class="muted">No scanned supplier invoices yet.</p>'}
