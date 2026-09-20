@@ -700,7 +700,7 @@ renderInvoiceTable();
  const trackedSuppliers=db.suppliers.filter(x=>activeSupplierIds.has(String(x.id))||activeSupplierNames.has(String(x.name||'').trim().toLowerCase()));
  $('suppliersTable').innerHTML=trackedSuppliers.length?'<table><tr><th>Company</th><th>Contact</th><th>Phone</th><th>Area</th></tr>'+trackedSuppliers.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.contact)}</td><td>${esc(x.phone)}</td><td>${esc(x.area)}</td></tr>`).join('')+'</table>':'<p class="muted">No synced suppliers found in the connected workbook.</p>';renderReceiptTables();
 }
-async async function scanInvoiceToFields(file,mode){
+async function scanInvoiceToFields(file,mode){
  if(!file)return;
  const btn=$(mode==='purchase'?'scanPurchaseInvoice':'scanCustomer'),old=btn.textContent;
  btn.disabled=true;btn.textContent='Scanning…';
