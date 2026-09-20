@@ -652,7 +652,11 @@ async function scanInvoiceToFields(file,mode){
 function findNumber(text,patterns){for(const p of patterns){const m=text.match(p);if(m)return m[1].trim()}return ''}
 let invoiceScanItems=[];
 function normalizeOCRText(v){
- return String(v??'').toLowerCase().replace(/&/g,' and ').replace(/[^\\p{L}\\p{N}.]+/gu,' ').replace(/\\s+/g,' ').trim();
+ return String(v??'').toLowerCase()
+   .replace(/&/g,' and ')
+   .replace(/[^\p{L}\p{N}.]+/gu,' ')
+   .replace(/\s+/g,' ')
+   .trim();
 }
 function ocrTokenSimilarity(a,b){
  a=String(a||'');b=String(b||'');
