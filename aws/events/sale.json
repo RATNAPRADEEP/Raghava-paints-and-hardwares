@@ -1,0 +1,5 @@
+{
+  "httpMethod": "POST",
+  "path": "/sales",
+  "body": "{\"product\":\"Tractor Emulsion\",\"customer\":\"Demo Customer\",\"quantity\":2,\"price\":4500}"
+}
