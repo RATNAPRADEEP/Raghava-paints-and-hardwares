@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Raghava SmartShop AWS hackathon backend
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 20
+    MemorySize: 256
+    Environment:
+      Variables:
+        SALES_TABLE: !Ref SalesTable
+        RECEIPTS_BUCKET: !Ref ReceiptsBucket
+
+Resources:
+  SmartShopApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowOrigin: "'*'"
+        AllowHeaders: "'Content-Type'"
+        AllowMethods: "'OPTIONS,POST,GET'"
+
+  SmartShopFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SalesTable
+        - S3CrudPolicy:
+            BucketName: !Ref ReceiptsBucket
+      Events:
+        Health:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SmartShopApi
+            Path: /health
+            Method: get
+        Sale:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SmartShopApi
+            Path: /sales
+            Method: post
+        Sales:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SmartShopApi
+            Path: /sales
+            Method: get
+
+  SalesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: saleId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: saleId
+          KeyType: HASH
+
+  ReceiptsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+Outputs:
+  ApiUrl:
+    Description: SmartShop API endpoint
+    Value: !Sub https://${SmartShopApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
+  SalesTableName:
+    Value: !Ref SalesTable
+  ReceiptsBucketName:
+    Value: !Ref ReceiptsBucket
