@@ -691,8 +691,14 @@ function render(){
  $('salesTable').innerHTML='<table><tr><th>Invoice</th><th>Customer</th><th>Type</th><th>Product</th><th>Qty</th><th>Total</th><th>Paid</th><th>Due</th><th>Receipt Photo / Data</th></tr>'+db.sales.slice().reverse().map(x=>`<tr><td>${esc(x.invoice)}</td><td>${esc(x.customer)}</td><td>${esc(x.customerType)}</td><td>${esc(x.product)} ${x.size?'— '+esc(x.size):''}</td><td>${x.qty}</td><td>${money(x.total)}</td><td>${money(x.paid)}</td><td>${money(x.due)}</td><td>${x.receiptId?'<button type="button" class="btn" data-view-receipt="'+esc(x.receiptId)+'">📷 View</button><br><small>'+esc((x.receiptOcr||'').slice(0,120))+'</small>':'—'}</td></tr>`).join('')+'</table>';
 renderInvoiceTable();
  $('purchasesTable').innerHTML='<table><tr><th>Invoice</th><th>Supplier</th><th>Class</th><th>Product</th><th>Qty</th><th>Total</th><th>Paid</th><th>Due</th></tr>'+db.purchases.slice().reverse().map(x=>`<tr><td>${esc(x.invoice)}</td><td>${esc(x.supplier)}</td><td>${esc(x.productClass)}</td><td>${esc(x.product)}</td><td>${x.qty}</td><td>${money(x.total)}</td><td>${money(x.paid)}</td><td>${money(x.due)}</td></tr>`).join('')+'</table>';
- $('customersTable').innerHTML='<table><tr><th>Shop</th><th>Customer</th><th>Type</th><th>Phone</th><th>Area</th></tr>'+db.customers.map(x=>`<tr><td>${esc(x.shop)}</td><td>${esc(x.name)}</td><td>${esc(x.type)}</td><td>${esc(x.phone)}</td><td>${esc(x.area)}</td></tr>`).join('')+'</table>';
- $('suppliersTable').innerHTML='<table><tr><th>Company</th><th>Contact</th><th>Phone</th><th>Area</th></tr>'+db.suppliers.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.contact)}</td><td>${esc(x.phone)}</td><td>${esc(x.area)}</td></tr>`).join('')+'</table>';renderReceiptTables();
+ const activeCustomerIds=new Set((db.sales||[]).map(x=>String(x.customerId||'')).filter(Boolean));
+ const activeCustomerNames=new Set((db.sales||[]).map(x=>String(x.customer||'').trim().toLowerCase()).filter(Boolean));
+ const trackedCustomers=db.customers.filter(x=>activeCustomerIds.has(String(x.id))||activeCustomerNames.has(String(x.name||'').trim().toLowerCase()));
+ $('customersTable').innerHTML=trackedCustomers.length?'<table><tr><th>Shop</th><th>Customer</th><th>Type</th><th>Phone</th><th>Area</th></tr>'+trackedCustomers.map(x=>`<tr><td>${esc(x.shop)}</td><td>${esc(x.name)}</td><td>${esc(x.type)}</td><td>${esc(x.phone)}</td><td>${esc(x.area)}</td></tr>`).join('')+'</table>':'<p class="muted">No synced customers found in the connected workbook.</p>';
+ const activeSupplierIds=new Set((db.purchases||[]).map(x=>String(x.supplierId||'')).filter(Boolean));
+ const activeSupplierNames=new Set((db.purchases||[]).map(x=>String(x.supplier||'').trim().toLowerCase()).filter(Boolean));
+ const trackedSuppliers=db.suppliers.filter(x=>activeSupplierIds.has(String(x.id))||activeSupplierNames.has(String(x.name||'').trim().toLowerCase()));
+ $('suppliersTable').innerHTML=trackedSuppliers.length?'<table><tr><th>Company</th><th>Contact</th><th>Phone</th><th>Area</th></tr>'+trackedSuppliers.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.contact)}</td><td>${esc(x.phone)}</td><td>${esc(x.area)}</td></tr>`).join('')+'</table>':'<p class="muted">No synced suppliers found in the connected workbook.</p>';renderReceiptTables();
 }
 async function scanInvoiceToFields(file,mode){
  if(!file)return;
