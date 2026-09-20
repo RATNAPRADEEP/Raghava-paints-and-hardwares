@@ -798,88 +798,128 @@ function parseCustomerScan(text){
  toast('Customer/invoice scan complete. Verify the fields before saving.');
 }
 function parseSaleReceiptScan(text){
- const phone=findNumber(text,[/(?:phone|mobile|mob|contact)[\s:.-]*(\+?\d[\d ()-]{8,})/i]);
- const customer=findNumber(text,[/(?:customer|name|party|bill to)[\s:.-]*([^,\n]{2,60})/i]);
+ const rawText=String(text||'').replace(/\r\n?/g,'\n');
+ const lines=rawText.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+ const normalizedLines=lines.map(normalizeOCRText);
+ const fieldNumber=(labels)=>{
+   for(let i=0;i<lines.length;i++){
+     const row=String(lines[i]||'');
+     const m=row.match(new RegExp('(?:'+labels+')\\s*[:#.-]?\\s*[₹Rs.]*([\\d,]+(?:\\.\\d+)?)','i'));
+     if(m)return m[1].replace(/,/g,'');
+     if(i+1<lines.length){
+       const next=String(lines[i+1]||'');
+       if(new RegExp('^(?:'+labels+')\\b','i').test(row)){
+         const n=next.match(/[₹Rs.]?\\s*([\\d,]+(?:\\.\\d+)?)/);
+         if(n)return n[1].replace(/,/g,'');
+       }
+     }
+   }
+   return '';
+ };
+ const fieldText=(labels)=>{
+   for(let i=0;i<lines.length;i++){
+     const m=String(lines[i]||'').match(new RegExp('(?:'+labels+')\\s*[:#.-]?\\s*(.+)$','i'));
+     if(m)return m[1].trim();
+     if(i+1<lines.length&&new RegExp('^(?:'+labels+')\\b','i').test(lines[i]))
+       return String(lines[i+1]||'').trim();
+   }
+   return '';
+ };
+
+ const phone=findNumber(rawText,[/(?:phone|mobile|mob|contact)[\s:.-]*(\+?\d[\d ()-]{8,})/i]);
+ let customer=fieldText('customer|customer name|name|party|bill to');
+ if(customer){
+   customer=customer.replace(/^(?:customer|name|party|bill to)\s*[:#.-]?\s*/i,'').trim();
+   customer=customer.replace(/\b([A-Za-z])\s+(?=[A-Za-z]{2,}\b)/g,'$1');
+   if(customer.length>60)customer=customer.slice(0,60).trim();
+ }
  if(customer&&$('saleCustomerName'))$('saleCustomerName').value=customer;
 
- const lines=String(text||'').split(/\n+/).map(x=>x.trim()).filter(Boolean);
- const normalizedLines=lines.map(normalizeOCRText);
  const productHeader=normalizedLines.findIndex(x=>/^product\b/.test(x)&&/(?:size|qty|oty|price)/.test(x));
  const subtotalIndex=normalizedLines.findIndex((x,i)=>i>(productHeader>=0?productHeader:0)&&/^(subtotal|discount|total|paid|due)\b/.test(x));
  const productLines=productHeader>=0
    ? lines.slice(productHeader+1,subtotalIndex>productHeader?subtotalIndex:lines.length)
    : lines;
+
  let best=null;
-
  activeProducts().slice().sort((a,b)=>String(b.name).length-String(a.name).length).forEach(p=>{
+   const name=normalizeOCRText(p.name),brand=normalizeOCRText(p.brand);
+   const section=normalizeOCRText(productLines.join(' '));
+   const nameTokens=name.split(/\s+/).filter(x=>x.length>1);
+   const brandTokens=brand.split(/\s+/).filter(x=>x.length>1);
+   const exactName=!!name&&section.includes(name);
+   const nameHits=nameTokens.filter(t=>section.includes(t)).length;
+   const brandHits=brandTokens.filter(t=>section.includes(t)).length;
    const hit=bestOCRProductMatch(productLines,p);
-   if(!hit)return;
-
-   const i=hit.index;
-   const nearby=[productLines[i-1]||'',hit.line,productLines[i+1]||'',productLines[i+2]||''].join(' ');
-   const nums=(nearby.match(/\d+(?:\.\d+)?/g)||[]).map(Number);
-
-   let size='';
-   const sizeRows=productSizes(p.id);
-   sizeRows.forEach(row=>{
-     const expected=String(row.size||'').trim();
-     if(!expected||size)return;
-     const en=normalizeOCRText(expected);
-     const nn=normalizeOCRText(nearby);
-     if(nn.includes(en))size=expected;
-     else{
-       const em=en.match(/\d+(?:\.\d+)?/);
-       if(em){
-         const target=Number(em[0]);
-         const nearbySizes=(nearby.match(/\d+(?:\.\d+)?\s*(?:l|litre|liter|kg|g|ml|pcs|piece|pack)?/gi)||[]);
-         let closest='';
-         let diff=Infinity;
-         nearbySizes.forEach(v=>{
-           const m=String(v).match(/\d+(?:\.\d+)?/);
-           if(!m)return;
-           const n=Number(m[0]),d=Math.abs(n-target);
-           if(d<diff){diff=d;closest=String(v)}
-         });
-         if(closest&&diff<=Math.max(1,target*.15)){
-           const cm=closest.match(/\d+(?:\.\d+)?/);
-           if(cm&&Number(cm[0])===target)size=expected;
-         }
-       }
-     }
-   });
-
-   const q=findNumber(nearby,[/(?:qty|quantity|nos|units|pcs|pieces)[\s:.-]*(\d+(?:\.\d+)?)/i]);
-   const price=findNumber(nearby,[/(?:rate|unit price|price|selling price|amount|total)[\s:₹Rs.]*([\d,]+(?:\.\d+)?)/i]);
-   const qty=q?Number(q.replace(/,/g,'')):(nums.length>=2?nums[nums.length-2]:(nums.length===1?nums[0]:0));
-   const unitPrice=price?Number(price.replace(/,/g,'')):(nums.length>=2?nums[nums.length-1]:0);
-
-   let score=hit.score+(size?35:0)+(qty>0?10:0)+(unitPrice>0?5:0);
-   if(!best||score>best.score)best={p,size,qty,unitPrice,score};
+   if(!hit&&!exactName)return;
+   const score=(hit?.score||0)+(exactName?220:0)+(nameHits*25)+(brandHits*35);
+   if(!best||score>best.score)best={p,score};
  });
 
  const status=$('saleReceiptOCRStatus');
- if(best){
-   $('saleProduct').value=best.p.id;
-   $('saleSubproduct').value='';
-   updateSharedSize('sale');
-
-   if(best.size){
-     const opt=Array.from($('saleSize')?.options||[]).find(o=>normalizeOCRText(o.value)===normalizeOCRText(best.size));
-     if(opt)$('saleSize').value=opt.value;
-   }
-
-   if(best.qty>0)$('saleQty').value=best.qty;
-   if(best.unitPrice>0)$('salePrice').value=best.unitPrice;
-   else setSalePriceFromStandard();
-
-   updateSalePricePreview();
-   if(status)status.textContent='✓ Receipt scanned. Product, size, quantity and selling price filled automatically — verify before recording.';
-   toast('Receipt scanned. Product, size, quantity and selling price filled automatically — verify before recording.',false);
-   return true;
- }else{
+ if(!best){
    if(status)status.textContent='Receipt text detected, but no catalogue product matched. Try a clearer photo or select the product manually.';
    return false;
  }
+
+ const p=best.p;
+ const sizeRows=productSizes(p.id);
+ let size='';
+ const explicitSize=fieldText('size|pack size|pack');
+ if(explicitSize){
+   const ns=normalizeOCRText(explicitSize);
+   const exact=sizeRows.find(r=>normalizeOCRText(r.size)===ns||ns.includes(normalizeOCRText(r.size))||normalizeOCRText(r.size).includes(ns));
+   if(exact)size=String(exact.size);
+   else{
+     const n=explicitSize.match(/\d+(?:\.\d+)?/);
+     if(n){
+       const target=Number(n[0]);
+       const candidate=sizeRows.find(r=>{
+         const m=String(r.size||'').match(/\d+(?:\.\d+)?/);
+         return m&&Number(m[0])===target;
+       });
+       if(candidate)size=String(candidate.size);
+     }
+   }
+ }
+ if(!size){
+   for(const row of sizeRows){
+     const en=normalizeOCRText(row.size);
+     if(en&&normalizeOCRText(productLines.join(' ')).includes(en)){size=String(row.size);break}
+   }
+ }
+
+ const qtyText=fieldNumber('qty|quantity|qnty|oty|nos|units|pcs|pieces');
+ const priceText=fieldNumber('price|selling price|unit price|rate');
+ const paidText=fieldNumber('paid|amount paid');
+ const qty=qtyText?Number(qtyText):0;
+ const unitPrice=priceText?Number(priceText):0;
+ const paid=paidText?Number(paidText):0;
+
+ $('saleProduct').value=p.id;
+ $('saleSubproduct').value='';
+ updateSharedSize('sale');
+
+ if(size){
+   const opt=Array.from($('saleSize')?.options||[]).find(o=>normalizeOCRText(o.value)===normalizeOCRText(size));
+   if(opt)$('saleSize').value=opt.value;
+ }
+ if(qty>0)$('saleQty').value=qty;
+ if(unitPrice>0)$('salePrice').value=unitPrice;
+ else setSalePriceFromStandard();
+ if(paid>=0&&paidText)$('salePaid').value=paid;
+
+ const payment=fieldText('payment|payment method|mode');
+ if(payment){
+   const options=Array.from($('salePayment')?.options||[]);
+   const hit=options.find(o=>normalizeOCRText(o.value)===normalizeOCRText(payment)||normalizeOCRText(payment).includes(normalizeOCRText(o.value)));
+   if(hit)$('salePayment').value=hit.value;
+ }
+
+ updateSalePricePreview();
+ if(status)status.textContent='✓ Receipt scanned. Product, size, quantity and selling price filled automatically — verify before recording.';
+ toast('Receipt scanned. Product, size, quantity and selling price filled automatically — verify before recording.',false);
+ return true;
 }
 function preprocessSalesReceiptImage(file){
  return new Promise((resolve,reject)=>{
