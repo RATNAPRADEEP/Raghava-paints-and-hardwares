@@ -1011,7 +1011,7 @@ function preprocessSalesReceiptImage(file){
    img.src=url;
  });
 }
-const SMARTSHOP_API_URL=(localStorage.getItem('smartshop_api_url_v1')||'').trim().replace(/\\/$/,'');
+const SMARTSHOP_API_URL=(localStorage.getItem('smartshop_api_url_v1')||'').trim().replace(/\/$/,'');
 async function syncSaleToAWS(sale){
  if(!SMARTSHOP_API_URL)return {skipped:true};
  const res=await fetch(SMARTSHOP_API_URL+'/sales',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
