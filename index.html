@@ -630,7 +630,16 @@ function parsePurchaseInvoice(text){
 function renderInvoiceItems(){
  const box=$('invoiceScanResults');if(!box)return;
  box.style.display=invoiceScanItems.length?'block':'none';
- $('invoiceItemsTable').innerHTML=invoiceScanItems.length?'<table><tr><th>Product</th><th>Size</th><th>Qty</th><th>Unit Cost</th><th>Action</th></tr>'+invoiceScanItems.map((x,i)=>'<tr><td>'+esc(x.name)+'</td><td>'+esc(x.size)+'</td><td>'+esc(x.qty||'')+'</td><td>'+esc(x.cost||'')+'</td><td><button type="button" class="btn" data-invoice-item="'+i+'">Use</button></td></tr>').join('')+'</table>':'';
+ $('invoiceItemsTable').innerHTML=invoiceScanItems.length?'<table><tr><th>Product</th><th>Size</th><th>Qty</th><th>Unit Cost</th><th>Action</th></tr>'+invoiceScanItems.map((x,i)=>{
+   const options=activeProducts().map(p=>'<option value="'+esc(p.id)+'" '+(String(p.id)===String(x.productId)?'selected':'')+'>'+esc(p.name)+'</option>').join('');
+   return '<tr><td><select class="ocr-edit-product" data-ocr-item="'+i+'">'+options+'</select></td><td><input class="ocr-edit-size" data-ocr-item="'+i+'" value="'+esc(x.size||'')+'"></td><td><input class="ocr-edit-qty" data-ocr-item="'+i+'" type="number" min="0.01" step="0.01" value="'+esc(x.qty||'')+'"></td><td><input class="ocr-edit-cost" data-ocr-item="'+i+'" type="number" min="0" step="0.01" value="'+esc(x.cost||'')+'"></td><td><button type="button" class="btn" data-invoice-item="'+i+'">Use</button></td></tr>';
+ }).join('')+'</table>':'';
+ document.querySelectorAll('.ocr-edit-product').forEach(el=>el.onchange=()=>{
+   const x=invoiceScanItems[+el.dataset.ocrItem];const p=activeProducts().find(z=>String(z.id)===String(el.value));if(x&&p){x.productId=p.id;x.name=p.name;renderInvoiceItems();}
+ });
+ document.querySelectorAll('.ocr-edit-size').forEach(el=>el.oninput=()=>{const x=invoiceScanItems[+el.dataset.ocrItem];if(x)x.size=el.value});
+ document.querySelectorAll('.ocr-edit-qty').forEach(el=>el.oninput=()=>{const x=invoiceScanItems[+el.dataset.ocrItem];if(x)x.qty=el.value});
+ document.querySelectorAll('.ocr-edit-cost').forEach(el=>el.oninput=()=>{const x=invoiceScanItems[+el.dataset.ocrItem];if(x)x.cost=el.value});
  document.querySelectorAll('[data-invoice-item]').forEach(b=>b.addEventListener('click',()=>{
   const x=invoiceScanItems[+b.dataset.invoiceItem],p=activeProducts().find(z=>z.id===x.productId);if(!p)return;
   $('purchaseProduct').value=p.id;$('purchaseSubproduct').value='';updateSharedSize('purchase');if(x.size)$('purchaseSize').value=x.size;if(x.qty)$('purchaseQty').value=x.qty;if(x.cost)$('purchaseCost').value=x.cost;
