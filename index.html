@@ -804,7 +804,7 @@ function parseSaleReceiptScan(text){
 
  const lines=String(text||'').split(/\n+/).map(x=>x.trim()).filter(Boolean);
  const normalizedLines=lines.map(normalizeOCRText);
- const productHeader=normalizedLines.findIndex(x=>/^product(?:\s+size)?(?:\s+qty)?(?:\s+price)?$/.test(x)||x==='product');
+ const productHeader=normalizedLines.findIndex(x=>/^product\b/.test(x)&&/(?:size|qty|oty|price)/.test(x));
  const subtotalIndex=normalizedLines.findIndex((x,i)=>i>(productHeader>=0?productHeader:0)&&/^(subtotal|discount|total|paid|due)\b/.test(x));
  const productLines=productHeader>=0
    ? lines.slice(productHeader+1,subtotalIndex>productHeader?subtotalIndex:lines.length)
