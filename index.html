@@ -1011,6 +1011,22 @@ function preprocessSalesReceiptImage(file){
    img.src=url;
  });
 }
+const SMARTSHOP_API_URL=(localStorage.getItem('smartshop_api_url_v1')||'').trim().replace(/\\/$/,'');
+async function syncSaleToAWS(sale){
+ if(!SMARTSHOP_API_URL)return {skipped:true};
+ const res=await fetch(SMARTSHOP_API_URL+'/sales',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+  saleId:sale.id,invoice:sale.invoice,customer:sale.customer,customerType:sale.customerType,
+  productId:sale.productId,productClass:sale.productClass,product:sale.product,category:sale.category,
+  size:sale.size,quantity:sale.qty,price:sale.price,total:sale.total,paid:sale.paid,due:sale.due,
+  payment:sale.payment,recordedBy:sale.recordedBy,date:sale.date
+ })});
+ if(!res.ok){
+  let detail='';
+  try{const j=await res.json();detail=j?.error||j?.message||''}catch(e){}
+  throw Error('AWS sale sync failed ('+res.status+')'+(detail?': '+detail:'.'));
+ }
+ return await res.json();
+}
 async function recordSaleNow(e){
  if(e)e.preventDefault();
  const submitBtn=$('recordSaleBtn'),status=$('saleActionStatus');
@@ -1030,12 +1046,12 @@ async function recordSaleNow(e){
   if(paid>total)throw Error('Paid amount cannot exceed the sale total of '+money(total)+'.');
   const enteredCustomer=String($('saleCustomerName')?.value||'').trim();
   const matchedCustomer=db.customers.find(c=>String(c.name||'').trim().toLowerCase()===enteredCustomer.toLowerCase());
-  submitBtn.disabled=true;show(driveReady?'Saving sale to Google Drive…':'Saving sale locally…',false);
+  submitBtn.disabled=true;show(SMARTSHOP_API_URL?(driveReady?'Saving sale to Google Drive + AWS…':'Saving sale locally + AWS…'):(driveReady?'Saving sale to Google Drive…':'Saving sale locally…'),false);
   const x={id:uid(),invoice:'SAL-'+Date.now(),customerId:matchedCustomer?.id||'',customer:enteredCustomer||'Walk-in customer',customerType:$('saleCustomerType').value||matchedCustomer?.type||'Walk-in Customer',productId:p.id,productClass:subp?'Subproduct':'Main Product',product:p.name,category:subp?p.category:p.type||'',size:$('saleSize').value||p.size||p.packSize,qty:q,price:unitPrice,total,paid,due:total-paid,payment:$('salePayment').value,recordedBy:$('saleRecordedBy').value,date:new Date().toISOString(),receiptId:'',receiptOcr:''};
   p.stock-=q;db.sales.push(x);
   const rec={id:uid(),type:'Sale',recordedBy:x.recordedBy||'Other',date:x.date,referenceId:x.invoice,productId:p.id,productClass:x.productClass,product:x.product,category:x.category,size:x.size,qty:q,amountBase:x.price,amount:total,payment:x.payment,notes:''};
   (rec.recordedBy==='Me'?db.myRecords:db.otherRecords).push(rec);
-  let uploaded=null,receiptSyncError='',workbookSyncError='';
+  let uploaded=null,receiptSyncError='',workbookSyncError='',awsSyncError='';
   if(driveReady){
    try{
     uploaded=await uploadReceipt($('saleReceiptPhoto')?.files?.[0],'SALE',x.id,x.invoice,saleReceiptOCR);
@@ -1053,11 +1069,21 @@ async function recordSaleNow(e){
   }else if(sourceWorkbook){
    try{await buildWorkbook();cacheWorkbook(sourceWorkbook)}catch(cacheErr){console.warn('Sale local cache failed:',cacheErr)}
   }
+  if(SMARTSHOP_API_URL){
+   try{await syncSaleToAWS(x)}catch(err){awsSyncError=err?.message||'AWS sale sync failed.';console.warn('AWS sale sync failed:',err)}
+  }
   $('saleForm').reset();if($('saleCustomerName'))$('saleCustomerName').value='';saleReceiptOCR='';
   if($('saleReceiptName'))$('saleReceiptName').textContent='Optional — handwritten or printed receipt.';
   if($('saleReceiptOCRStatus'))$('saleReceiptOCRStatus').textContent='';
   invoiceManualMode=false;invoiceCursor=0;render();
-  if(!driveReady){
+  if(awsSyncError){
+   show(x.invoice+' recorded locally, but AWS sync failed: '+awsSyncError,false);
+  }else if(SMARTSHOP_API_URL&&(!driveReady||(!workbookSyncError&&!receiptSyncError))){
+   if(!driveReady)show(x.invoice+' recorded and synced to AWS. Google Drive is not connected.',false);
+   else if(!workbookSyncError&&!receiptSyncError)show(x.invoice+' recorded and synced to Google Drive + AWS.',false);
+   else if(!workbookSyncError)show(x.invoice+' recorded, workbook synced to Google Drive, and sale synced to AWS. Receipt photo upload failed: '+receiptSyncError,false);
+   else show(x.invoice+' recorded and synced to AWS. Google Drive workbook sync failed: '+workbookSyncError,false);
+  }else if(!driveReady){
    show(x.invoice+' recorded in Sales History. Google Drive is not connected, so it remains pending sync.',false);
   }else if(!workbookSyncError&&!receiptSyncError){
    show(x.invoice+' recorded and synced to Google Drive.',false);
