@@ -24,7 +24,7 @@
 </style></head>
 <body>
 <header class="top"><div><div class="eyebrow">LOCAL SHOP OPERATIONS</div><h1>Raghava Paints and Hardwares</h1></div><div><div class="connection"><span id="dot" class="dot"></span><span id="connectionText">Google Drive storage not connected</span></div><button id="connectBtn" class="btn primary">Connect Google Drive</button></div></header>
-<nav class="nav"><button class="navbtn active" data-page="dashboard">Manage</button><button class="navbtn" data-page="sales">Sell</button><button class="navbtn" data-page="purchases">Purchase</button><button class="navbtn" data-page="products">Track</button><button class="navbtn" data-page="accounts">Analyze</button><button class="navbtn" data-page="calculations">Calculation</button><button class="navbtn" data-page="invoices">Invoice Print</button><button id="saveBtn" class="btn save">Save to Google Drive</button><button id="resetPinBtn" class="btn">⚙ Set Reset PIN</button><button id="resetShopBtn" class="btn danger" title="PIN required">🔒 Reset Shop Data</button></nav>
+<nav class="nav"><button class="navbtn active" data-page="dashboard">Manage</button><button class="navbtn" data-page="sales">Sell</button><button class="navbtn" data-page="purchases">Purchase</button><button class="navbtn" data-page="products">Track</button><button class="navbtn" data-page="accounts">Analyze</button><button class="navbtn" data-page="calculations">Calculation</button><button class="navbtn" data-page="invoices">Invoice Print</button><button id="saveBtn" class="btn save">Save to Google Drive</button><button id="resetPinBtn" class="btn">⚙ Set / Change PIN</button><button id="resetShopBtn" class="btn danger" title="PIN required">🔒 Reset Shop Data</button></nav>
 <main><div id="toast"></div><div id="printArea" class="invoice-paper"></div></div>
 <section id="dashboard" class="section show">
 <div class="manage-head">
@@ -275,7 +275,7 @@ function addPhotoOCR(inputId,targetId,buttonId){
 </script><script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script><script>const CLIENT_ID='911229643443-mp5i74p1h7jdonfev8180n9i1o6f9nn1.apps.googleusercontent.com';
 const API_KEY='AIzaSyCoRIWkMUrYNzvJxHKjOCZqvLVvoUhj2jM';
 const APP_ID='911229643443';
-const SCOPES='https://www.googleapis.com/auth/drive.file';
+const SCOPES='https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email';
 const FILE='Raghava_Paints_Hardwares_FINAL_SYNC_MASTER.xlsx';
 const DRIVE_FILE_KEY='raghava_drive_file_id_v1';
 let accessToken=null,driveFileId=localStorage.getItem(DRIVE_FILE_KEY)||null,tokenClient=null,sourceWorkbook=null,workbookName=FILE;let saleReceiptOCR='';
@@ -2072,6 +2072,16 @@ function bind(){
    return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
  }catch(e){return String(pin||'');}
 }
+async function getGoogleRecoveryEmail(){
+ try{
+   await Promise.all([gapiReady,gisReady]);
+   if(!accessToken)await requestToken('select_account');
+   const r=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+accessToken}});
+   if(!r.ok)throw Error('Google account verification failed.');
+   const u=await r.json();
+   return String(u.email||'').trim().toLowerCase();
+ }catch(e){toast('Google account verification failed. Please connect Google Drive again.',true);return '';}
+}
 async function setResetPin(){
  const current=localStorage.getItem('raghavaResetPinHash')||'';
  if(current){
@@ -2085,15 +2095,37 @@ async function setResetPin(){
  const confirmPin=prompt('Re-enter the Reset PIN:');
  if(confirmPin===null)return;
  if(pin!==confirmPin){toast('PINs do not match.',true);return;}
+ const email=await getGoogleRecoveryEmail();
+ if(!email)return;
  localStorage.setItem('raghavaResetPinHash',await resetPinHash(pin));
- toast(current?'Reset PIN changed successfully.':'Reset PIN set. Reset Shop Data is now unlocked after PIN verification.');
+ localStorage.setItem('raghavaResetRecoveryEmail',email);
+ toast('Reset PIN saved. Google account '+email+' is linked for PIN recovery.');
+}
+async function recoverResetPin(){
+ const saved=localStorage.getItem('raghavaResetPinHash')||'';
+ const recoveryEmail=(localStorage.getItem('raghavaResetRecoveryEmail')||'').toLowerCase();
+ if(!saved||!recoveryEmail){toast('Set the Reset PIN once while connected to your Gmail account.',true);return;}
+ const email=await getGoogleRecoveryEmail();
+ if(!email)return;
+ if(email!==recoveryEmail){toast('This is not the Gmail account linked to Reset PIN recovery.',true);return;}
+ const pin=prompt('Google account verified. Enter a new Reset PIN (4–12 digits):');
+ if(pin===null)return;
+ if(!/^\\d{4,12}$/.test(pin)){toast('PIN must contain 4–12 digits.',true);return;}
+ const confirmPin=prompt('Re-enter the new Reset PIN:');
+ if(pin!==confirmPin){toast('PINs do not match.',true);return;}
+ localStorage.setItem('raghavaResetPinHash',await resetPinHash(pin));
+ toast('Reset PIN recovered and changed successfully.');
 }
 async function verifyResetPin(){
  const saved=localStorage.getItem('raghavaResetPinHash')||'';
  if(!saved){toast('Set a Reset PIN first using “⚙ Set Reset PIN”.',true);return false;}
- const pin=prompt('Enter Reset PIN to continue:');
+ const pin=prompt('Enter Reset PIN to continue. If forgotten, use ⚙ Set Reset PIN after Google verification.');
  if(pin===null)return false;
- if(await resetPinHash(pin)!==saved){toast('Incorrect Reset PIN. Reset cancelled.',true);return false;}
+ if(await resetPinHash(pin)!==saved){
+   const recover=confirm('Incorrect PIN. Forgot the PIN? Use your linked Gmail account to recover it.');
+   if(recover)await recoverResetPin();
+   return false;
+ }
  return true;
 }
 async function resetShopData(){
