@@ -99,7 +99,7 @@
             <label>Project Type<select id="calcProject"><option value="">Select</option><option value="fresh">Fresh Painting</option><option value="repaint">Repainting</option></select></label>
             <label>Area / Space<select id="calcSpace"><option value="">Select</option><option value="interior">Interior</option><option value="exterior">Exterior</option><option value="both">Interior + Exterior</option></select></label>
           </div>
-          <div class="calc-help">Customer can provide whatever is known. Wall measurements are entered separately in the Walls tab.</div>
+          <div class="calc-help">Customer can provide whatever is known. Wall measurements are entered separately in the Walls tab.</div>          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved1"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="1">Save</button><button type="button" class="btn primary" data-calc-next="2">Next → Walls</button></div></div>
         </div>
 
         <div class="calc-card calc-step-card" data-calc-panel="2">
@@ -121,21 +121,21 @@
           <div class="estimate-total"><span>Converted to paint-area base</span><br><strong id="calcUnitResult">1.00 sq.ft</strong></div>
           <div class="unit-strip">
             <div class="unit-chip"><b>అడుగు</b><span>1 sq.ft</span></div><div class="unit-chip"><b>గజం</b><span>9 sq.ft</span></div><div class="unit-chip"><b>అంకణం</b><span>72 sq.ft</span></div><div class="unit-chip"><b>సెంట్</b><span>435.6 sq.ft</span></div><div class="unit-chip"><b>గుంట</b><span>1,089 sq.ft</span></div><div class="unit-chip"><b>ఎకరం</b><span>43,560 sq.ft</span></div>
-          </div>
+          </div>          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved2"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="2">Save</button><button type="button" class="btn primary" data-calc-next="3">Next → Rooms</button></div></div>
         </div>
 
         <div class="calc-card calc-step-card" data-calc-panel="3">
           <div class="calc-section-title"><h3>3. గది / Room Measurements</h3><button type="button" class="btn primary" id="calcAddRoom">+ Add Room</button></div>
           <div class="calc-help">ప్రతి గదికి Length × Width × Height ఇవ్వండి. Ceiling కావాలంటే స్వయంచాలకంగా floor area జోడిస్తుంది. Doors, Windows, Grills మరియు ఇతర surfaces ను 4వ subtab లో నమోదు చేయండి.</div>
           <div id="calcRoomList" class="room-list"></div>
-          <div class="calc-actions"><button type="button" class="btn" id="calcAddRoom2">+ Add Another Room</button><button type="button" class="btn" id="calcResetRooms">Reset Rooms</button></div>
+          <div class="calc-actions"><button type="button" class="btn" id="calcAddRoom2">+ Add Another Room</button><button type="button" class="btn" id="calcResetRooms">Reset Rooms</button></div>          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved3"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="3">Save</button><button type="button" class="btn primary" data-calc-next="4">Next → Doors / Windows</button></div></div>
         </div>
 
         <div class="calc-card calc-step-card" data-calc-panel="4">
           <div class="calc-section-title"><h3>4. Doors / Windows / Grills / Special Surfaces</h3><button type="button" class="btn" id="calcAddMetal">+ Add Surface</button></div>
           <label style="display:flex;align-items:center;gap:8px;margin:8px 0 12px"><input id="calcNoSpecialSurfaces" type="checkbox" checked style="width:auto"> No separate doors / windows / grills / wood / metal painting</label>
           <div class="calc-help">If these surfaces need separate painting, untick the option and add each item. Their area is deducted from wall area and their own primer/topcoat requirement is estimated separately.</div>
-          <div id="calcSurfaceList"></div>
+          <div id="calcSurfaceList"></div>          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved4"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="4">Save</button><button type="button" class="btn primary" data-calc-next="5">Next → Paint System</button></div></div>
         </div>
       </div>
 
@@ -166,7 +166,7 @@
             <label>Terrace Area<input id="calcTerraceArea" type="number" min="0" step="0.1" placeholder="Enter area"><select id="calcTerraceUnit"><option value="sqft">Sq.ft</option><option value="gajam">Gajam / Sq.yd</option><option value="ankanam">Ankanam</option><option value="cent">Cent</option><option value="gunta">Gunta</option><option value="acre">Acre</option><option value="sqm">Sq.m</option></select></label>
             <label>Terrace Season / Timing<select id="calcTerraceSeason"><option value="">Select</option><option value="summer">Summer / Heat</option><option value="pre-monsoon">Pre-monsoon</option><option value="monsoon">Monsoon / Rainy season</option><option value="post-monsoon">Post-monsoon</option><option value="winter">Winter</option></select></label>
           </div>
-          <div class="calc-help">Season/timing is used as a planning flag only. Waterproofing, crack treatment, weatherproofing and cool-roof products must be selected according to site condition and the manufacturer's technical data. Structural cracks require professional site assessment.</div>
+          <div class="calc-help">Season/timing is used as a planning flag only. Waterproofing, crack treatment, weatherproofing and cool-roof products must be selected according to site condition and the manufacturer's technical data. Structural cracks require professional site assessment.</div>          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved5"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="5">Save</button><button type="button" class="btn primary" data-calc-next="6">Next → Requirement</button></div></div>
         </div>
 
         <div class="calc-card calc-step-card" data-calc-panel="6">
@@ -1788,6 +1788,65 @@ function calcRecalculate(){
 
  window.__lastPaintEstimate={rooms,surfaces,wall,ceil,rows,customerName,customerPhone,project,space,questions,puttyQty,totalLitres,sticker,stickerArea,cracks,crackLength,waterproof,waterproofArea,weatherproof,weatherproofArea,coolPaint,terraceArea,terraceSeason};
 }
+function calcSavedText(step){
+ const val=id=>String($(id)?.value||'').trim();
+ const fmt=(n)=>calcCeil(calcNum(n)).toLocaleString(undefined,{maximumFractionDigits:2});
+ let lines=[];
+ if(step===1){
+   lines=[
+    'Customer: '+(val('calcCustomerName')||'—'),
+    'Phone: '+(val('calcCustomerPhone')||'—'),
+    'Project: '+(val('calcProject')||'—'),
+    'Area / Space: '+(val('calcSpace')||'—')
+   ];
+ }else if(step===2){
+   lines=[
+    'Paintable wall area: '+(fmt(val('calcKnownWallArea'))||'0')+' sq.ft',
+    'Ceiling area: '+(fmt(val('calcKnownCeilingArea'))||'0')+' sq.ft',
+    'Wall measurement: '+(val('calcWallMeasuredValue')||'0')+' '+(val('calcWallUnit')||'sqft'),
+    'Converted wall area: '+(String($('calcWallConverted')?.textContent||'0.00 sq.ft'))
+   ];
+ }else if(step===3){
+   const rooms=calcRoomData();
+   lines=rooms.length?rooms.map((r,i)=>(i+1)+'. '+r.name+' — '+fmt(r.grossWall)+' sq.ft walls, '+fmt(r.ceiling)+' sq.ft ceiling, '+r.finish+', '+r.coats+' coats'):['No rooms added.'];
+ }else if(step===4){
+   const surfaces=calcSurfaceData();
+   const no=$('calcNoSpecialSurfaces')?.checked;
+   lines=no?['No separate doors / windows / grills / wood / metal painting.']:surfaces.length?surfaces.map((s,i)=>(i+1)+'. '+s.kind+' — '+fmt(s.area)+' sq.ft, '+s.product+', '+s.coats+' coats'):['No special surfaces added.'];
+ }else if(step===5){
+   const areaUnit=(id)=>val(id)||'sqft';
+   lines=[
+    'Wall finish: '+(val('calcWallProduct')||'—'),
+    'Exterior finish: '+(val('calcExteriorProduct')||'—'),
+    'Putty: '+(val('calcPutty')||'—'),
+    'Primer: '+(val('calcPrimerCoats')||'0')+' coats',
+    'Wall top coats: '+(val('calcWallCoats')||'—'),
+    'Exterior top coats: '+(val('calcExteriorCoats')||'—'),
+    'Condition: '+(val('calcCondition')||'—'),
+    'Wastage / site factor: '+(val('calcWastage')||'0')+'%',
+    'Sticker: '+(val('calcSticker')||'none')+' — '+(val('calcStickerArea')||'0')+' '+areaUnit('calcStickerUnit'),
+    'Cracks: '+(val('calcCracks')||'none')+' — '+(val('calcCrackLength')||'0')+' '+(val('calcCrackUnit')||'ft'),
+    'Waterproofing: '+(val('calcWaterproof')||'none')+' — '+(val('calcWaterproofArea')||'0')+' '+areaUnit('calcWaterproofUnit'),
+    'Weather proofing: '+(val('calcWeatherproof')||'none')+' — '+(val('calcWeatherproofArea')||'0')+' '+areaUnit('calcWeatherproofUnit'),
+    'Cool paint / roof coating: '+(val('calcCoolPaint')||'none')+' — '+(val('calcTerraceArea')||'0')+' '+areaUnit('calcTerraceUnit'),
+    'Terrace season: '+(val('calcTerraceSeason')||'—')
+   ];
+ }
+ return lines;
+}
+function calcSaveStep(step){
+ calcRecalculate();
+ const lines=calcSavedText(step);
+ window.__calcSavedSteps=window.__calcSavedSteps||{};
+ window.__calcSavedSteps[step]=lines;
+ const box=$('calcSaved'+step);
+ if(box)box.innerHTML='<b>Saved details</b>'+lines.map(x=>'<span>'+esc(x)+'</span>').join('');
+ toast('Step '+step+' saved.');
+}
+function calcGoStep(step){
+ const btn=document.querySelector('.calc-subtab[data-calc-step="'+step+'"]');
+ if(btn)btn.click();
+}
 function calcInit(){
  if(!$('calcRoomList')||$('calcRoomList').dataset.ready==='1')return;
  $('calcRoomList').dataset.ready='1';calcAddRoomRow({name:'Hall',l:15,w:12,h:10,ceiling:'yes'});
@@ -1809,6 +1868,8 @@ function calcInit(){
    document.querySelectorAll('.calc-step-card').forEach(panel=>panel.classList.toggle('active',panel.dataset.calcPanel===step));
  }));
  calcUnitConvert();
+ document.querySelectorAll('[data-calc-save]').forEach(btn=>btn.addEventListener('click',()=>calcSaveStep(Number(btn.dataset.calcSave))));
+ document.querySelectorAll('[data-calc-next]').forEach(btn=>btn.addEventListener('click',()=>{const step=Number(btn.dataset.calcNext);calcSaveStep(step-1);calcGoStep(step);}));
 }
 function calcUnitConvert(){
  const v=calcNum($('calcUnitValue')?.value||0),unit=$('calcFromUnit')?.value||'sqft';
