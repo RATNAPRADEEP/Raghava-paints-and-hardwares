@@ -91,16 +91,26 @@
     <div class="calc-grid">
       <div>
         <div class="calc-card calc-step-card active" data-calc-panel="1">
-          <h3>1. భూమి / ఇంటి కొలతల Unit Converter</h3>
+          <h3>1. Customer / Project Details</h3>
+          <div class="calc-form">
+            <label>Customer Name<input id="calcCustomerName" placeholder="Optional"></label>
+            <label>Phone<input id="calcCustomerPhone" type="tel" placeholder="Optional"></label>
+            <label>Project Type<select id="calcProject"><option value="">Select</option><option value="fresh">Fresh Painting</option><option value="repaint">Repainting</option></select></label>
+            <label>Area / Space<select id="calcSpace"><option value="">Select</option><option value="interior">Interior</option><option value="exterior">Exterior</option><option value="both">Interior + Exterior</option></select></label>
+            <label>Known Wall Area<input id="calcKnownWallArea" type="number" min="0" step="0.1" placeholder="If customer/painter already knows sq.ft"></label>
+            <label>Known Ceiling Area<input id="calcKnownCeilingArea" type="number" min="0" step="0.1" placeholder="Optional sq.ft"></label>
+          </div>
+          <div class="calc-help">Customer can provide whatever is known. If exact room measurements are unavailable, the painter can enter a known paintable wall/ceiling area here. Do not treat plot area in ankanam/gajam as paintable wall area unless the painter has explicitly provided that area.</div>
+          <hr style="border:0;border-top:1px solid #e5e7eb;margin:16px 0">
+          <h3>Measurement Unit Converter</h3>
           <div class="calc-form">
             <label>కొలత విలువ<input id="calcUnitValue" type="number" min="0" step="0.01" value="1"></label>
             <label>Unit<select id="calcFromUnit"><option value="sqft">అడుగు / Sq.ft</option><option value="gajam">గజం / Sq.yd</option><option value="ankanam">అంకణం</option><option value="cent">సెంట్</option><option value="gunta">గుంట</option><option value="acre">ఎకరం</option><option value="sqm">చ.మీటర్</option></select></label>
           </div>
-          <div class="estimate-total"><span>Converted Area</span><br><strong id="calcUnitResult">72.00 sq.ft</strong></div>
+          <div class="estimate-total"><span>Converted to paint-area base</span><br><strong id="calcUnitResult">1.00 sq.ft</strong></div>
           <div class="unit-strip">
             <div class="unit-chip"><b>అడుగు</b><span>1 sq.ft</span></div><div class="unit-chip"><b>గజం</b><span>9 sq.ft</span></div><div class="unit-chip"><b>అంకణం</b><span>72 sq.ft</span></div><div class="unit-chip"><b>సెంట్</b><span>435.6 sq.ft</span></div><div class="unit-chip"><b>గుంట</b><span>1,089 sq.ft</span></div><div class="unit-chip"><b>ఎకరం</b><span>43,560 sq.ft</span></div>
           </div>
-          <div class="calc-note">గమనిక: స్థానికంగా కొలత పేర్లు/వాడుకలో తేడాలు ఉండొచ్చు. ఇక్కడ Andhra Pradesh house-plot convention ప్రకారం 1 అంకణం = 72 sq.ft, 1 గజం = 9 sq.ft ఉపయోగిస్తున్నాం.</div>
         </div>
 
         <div class="calc-card calc-step-card" data-calc-panel="2">
@@ -111,8 +121,9 @@
         </div>
 
         <div class="calc-card calc-step-card" data-calc-panel="3">
-          <div class="calc-section-title"><h3>3. Windows / Doors / Grills / Metal</h3><button type="button" class="btn" id="calcAddMetal">+ Add Surface</button></div>
-          <div class="calc-help">ఇక్కడ Doors, Windows, Grills, Frames వంటి అన్ని openings / special surfaces ను నమోదు చేయండి. వీటి area గోడల paintable area నుంచి automatically తగ్గించి, వాటికి అవసరమైన enamel / wood finish / primer ను separately estimate చేస్తుంది.</div>
+          <div class="calc-section-title"><h3>3. Doors / Windows / Grills / Special Surfaces</h3><button type="button" class="btn" id="calcAddMetal">+ Add Surface</button></div>
+          <label style="display:flex;align-items:center;gap:8px;margin:8px 0 12px"><input id="calcNoSpecialSurfaces" type="checkbox" checked style="width:auto"> No separate doors / windows / grills / wood / metal painting</label>
+          <div class="calc-help">If these surfaces need separate painting, untick the option and add each item. Their area is deducted from wall area and their own primer/topcoat requirement is estimated separately.</div>
           <div id="calcSurfaceList"></div>
         </div>
       </div>
@@ -121,7 +132,6 @@
         <div class="calc-card calc-step-card" data-calc-panel="4">
           <h3>4. Paint System & Coats</h3>
           <div class="calc-form">
-            <label>Project Type<select id="calcProject"><option value="fresh">Fresh Painting</option><option value="repaint">Repainting</option></select></label>
             <label>Wall Finish<select id="calcWallProduct"></select></label>
             <label>Exterior Finish<select id="calcExteriorProduct"></select></label>
             <label>Wall Putty<select id="calcPutty"><option value="none">No Putty</option><option value="acrylic1">Acrylic Wall Putty — 1 coat</option><option value="acrylic2">Acrylic Wall Putty — 2 coats</option><option value="cement1">Wall Putty — 1 coat</option><option value="cement2">Wall Putty — 2 coats</option></select></label>
@@ -135,7 +145,8 @@
         </div>
 
         <div class="calc-card calc-step-card" data-calc-panel="5">
-          <h3>5. Calculated Requirement</h3>
+          <h3>5. Requirement / Estimate</h3>
+          <div id="calcQuestions" class="calc-note" style="margin-bottom:12px"></div>
           <div class="calc-summary">
             <div class="calc-metric"><small>Wall Paint Area</small><strong id="calcWallArea">0 sq.ft</strong></div>
             <div class="calc-metric"><small>Ceiling Area</small><strong id="calcCeilingArea">0 sq.ft</strong></div>
@@ -143,7 +154,7 @@
             <div class="calc-metric"><small>Wood / Metal Area</small><strong id="calcMetalArea">0 sq.ft</strong></div>
           </div>
           <div id="calcResults" style="margin-top:14px"></div>
-          <div class="calc-actions"><button type="button" class="btn primary" id="calcRecalculate">Calculate Estimate</button><button type="button" class="btn" id="calcPrintEstimate">Print Estimate</button></div>
+          <div class="calc-actions"><button type="button" class="btn primary" id="calcRecalculate">Calculate Estimate</button><button type="button" class="btn" id="calcSendInvoice">Open in Invoice Print as Estimate</button></div>
         </div>
 
       </div>
@@ -1676,9 +1687,13 @@ function calcSurfaceData(){
 function calcRecalculate(){
  if(!$('calcResults'))return;
  const rooms=calcRoomData(),surfaces=calcSurfaceData();
+ const directWall=calcNum($('calcKnownWallArea')?.value||0),directCeil=calcNum($('calcKnownCeilingArea')?.value||0);
  const openingArea=surfaces.filter(s=>s.kind==='Window'||s.kind==='Door').reduce((a,s)=>a+s.area,0);
- const wall=rooms.reduce((a,r)=>a+r.grossWall,0)-openingArea,ceil=rooms.reduce((a,r)=>a+r.ceiling,0);
+ const roomWall=rooms.reduce((a,r)=>a+r.grossWall,0),roomCeil=rooms.reduce((a,r)=>a+r.ceiling,0);
+ const wall=(rooms.length?roomWall:directWall)-openingArea,ceil=(rooms.length?roomCeil:directCeil);
  const condition=$('calcCondition')?.value||'normal',waste=1+calcNum($('calcWastage')?.value||10)/100;
+ const project=$('calcProject')?.value||'',space=$('calcSpace')?.value||'';
+ const customerName=String($('calcCustomerName')?.value||'').trim(),customerPhone=String($('calcCustomerPhone')?.value||'').trim();
  const primerCoats=Math.max(0,calcNum($('calcPrimerCoats')?.value||2));
  const putty=$('calcPutty')?.value||'none';
  const puttyCoats=putty==='acrylic2'||putty==='cement2'?2:(putty==='acrylic1'||putty==='cement1'?1:0);
@@ -1716,26 +1731,35 @@ function calcRecalculate(){
  if(surfacePaint>0)rows.push(['Enamel / Wood Finish',surfacePaint,'L',200,2,surfaces.reduce((a,x)=>a+x.area,0)]);
  if(surfacePrimer>0)rows.push(['Metal/Wood Primer',surfacePrimer,'L',100,1,surfaces.reduce((a,x)=>a+x.area,0)]);
  const totalLitres=rows.filter(r=>r[2]==='L').reduce((a,r)=>a+r[1],0);
+ const questions=[];
+ if(!project)questions.push('Ask customer: Fresh painting or repainting?');
+ if(!space)questions.push('Ask customer: Interior, exterior, or both?');
+ if(!rooms.length && !directWall)questions.push('Need wall area: ask for room length × width × height, or get the total paintable wall area from the painter.');
+ if(!rooms.length && !directCeil)questions.push('Ceiling area not supplied; ask whether ceilings are included and obtain the area if required.');
+ if(!$('calcNoSpecialSurfaces')?.checked && !surfaces.length)questions.push('Special surfaces selected but none entered; add doors/windows/grills/wood/metal measurements.');
+ if(questions.length)$('calcQuestions').innerHTML='<b>Questions / missing information</b><br>'+questions.map(esc).join('<br>');
+ else $('calcQuestions').innerHTML='<b>Ready for estimate.</b> Customer/painter inputs have enough information for the current calculation. Review the quantities before printing.';
  $('calcResults').innerHTML='<table class="calc-table"><tr><th>Material / Finish</th><th>Estimated Qty</th><th>Unit</th><th>Coverage basis</th><th>Coats</th></tr>'+
  rows.map(r=>'<tr><td><b>'+esc(r[0])+'</b></td><td class="num"><b>'+calcCeil(r[1]).toFixed(1)+'</b></td><td>'+r[2]+'</td><td>'+r[3]+' sq.ft/L or kg</td><td>'+r[4]+'</td></tr>').join('')+
  '</table><div class="estimate-total"><span>Planning quantity including '+Math.round((waste-1)*100)+'% site factor</span><br><strong>'+calcCeil(totalLitres).toFixed(1)+' L</strong> <span>paint/primer combined + '+calcCeil(puttyQty).toFixed(1)+' kg putty</span></div>';
 
- window.__lastPaintEstimate={rooms,surfaces,wall,ceil,rows};
+ window.__lastPaintEstimate={rooms,surfaces,wall,ceil,rows,customerName,customerPhone,project,space,questions,puttyQty,totalLitres};
 }
 function calcInit(){
  if(!$('calcRoomList')||$('calcRoomList').dataset.ready==='1')return;
  $('calcRoomList').dataset.ready='1';calcAddRoomRow({name:'Hall',l:15,w:12,h:10,ceiling:'yes'});
  calcAddRoomRow({name:'Bedroom 1',l:12,w:10,h:10,ceiling:'yes'});
- calcAddSurfaceRow(CALC_SURFACE_DEFAULTS[0]);calcAddSurfaceRow(CALC_SURFACE_DEFAULTS[2]);
+ 
  calcProductOptions();calcRecalculate();
- ['calcUnitValue','calcFromUnit','calcToUnit'].forEach(id=>$(id)?.addEventListener('input',calcUnitConvert));
+ ['calcUnitValue','calcFromUnit','calcCustomerName','calcCustomerPhone','calcProject','calcSpace','calcKnownWallArea','calcKnownCeilingArea'].forEach(id=>$(id)?.addEventListener('input',calcRecalculate));
  $('calcAddRoom')?.addEventListener('click',()=>{calcAddRoomRow({});calcRecalculate()});
  $('calcAddRoom2')?.addEventListener('click',()=>{calcAddRoomRow({});calcRecalculate()});
  $('calcResetRooms')?.addEventListener('click',()=>{$('calcRoomList').innerHTML='';calcAddRoomRow({name:'Room',l:12,w:10,h:10,ceiling:'yes'});calcRecalculate()});
  $('calcAddMetal')?.addEventListener('click',()=>{calcAddSurfaceRow({});calcRecalculate()});
  document.querySelectorAll('#calculations input,#calculations select').forEach(x=>x.addEventListener('input',calcRecalculate));
  $('calcRecalculate')?.addEventListener('click',calcRecalculate);
- $('calcPrintEstimate')?.addEventListener('click',calcPrintEstimate);
+ $('calcSendInvoice')?.addEventListener('click',calcSendEstimateToInvoice);
+ $('calcNoSpecialSurfaces')?.addEventListener('change',e=>{if(e.target.checked){$('calcSurfaceList').innerHTML=''}calcRecalculate()});
  document.querySelectorAll('.calc-subtab').forEach(btn=>btn.addEventListener('click',()=>{
    const step=btn.dataset.calcStep;
    document.querySelectorAll('.calc-subtab').forEach(x=>{const on=x.dataset.calcStep===step;x.classList.toggle('active',on);x.setAttribute('aria-selected',on?'true':'false')});
@@ -1748,12 +1772,37 @@ function calcUnitConvert(){
  const sqft=v*CALC_UNITS_SQFT[unit];
  if($('calcUnitResult'))$('calcUnitResult').textContent=sqft.toLocaleString(undefined,{maximumFractionDigits:2})+' sq.ft';
 }
-function calcPrintEstimate(){
- calcRecalculate();const e=window.__lastPaintEstimate;if(!e)return;
- const rows=e.rows||[],html='<!doctype html><html><head><meta charset="UTF-8"><title>Paint Estimate</title><style>@page{size:A4;margin:14mm}body{font-family:Arial,sans-serif;color:#172033}h1{margin:0 0 5px}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border-bottom:1px solid #ddd;padding:8px;text-align:left;font-size:11px}th{font-size:9px;text-transform:uppercase;color:#667085}.box{background:#f4f7fb;border-radius:8px;padding:12px;margin:12px 0}.small{font-size:10px;color:#667085}</style></head><body><h1>Raghava Paints & Hardwares</h1><div>Professional Paint & Material Estimate</div><div class="box">Net wall area: '+calcCeil(e.wall)+' sq.ft<br>Ceiling area: '+calcCeil(e.ceil)+' sq.ft<br>Surface/metal area: '+calcCeil((e.surfaces||[]).reduce((a,x)=>a+x.area,0))+' sq.ft</div><table><tr><th>Material</th><th>Quantity</th><th>Unit</th><th>Coverage</th><th>Coats</th></tr>'+rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td>'+calcCeil(r[1]).toFixed(1)+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+r[4]+'</td></tr>').join('')+'</table><p class="small">Estimate is based on entered measurements and product coverage assumptions. Verify product TDS, substrate condition and site measurements before purchase.</p></body></html>';
- const w=window.open('','_blank','width=900,height=1000');if(!w){toast('Please allow pop-ups for estimate printing.',true);return}w.document.write(html);w.document.close();setTimeout(()=>{try{w.focus();w.print()}catch(e){}},500);
+function calcSendEstimateToInvoice(){
+ calcRecalculate();
+ const e=window.__lastPaintEstimate;if(!e)return;
+ const customer=e.customerName||'';
+ const rows=e.rows||[];
+ const details=[
+  'PAINT & MATERIAL ESTIMATE',
+  '',
+  customer?'Customer: '+customer:'',
+  e.customerPhone?'Phone: '+e.customerPhone:'',
+  'Project: '+(e.project==='repaint'?'Repainting':e.project==='fresh'?'Fresh Painting':'Not specified'),
+  'Space: '+(e.space==='both'?'Interior + Exterior':e.space==='interior'?'Interior':e.space==='exterior'?'Exterior':'Not specified'),
+  '',
+  'AREA SUMMARY',
+  'Wall paint area: '+calcCeil(e.wall)+' sq.ft',
+  'Ceiling area: '+calcCeil(e.ceil)+' sq.ft',
+  'Special surface area: '+calcCeil((e.surfaces||[]).reduce((a,x)=>a+x.area,0))+' sq.ft',
+  '',
+  'MATERIAL REQUIREMENT'
+ ].filter(Boolean);
+ rows.forEach(r=>details.push(String(r[0])+': '+calcCeil(r[1]).toFixed(1)+' '+r[2]+' | '+r[4]+' coat(s)'));
+ details.push('');
+ details.push('Planning estimate only. Final requirement should be verified against product TDS, actual substrate condition and site measurements.');
+ const all=loadInvoiceDrafts();
+ all['__blank_invoice__']={customer,date:todayISO(),items:[],details:details.join('\n')};
+ try{localStorage.setItem(invoiceDraftsKey,JSON.stringify(all))}catch(err){}
+ invoiceManualMode=true;
+ if(typeof nav==='function')nav('invoices');
+ setTimeout(()=>{try{renderInvoiceTable()}catch(err){}},0);
+ toast('Estimate loaded into Invoice Print. Review it, then use Print.',false);
 }
-
 function bind(){
  $('purchaseInvoicePhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'purchase');e.target.value=''});$('scanPurchaseInvoice').addEventListener('click',()=>$('purchaseInvoicePhoto').click());$('customerPhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'customer');e.target.value=''});$('scanCustomer').addEventListener('click',()=>$('customerPhoto').click());
  addPhotoOCR('photoSku','pSku','scanSku');addPhotoOCR('photoName','pName','scanName');addPhotoOCR('photoBrand','pBrand','scanBrand');addPhotoOCR('photoShade','pShade','scanShade');
