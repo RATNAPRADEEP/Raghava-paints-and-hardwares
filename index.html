@@ -1618,7 +1618,7 @@ function calcCoverageForSelected(key,condition){
  const raw=String(key||'');
  if(raw==='Premium Interior Emulsion')return condition==='rough'?110:135;
  if(raw==='Interior Emulsion')return condition==='rough'?98:120;
- if(raw==='Apex Exterior Emulsion')return condition==='rough'?45:55;
+ if(raw==='Apex Exterior Emulsion')return condition==='rough'?90:110;
  const p=calcGetProduct(raw),name=String(p.name||raw).toLowerCase();
  if(p.coverage)return calcCoverage(p.key||raw,condition);
  if(/apex|exterior/.test(name))return condition==='rough'?45:55;
@@ -1704,7 +1704,7 @@ function calcRecalculate(){
  const primer=(wall+ceil)*primerCoats/100*waste;
  const puttyQty=(wall+ceil)*puttyCoats/puttyCoverage*waste;
  const surfaceRows=surfaces.map(s=>{
-   const coverage=s.product==='wood'?145:140,paint=s.area*s.coats/coverage*waste;
+   const coverage=s.product==='wood'?1450:200,paint=s.area*s.coats/coverage*waste;
    const prim=s.primer==='yes'?s.area/100*waste:0;
    return {...s,paint,prim};
  });
@@ -1718,7 +1718,7 @@ function calcRecalculate(){
  if(ceilingPaint>0)rows.push(['Ceiling — '+ceilingKey,ceilingPaint,'L',ceilingCoverage,ceilingCoats,ceil]);
  if(primer>0)rows.push(['Wall Primer',primer,'L',100,primerCoats,wall+ceil]);
  if(puttyQty>0)rows.push([acrylicPutty?'Acrylic Wall Putty':'Wall Putty',puttyQty,'kg',puttyCoverage,puttyCoats,wall+ceil]);
- if(surfacePaint>0)rows.push(['Enamel / Wood Finish',surfacePaint,'L',140,2,surfaces.reduce((a,x)=>a+x.area,0)]);
+ if(surfacePaint>0)rows.push(['Enamel / Wood Finish',surfacePaint,'L',200,2,surfaces.reduce((a,x)=>a+x.area,0)]);
  if(surfacePrimer>0)rows.push(['Metal/Wood Primer',surfacePrimer,'L',100,1,surfaces.reduce((a,x)=>a+x.area,0)]);
  const totalLitres=rows.filter(r=>r[2]==='L').reduce((a,r)=>a+r[1],0);
  $('calcResults').innerHTML='<table class="calc-table"><tr><th>Material / Finish</th><th>Estimated Qty</th><th>Unit</th><th>Coverage basis</th><th>Coats</th></tr>'+
