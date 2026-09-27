@@ -2129,6 +2129,23 @@ async function recoverResetPin(){
  localStorage.setItem('raghavaResetPinHash',await resetPinHash(pin));
  toast('Reset PIN recovered and changed successfully.');
 }
+function positionResetPinModal(){
+ const modal=$('resetPinModal'),btn=$('resetShopBtn');
+ if(!modal||!btn)return;
+ if(modal.parentElement!==document.body)document.body.appendChild(modal);
+ const rect=btn.getBoundingClientRect();
+ modal.style.setProperty('position','fixed','important');
+ modal.style.setProperty('top',(rect.bottom+8)+'px','important');
+ modal.style.setProperty('right',Math.max(12,window.innerWidth-rect.right)+'px','important');
+ modal.style.setProperty('left','auto','important');
+ modal.style.setProperty('bottom','auto','important');
+ modal.style.setProperty('width','auto','important');
+ modal.style.setProperty('height','auto','important');
+ modal.style.setProperty('z-index','99999','important');
+ modal.style.setProperty('align-items','flex-start','important');
+ modal.style.setProperty('justify-content','flex-end','important');
+ modal.style.setProperty('padding','0','important');
+}
 function verifyResetPin(){
  return new Promise(resolve=>{
    const modal=$('resetPinModal'),input=$('resetPinInput');
@@ -2168,6 +2185,7 @@ function verifyResetPin(){
    modal.hidden=false;
    modal.classList.add('show');
    modal.setAttribute('aria-hidden','false');
+   positionResetPinModal();
    document.addEventListener('keydown',onKey);
    setTimeout(()=>input.focus(),30);
  });
@@ -2200,6 +2218,8 @@ async function resetShopData(){
  }finally{if(btn)btn.disabled=false}
 }
 
+window.addEventListener('resize',()=>{const m=$('resetPinModal');if(m?.classList.contains('show'))positionResetPinModal()});
+window.addEventListener('scroll',()=>{const m=$('resetPinModal');if(m?.classList.contains('show'))positionResetPinModal()},{passive:true});
 $('connectBtn').addEventListener('click',connect);
  $('resetPinBtn')?.addEventListener('click',setResetPin);
  if($('attachPurchaseReceipt')){$('attachPurchaseReceipt').addEventListener('click',e=>{e.preventDefault();$('purchaseReceiptPhoto').click()});$('purchaseReceiptPhoto').addEventListener('change',async()=>{const f=$('purchaseReceiptPhoto').files?.[0];if(!f)return;$('purchaseReceiptName').textContent='Attached: '+f.name;$('purchaseReceiptOCRStatus').textContent='Reading receipt…';try{const r=await Tesseract.recognize(f,'eng');const t=(r.data.text||'').replace(/\r\n?/g,'\n').replace(/[ \t]+/g,' ').trim();parsePurchaseInvoice(t);$('purchaseReceiptOCRStatus').textContent=invoiceScanItems.length?'✓ Receipt scanned and product/quantity/cost filled automatically.':'Receipt text was read, but no catalogue product was matched. Please check the product name or enter it manually.'}catch(e){$('purchaseReceiptOCRStatus').textContent='Receipt scan failed. Enter details manually.'}})}
