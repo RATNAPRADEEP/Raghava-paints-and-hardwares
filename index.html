@@ -146,13 +146,6 @@
 
         <div class="calc-card calc-step-card" data-calc-panel="5">
           <h3>5. Requirement / Estimate</h3>
-          <div id="calcQuestions" class="calc-note" style="margin-bottom:12px"></div>
-          <div class="calc-summary">
-            <div class="calc-metric"><small>Wall Paint Area</small><strong id="calcWallArea">0 sq.ft</strong></div>
-            <div class="calc-metric"><small>Ceiling Area</small><strong id="calcCeilingArea">0 sq.ft</strong></div>
-            <div class="calc-metric"><small>Exterior Area</small><strong id="calcExteriorArea">0 sq.ft</strong></div>
-            <div class="calc-metric"><small>Wood / Metal Area</small><strong id="calcMetalArea">0 sq.ft</strong></div>
-          </div>
           <div id="calcResults" style="margin-top:14px"></div>
           <div class="calc-actions"><button type="button" class="btn primary" id="calcRecalculate">Calculate Estimate</button><button type="button" class="btn" id="calcSendInvoice">Open in Invoice Print as Estimate</button></div>
         </div>
@@ -1732,10 +1725,6 @@ function calcRecalculate(){
    return {...s,paint,prim};
  });
  const surfacePaint=surfaceRows.reduce((a,x)=>a+x.paint,0),surfacePrimer=surfaceRows.reduce((a,x)=>a+x.prim,0);
- $('calcWallArea').textContent=calcCeil(wall).toLocaleString()+' sq.ft';
- $('calcCeilingArea').textContent=calcCeil(ceil).toLocaleString()+' sq.ft';
- $('calcExteriorArea').textContent=calcCeil(rooms.filter(r=>/exterior/i.test(r.finish)).reduce((a,r)=>a+r.wall,0)).toLocaleString()+' sq.ft';
- $('calcMetalArea').textContent=calcCeil(surfaces.reduce((a,x)=>a+x.area,0)).toLocaleString()+' sq.ft';
  const rows=[];
  Object.values(groups).forEach(g=>rows.push([g.name,g.qty,'L',g.coverage,g.coats,wall]));
  if(ceilingPaint>0)rows.push(['Ceiling — '+ceilingKey,ceilingPaint,'L',ceilingCoverage,ceilingCoats,ceil]);
@@ -1750,8 +1739,6 @@ function calcRecalculate(){
  if(!rooms.length && !directWall)questions.push('Need wall area: ask for room length × width × height, or get the total paintable wall area from the painter.');
  if(!rooms.length && !directCeil)questions.push('Ceiling area not supplied; ask whether ceilings are included and obtain the area if required.');
  if(!$('calcNoSpecialSurfaces')?.checked && !surfaces.length)questions.push('Special surfaces selected but none entered; add doors/windows/grills/wood/metal measurements.');
- if(questions.length)$('calcQuestions').innerHTML='<b>Questions / missing information</b><br>'+questions.map(esc).join('<br>');
- else $('calcQuestions').innerHTML='<b>Ready for estimate.</b> Customer/painter inputs have enough information for the current calculation. Review the quantities before printing.';
  $('calcResults').innerHTML='<table class="calc-table"><tr><th>Material / Finish</th><th>Estimated Qty</th><th>Unit</th><th>Coverage basis</th><th>Coats</th></tr>'+
  rows.map(r=>'<tr><td><b>'+esc(r[0])+'</b></td><td class="num"><b>'+calcCeil(r[1]).toFixed(1)+'</b></td><td>'+r[2]+'</td><td>'+r[3]+' sq.ft/L or kg</td><td>'+r[4]+'</td></tr>').join('')+
  '</table><div class="estimate-total"><span>Planning quantity including '+Math.round((waste-1)*100)+'% site factor</span><br><strong>'+calcCeil(totalLitres).toFixed(1)+' L</strong> <span>paint/primer combined + '+calcCeil(puttyQty).toFixed(1)+' kg putty</span></div>';
