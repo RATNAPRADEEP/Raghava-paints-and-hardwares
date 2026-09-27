@@ -15,7 +15,7 @@
 .calc-hero{background:linear-gradient(135deg,#172033,#263a68);color:#fff;border-radius:18px;padding:26px 28px;display:flex;justify-content:space-between;gap:20px;align-items:flex-end}
 .calc-hero h2{margin:4px 0 8px;font-size:32px;letter-spacing:-.7px}.calc-hero p{margin:0;color:#d5dced;max-width:760px;line-height:1.55}.calc-kicker{font-size:10px;letter-spacing:.16em;font-weight:850;color:#9fb8f7}.calc-subtabs{display:flex;flex-wrap:wrap;gap:7px;flex:1}.calc-subtab{border:1px solid #ffffff2b;background:#ffffff12;color:#dfe7f7;border-radius:10px;padding:10px 12px;font-size:11px;font-weight:800;cursor:pointer;transition:.15s}.calc-subtab:hover{background:#ffffff20}.calc-subtab.active{background:#fff;color:#172033;border-color:#fff}.calc-badge{background:#fff1;border:1px solid #ffffff2b;border-radius:999px;padding:8px 12px;font-size:11px;font-weight:800;white-space:nowrap}
 .calc-grid{display:block}.calc-step-card{display:none}.calc-step-card.active{display:block}.calc-step-footer{margin-top:20px;padding-top:16px;border-top:1px solid #e5e7eb}.calc-saved{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:13px;line-height:1.55;color:#334155}.calc-saved b{display:block;color:#172033;margin-bottom:3px}.calc-saved span{display:block}.calc-card{background:#fff;border:1px solid #e4e8ef;border-radius:16px;padding:20px;box-shadow:0 5px 20px rgba(16,24,40,.04)}.calc-card h3{margin:0 0 15px;font-size:17px}.calc-card h4{margin:18px 0 10px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#667085}
-.calc-form{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.calc-form label{font-size:11px;font-weight:800;display:grid;gap:6px;color:#344054}.calc-form .wide{grid-column:1/-1}.calc-form input,.calc-form select{font-size:13px}.calc-help{font-size:10px;color:#7a8496;font-weight:500;line-height:1.45}
+.calc-form{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.calc-paint-dual{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}.calc-dual-section{border:1px solid #e4e8ef;border-radius:14px;padding:16px;background:#fbfcfe}.calc-dual-section h3{margin:0 0 15px;font-size:17px}.calc-dual-section h4{margin:0 0 12px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#667085}.calc-dual-section .calc-form{grid-template-columns:repeat(2,minmax(0,1fr))}.calc-dual-section .calc-help{margin-top:12px}@media(max-width:900px){.calc-paint-dual{grid-template-columns:1fr}}.calc-form label{font-size:11px;font-weight:800;display:grid;gap:6px;color:#344054}.calc-form .wide{grid-column:1/-1}.calc-form input,.calc-form select{font-size:13px}.calc-help{font-size:10px;color:#7a8496;font-weight:500;line-height:1.45}
 .unit-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:14px}.unit-chip{border:1px solid #e4e8ef;border-radius:10px;padding:10px 8px;background:#fafbfc;text-align:center}.unit-chip b{display:block;font-size:13px}.unit-chip span{font-size:9px;color:#7a8496}
 .room-list{display:grid;gap:10px}.room-row{display:grid;grid-template-columns:1.1fr .8fr .8fr .8fr .75fr .75fr auto;gap:7px;align-items:end;border:1px solid #e5e7eb;border-radius:12px;padding:12px;background:#fafbfc}.room-row label{font-size:9px;font-weight:800;color:#667085;display:grid;gap:5px}.room-row input,.room-row select{padding:8px;font-size:12px}.room-remove{border:0;background:#fff0f0;color:#b42318;border-radius:8px;padding:9px;cursor:pointer;font-weight:800}
 .calc-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.calc-actions .btn{font-size:12px}.calc-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.calc-metric{border:1px solid #e4e8ef;border-radius:11px;padding:12px;background:#fafbfc}.calc-metric small{display:block;color:#667085;font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.calc-metric strong{display:block;font-size:20px;margin-top:4px;color:#172b4d}.calc-table{width:100%;border-collapse:collapse}.calc-table th,.calc-table td{padding:9px 7px;border-bottom:1px solid #edf0f3;font-size:11px;text-align:left}.calc-table th{font-size:9px}.calc-table td.num{text-align:right;font-variant-numeric:tabular-nums}.calc-section-title{display:flex;justify-content:space-between;align-items:center;gap:10px}.calc-section-title button{font-size:11px}.calc-note{border-left:3px solid #2457d6;background:#f7f9ff;padding:10px 12px;border-radius:7px;color:#475467;font-size:10px;line-height:1.5;margin-top:12px}
@@ -174,7 +174,9 @@
 
       <div>
         <div class="calc-card calc-step-card" data-calc-panel="5">
-          <h3>5. Paint System & Coats</h3>
+          <div class="calc-paint-dual">
+            <div class="calc-dual-section">
+<h3>5. Paint System & Coats</h3>
           <div class="calc-form">
             <label>Wall Finish<select id="calcWallProduct"></select></label>
             <label>Exterior Finish<select id="calcExteriorProduct"></select></label>
@@ -185,7 +187,9 @@
             <label>Wastage / Site Factor %<input id="calcWastage" type="number" min="0" max="25" step="1" value="10"></label>
             <label>Surface Condition<select id="calcCondition"><option value="normal">Normal / Primed</option><option value="rough">Rough / Porous</option><option value="texture">Textured / High Absorption</option></select></label>
           </div>
-          <h4 style="margin:18px 0 8px">Special Treatments & Site Conditions</h4>
+            </div>
+            <div class="calc-dual-section">
+<h4 style="margin:18px 0 8px">Special Treatments & Site Conditions</h4>
           <div class="calc-form">
             <label>Wall Stickers<select id="calcSticker"><option value="none">None</option><option value="remove">Sticker removal / surface preparation</option><option value="new">New wall sticker / decorative finish</option></select></label>
             <label>Sticker Area<input id="calcStickerArea" type="number" min="0" step="0.1" placeholder="Enter area"><select id="calcStickerUnit"><option value="sqft">Sq.ft</option><option value="gajam">Gajam / Sq.yd</option><option value="ankanam">Ankanam</option><option value="cent">Cent</option><option value="gunta">Gunta</option><option value="acre">Acre</option><option value="sqm">Sq.m</option></select></label>
@@ -199,7 +203,10 @@
             <label>Terrace Area<input id="calcTerraceArea" type="number" min="0" step="0.1" placeholder="Enter area"><select id="calcTerraceUnit"><option value="sqft">Sq.ft</option><option value="gajam">Gajam / Sq.yd</option><option value="ankanam">Ankanam</option><option value="cent">Cent</option><option value="gunta">Gunta</option><option value="acre">Acre</option><option value="sqm">Sq.m</option></select></label>
             <label>Terrace Season / Timing<select id="calcTerraceSeason"><option value="">Select</option><option value="summer">Summer / Heat</option><option value="pre-monsoon">Pre-monsoon</option><option value="monsoon">Monsoon / Rainy season</option><option value="post-monsoon">Post-monsoon</option><option value="winter">Winter</option></select></label>
           </div>
-          <div class="calc-help">Season/timing is used as a planning flag only. Waterproofing, crack treatment, weatherproofing and cool-roof products must be selected according to site condition and the manufacturer's technical data. Structural cracks require professional site assessment.</div>          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved5"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="5">Save</button><button type="button" class="btn primary" data-calc-next="6">Next</button></div></div>
+          <div class="calc-help">Season/timing is used as a planning flag only. Waterproofing, crack treatment, weatherproofing and cool-roof products must be selected according to site condition and the manufacturer's technical data. Structural cracks require professional site assessment.</div>
+            </div>
+          </div>
+          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved5"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="5">Save</button><button type="button" class="btn primary" data-calc-next="6">Next</button></div></div>
         </div>
 
         <div class="calc-card calc-step-card" data-calc-panel="6">
