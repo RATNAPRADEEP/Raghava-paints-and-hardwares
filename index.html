@@ -13,8 +13,8 @@
 <style id="professional-calculation-css">
 .calc-shell{display:grid;gap:16px}
 .calc-hero{background:linear-gradient(135deg,#172033,#263a68);color:#fff;border-radius:18px;padding:26px 28px;display:flex;justify-content:space-between;gap:20px;align-items:flex-end}
-.calc-hero h2{margin:4px 0 8px;font-size:32px;letter-spacing:-.7px}.calc-hero p{margin:0;color:#d5dced;max-width:760px;line-height:1.55}.calc-kicker{font-size:10px;letter-spacing:.16em;font-weight:850;color:#9fb8f7}.calc-badge{background:#fff1;border:1px solid #ffffff2b;border-radius:999px;padding:8px 12px;font-size:11px;font-weight:800;white-space:nowrap}
-.calc-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(330px,.65fr);gap:16px;align-items:start}.calc-card{background:#fff;border:1px solid #e4e8ef;border-radius:16px;padding:20px;box-shadow:0 5px 20px rgba(16,24,40,.04)}.calc-card h3{margin:0 0 15px;font-size:17px}.calc-card h4{margin:18px 0 10px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#667085}
+.calc-hero h2{margin:4px 0 8px;font-size:32px;letter-spacing:-.7px}.calc-hero p{margin:0;color:#d5dced;max-width:760px;line-height:1.55}.calc-kicker{font-size:10px;letter-spacing:.16em;font-weight:850;color:#9fb8f7}.calc-subtabs{display:flex;flex-wrap:wrap;gap:7px;flex:1}.calc-subtab{border:1px solid #ffffff2b;background:#ffffff12;color:#dfe7f7;border-radius:10px;padding:10px 12px;font-size:11px;font-weight:800;cursor:pointer;transition:.15s}.calc-subtab:hover{background:#ffffff20}.calc-subtab.active{background:#fff;color:#172033;border-color:#fff}.calc-badge{background:#fff1;border:1px solid #ffffff2b;border-radius:999px;padding:8px 12px;font-size:11px;font-weight:800;white-space:nowrap}
+.calc-grid{display:block}.calc-step-card{display:none}.calc-step-card.active{display:block}.calc-card{background:#fff;border:1px solid #e4e8ef;border-radius:16px;padding:20px;box-shadow:0 5px 20px rgba(16,24,40,.04)}.calc-card h3{margin:0 0 15px;font-size:17px}.calc-card h4{margin:18px 0 10px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#667085}
 .calc-form{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.calc-form label{font-size:11px;font-weight:800;display:grid;gap:6px;color:#344054}.calc-form .wide{grid-column:1/-1}.calc-form input,.calc-form select{font-size:13px}.calc-help{font-size:10px;color:#7a8496;font-weight:500;line-height:1.45}
 .unit-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:14px}.unit-chip{border:1px solid #e4e8ef;border-radius:10px;padding:10px 8px;background:#fafbfc;text-align:center}.unit-chip b{display:block;font-size:13px}.unit-chip span{font-size:9px;color:#7a8496}
 .room-list{display:grid;gap:10px}.room-row{display:grid;grid-template-columns:1.1fr .8fr .8fr .8fr .75fr .75fr auto;gap:7px;align-items:end;border:1px solid #e5e7eb;border-radius:12px;padding:12px;background:#fafbfc}.room-row label{font-size:9px;font-weight:800;color:#667085;display:grid;gap:5px}.room-row input,.room-row select{padding:8px;font-size:12px}.room-remove{border:0;background:#fff0f0;color:#b42318;border-radius:8px;padding:9px;cursor:pointer;font-weight:800}
@@ -77,11 +77,20 @@
 <section id="calculations" class="section">
   <div class="head"><div><div class="eyebrow">07 / CALCULATION</div><h2>Paint & Material Estimator</h2></div></div>
   <div class="calc-shell">
-    <div class="calc-hero"><div></div><div class="calc-badge">Estimate only • Verify on site</div></div>
+    <div class="calc-hero">
+  <div class="calc-subtabs" role="tablist" aria-label="Calculation steps">
+    <button type="button" class="calc-subtab active" data-calc-step="1" role="tab">1. Units</button>
+    <button type="button" class="calc-subtab" data-calc-step="2" role="tab">2. Rooms</button>
+    <button type="button" class="calc-subtab" data-calc-step="3" role="tab">3. Doors / Windows / Grills</button>
+    <button type="button" class="calc-subtab" data-calc-step="4" role="tab">4. Paint System</button>
+    <button type="button" class="calc-subtab" data-calc-step="5" role="tab">5. Requirement</button>
+  </div>
+  <div class="calc-badge">Estimate only • Verify on site</div>
+</div>
 
     <div class="calc-grid">
       <div>
-        <div class="calc-card">
+        <div class="calc-card calc-step-card active" data-calc-panel="1">
           <h3>1. భూమి / ఇంటి కొలతల Unit Converter</h3>
           <div class="calc-form">
             <label>కొలత విలువ<input id="calcUnitValue" type="number" min="0" step="0.01" value="1"></label>
@@ -95,14 +104,14 @@
           <div class="calc-note">గమనిక: స్థానికంగా కొలత పేర్లు/వాడుకలో తేడాలు ఉండొచ్చు. ఇక్కడ Andhra Pradesh house-plot convention ప్రకారం 1 అంకణం = 72 sq.ft, 1 గజం = 9 sq.ft ఉపయోగిస్తున్నాం.</div>
         </div>
 
-        <div class="calc-card">
+        <div class="calc-card calc-step-card" data-calc-panel="2">
           <div class="calc-section-title"><h3>2. గది / Room Measurements</h3><button type="button" class="btn primary" id="calcAddRoom">+ Add Room</button></div>
           <div class="calc-help">ప్రతి గదికి Length × Width × Height ఇవ్వండి. Doors/Windows ను తగ్గించి actual paintable wall area తీసుకుంటుంది. Ceiling కావాలంటే స్వయంచాలకంగా floor area జోడిస్తుంది.</div>
           <div id="calcRoomList" class="room-list"></div>
           <div class="calc-actions"><button type="button" class="btn" id="calcAddRoom2">+ Add Another Room</button><button type="button" class="btn" id="calcResetRooms">Reset Rooms</button></div>
         </div>
 
-        <div class="calc-card">
+        <div class="calc-card calc-step-card" data-calc-panel="3">
           <div class="calc-section-title"><h3>3. Windows / Doors / Grills / Metal</h3><button type="button" class="btn" id="calcAddMetal">+ Add Surface</button></div>
           <div class="calc-help">Area can be entered directly or calculated from quantity × width × height. Choose one-side or two-side painting for grills/frames.</div>
           <div id="calcSurfaceList"></div>
@@ -110,7 +119,7 @@
       </div>
 
       <div>
-        <div class="calc-card">
+        <div class="calc-card calc-step-card" data-calc-panel="4">
           <h3>4. Paint System & Coats</h3>
           <div class="calc-form">
             <label>Project Type<select id="calcProject"><option value="fresh">Fresh Painting</option><option value="repaint">Repainting</option></select></label>
@@ -126,7 +135,7 @@
           <div class="calc-help">Recommended coats should follow the selected product's technical data and actual surface condition. Customer-entered coats override the default estimate.</div>
         </div>
 
-        <div class="calc-card">
+        <div class="calc-card calc-step-card" data-calc-panel="5">
           <h3>5. Calculated Requirement</h3>
           <div class="calc-summary">
             <div class="calc-metric"><small>Wall Paint Area</small><strong id="calcWallArea">0 sq.ft</strong></div>
@@ -1733,6 +1742,11 @@ function calcInit(){
  document.querySelectorAll('#calculations input,#calculations select').forEach(x=>x.addEventListener('input',calcRecalculate));
  $('calcRecalculate')?.addEventListener('click',calcRecalculate);
  $('calcPrintEstimate')?.addEventListener('click',calcPrintEstimate);
+ document.querySelectorAll('.calc-subtab').forEach(btn=>btn.addEventListener('click',()=>{
+   const step=btn.dataset.calcStep;
+   document.querySelectorAll('.calc-subtab').forEach(x=>{const on=x.dataset.calcStep===step;x.classList.toggle('active',on);x.setAttribute('aria-selected',on?'true':'false')});
+   document.querySelectorAll('.calc-step-card').forEach(panel=>panel.classList.toggle('active',panel.dataset.calcPanel===step));
+ }));
  calcUnitConvert();
 }
 function calcUnitConvert(){
