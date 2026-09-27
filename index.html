@@ -2019,53 +2019,34 @@ function managePromoFullscreen(){
 function manageLoadPromoVideo(){
  const input=$('managePromoUrl'),frame=$('managePromoVideo'),placeholder=$('managePromoPlaceholder'),badge=$('managePromoBadge');
  if(!input||!frame)return;
- let raw=(input.value||'').trim();
- let embed='',type='';
- // After a video has been saved the URL field is intentionally masked/read-only.
- // Clicking Show Video must still display the saved video instead of returning early.
+ let raw=(input.value||'').trim(),embed='',type='';
  if(input.readOnly){
    try{
      const saved=JSON.parse(localStorage.getItem('raghavaPromoVideo')||'null');
-     if(saved?.embed){
-       embed=String(saved.embed);
-       type=String(saved.type||'Video');
-       raw=String(saved.url||'');
-     }else{
-       input.readOnly=false;
-       input.type='url';
-       input.value='';
-       input.placeholder='Paste YouTube or Google Drive video link';
-       toast('Paste a YouTube or Google Drive video link.');
-       return;
-     }
-   }catch(e){
-     input.readOnly=false;
-     input.type='url';
-     input.value='';
-     return;
-   }
+     if(saved?.embed){embed=String(saved.embed);type=String(saved.type||'Video');raw=String(saved.url||'');}
+     else{input.readOnly=false;input.type='url';input.value='';toast('Paste a YouTube or Google Drive video link.');return;}
+   }catch(e){input.readOnly=false;input.type='url';input.value='';return;}
  }
  if(!embed){
    const yt=raw.match(/(?:youtube\\.com\\/(?:watch\\?v=|shorts\\/|embed\\/)|youtu\\.be\\/)([A-Za-z0-9_-]{11})/);
    const drive=raw.match(/drive\\.google\\.com\\/file\\/d\\/([A-Za-z0-9_-]+)/)||raw.match(/[?&]id=([A-Za-z0-9_-]+)/);
-   if(yt){embed='https://www.youtube.com/embed/'+yt[1]+'?rel=0&controls=1&fs=1&enablejsapi=1&origin='+encodeURIComponent(location.origin);type='YouTube';}
-   else if(drive){embed='https://drive.google.com/file/d/'+drive[1]+'/preview';type='Google Drive';}
-   else{toast('Enter a valid YouTube or Google Drive video link.');return;}
+   if(yt){
+     embed='https://www.youtube.com/embed/'+yt[1]+'?autoplay=1&mute=1&rel=0&controls=1&fs=1&enablejsapi=1&playsinline=1&origin='+encodeURIComponent(location.origin);
+     type='YouTube';
+   }else if(drive){
+     embed='https://drive.google.com/file/d/'+drive[1]+'/preview?autoplay=1';
+     type='Google Drive';
+   }else{toast('Enter a valid YouTube or Google Drive video link.');return;}
  }
- if(yt){embed='https://www.youtube.com/embed/'+yt[1]+'?rel=0&controls=1&fs=1&enablejsapi=1&origin='+encodeURIComponent(location.origin);type='YouTube';}
- else if(drive){embed='https://drive.google.com/file/d/'+drive[1]+'/preview';type='Google Drive';}
- else{toast('Enter a valid YouTube or Google Drive video link.');return;}
- frame.src=embed;
+ frame.src='';
  frame.style.display='block';
  if(placeholder)placeholder.style.display='none';
  if(badge)badge.textContent=type;
+ requestAnimationFrame(()=>{frame.src=embed;});
  try{localStorage.setItem('raghavaPromoVideo',JSON.stringify({url:raw,embed,type}));}catch(e){}
  manageMaskPromoInput();
- const loadBtn=$('managePromoLoad');
- if(loadBtn)loadBtn.textContent='Show Video';
- toast(type+' video displayed.');
-}
-function manageInitPromoVideo(){
+ toast(type+' video loaded.');
+}function manageInitPromoVideo(){
  const input=$('managePromoUrl'),btn=$('managePromoLoad');
  if(btn)btn.addEventListener('click',manageLoadPromoVideo);
  const mute=$('managePromoMute'); if(mute)mute.addEventListener('click',managePromoToggleMute);
