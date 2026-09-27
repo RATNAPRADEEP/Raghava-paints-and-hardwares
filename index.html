@@ -60,7 +60,7 @@
     <div class="manage-promo-placeholder" id="managePromoPlaceholder">
       <div class="manage-promo-play">▶</div>
       <b>Promotion video</b>
-      <span>Add a YouTube video below to display it here.</span>
+      <span>Add a promotion video below to display it here.</span>
     </div>
     <iframe id="managePromoVideo" title="Raghava Paints & Hardwares Promotion" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="display:none"></iframe>
   </div>
@@ -2060,13 +2060,12 @@ function manageLoadPromoVideo(){
    }
    if(saved&&input){
      input.value=saved.url||'';
-     const frame=$('managePromoVideo'),placeholder=$('managePromoPlaceholder'),badge=$('managePromoBadge');
-     if(frame&&saved.embed){frame.src=saved.embed;frame.style.display='block';}
-     if(placeholder)placeholder.style.display='none';
-     if(badge)badge.textContent=saved.type||'Video';
-     manageMaskPromoInput();
+     manageLoadPromoVideo();
+   }else if(input&&input.value.trim()){
+     // Also support a prefilled promotion link when this browser has no localStorage entry.
+     manageLoadPromoVideo();
    }
- }catch(e){}
+ }catch(e){console.error('Promotion video init failed:',e)}
 }
 
 
