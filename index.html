@@ -2079,8 +2079,11 @@ function bind(){
  $('purchaseInvoicePhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'purchase');e.target.value=''});$('scanPurchaseInvoice').addEventListener('click',()=>$('purchaseInvoicePhoto').click());$('customerPhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'customer');e.target.value=''});$('scanCustomer').addEventListener('click',()=>$('customerPhoto').click());
  addPhotoOCR('photoSku','pSku','scanSku');addPhotoOCR('photoName','pName','scanName');addPhotoOCR('photoBrand','pBrand','scanBrand');addPhotoOCR('photoShade','pShade','scanShade');
  let resetUnlocked=false;
+let resetUnlockTimer=null;
 function setResetLockState(unlocked){
  resetUnlocked=!!unlocked;
+ if(resetUnlockTimer){clearTimeout(resetUnlockTimer);resetUnlockTimer=null;}
+ if(resetUnlocked){resetUnlockTimer=setTimeout(()=>setResetLockState(false),30000);}
  const btn=$('resetShopBtn');
  if(btn){btn.textContent=resetUnlocked?'🔓 Reset Shop Data':'🔒 Reset Shop Data';btn.title=resetUnlocked?'PIN verified — click to reset shop data':'PIN required';}
 }
