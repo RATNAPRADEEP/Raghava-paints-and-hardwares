@@ -1773,6 +1773,6 @@ function forceInvoiceToday(){
  if(!el.textContent.trim()||el.textContent.trim()==='DD-MM-YYYY')el.textContent=today;
  $('receiptDatePrint').textContent=el.textContent;
 }
-bind();render();forceInvoiceToday();restoreDriveConnection();
+bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try{calcInit()}catch(e){console.error('Calculation tab init failed:',e)}},0);
 </script><script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script><script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body></html>
