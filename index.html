@@ -79,11 +79,12 @@
   <div class="calc-shell">
     <div class="calc-hero">
   <div class="calc-subtabs" role="tablist" aria-label="Calculation steps">
-    <button type="button" class="calc-subtab active" data-calc-step="1" role="tab">1. Units</button>
-    <button type="button" class="calc-subtab" data-calc-step="2" role="tab">2. Rooms</button>
-    <button type="button" class="calc-subtab" data-calc-step="3" role="tab">3. Doors / Windows / Grills</button>
-    <button type="button" class="calc-subtab" data-calc-step="4" role="tab">4. Paint System</button>
-    <button type="button" class="calc-subtab" data-calc-step="5" role="tab">5. Requirement</button>
+    <button type="button" class="calc-subtab active" data-calc-step="1" role="tab">1. Customer / Project</button>
+    <button type="button" class="calc-subtab" data-calc-step="2" role="tab">2. Walls</button>
+    <button type="button" class="calc-subtab" data-calc-step="3" role="tab">3. Rooms</button>
+    <button type="button" class="calc-subtab" data-calc-step="4" role="tab">4. Doors / Windows / Grills</button>
+    <button type="button" class="calc-subtab" data-calc-step="5" role="tab">5. Paint System</button>
+    <button type="button" class="calc-subtab" data-calc-step="6" role="tab">6. Requirement</button>
   </div>
   <div class="calc-badge">Estimate only • Verify on site</div>
 </div>
@@ -97,12 +98,8 @@
             <label>Phone<input id="calcCustomerPhone" type="tel" placeholder="Optional"></label>
             <label>Project Type<select id="calcProject"><option value="">Select</option><option value="fresh">Fresh Painting</option><option value="repaint">Repainting</option></select></label>
             <label>Area / Space<select id="calcSpace"><option value="">Select</option><option value="interior">Interior</option><option value="exterior">Exterior</option><option value="both">Interior + Exterior</option></select></label>
-            <label>Known Wall Area<input id="calcKnownWallArea" type="number" min="0" step="0.1" placeholder="If customer/painter already knows sq.ft"></label>
-            <label>Known Ceiling Area<input id="calcKnownCeilingArea" type="number" min="0" step="0.1" placeholder="Optional sq.ft"></label>
           </div>
-          <div class="calc-help">Customer can provide whatever is known. If exact room measurements are unavailable, the painter can enter a known paintable wall/ceiling area here. Do not treat plot area in ankanam/gajam as paintable wall area unless the painter has explicitly provided that area.</div>
-          <hr style="border:0;border-top:1px solid #e5e7eb;margin:16px 0">
-          <h3>Measurement Unit Converter</h3>
+          <div class="calc-help">Customer can provide whatever is known. Wall measurements are entered separately in the Walls tab.</div>
           <div class="calc-form">
             <label>కొలత విలువ<input id="calcUnitValue" type="number" min="0" step="0.01" value="1"></label>
             <label>Unit<select id="calcFromUnit"><option value="sqft">అడుగు / Sq.ft</option><option value="gajam">గజం / Sq.yd</option><option value="ankanam">అంకణం</option><option value="cent">సెంట్</option><option value="gunta">గుంట</option><option value="acre">ఎకరం</option><option value="sqm">చ.మీటర్</option></select></label>
@@ -114,14 +111,26 @@
         </div>
 
         <div class="calc-card calc-step-card" data-calc-panel="2">
+          <h3>2. Walls / Wall Area</h3>
+          <div class="calc-form">
+            <label>Known Paintable Wall Area (sq.ft)<input id="calcKnownWallArea" type="number" min="0" step="0.1" placeholder="If already measured"></label>
+            <label>Known Ceiling Area (sq.ft)<input id="calcKnownCeilingArea" type="number" min="0" step="0.1" placeholder="If already measured"></label>
+            <label>Wall Measurement Unit<select id="calcWallUnit"><option value="sqft">Sq.ft</option><option value="gajam">Gajam / Sq.yd</option><option value="ankanam">Ankanam</option><option value="cent">Cent</option><option value="gunta">Gunta</option><option value="acre">Acre</option><option value="sqm">Sq.m</option></select></label>
+            <label>Measured Wall Value<input id="calcWallMeasuredValue" type="number" min="0" step="0.01" placeholder="Optional"></label>
+          </div>
+          <div class="calc-help">Enter the actual paintable wall area if the painter already knows it. Or enter a measured value and unit above to convert it to sq.ft. Do not use plot/land area as wall area.</div>
+          <div class="estimate-total"><span>Converted wall area</span><br><strong id="calcWallConverted">0.00 sq.ft</strong></div>
+        </div>
+
+        <div class="calc-card calc-step-card" data-calc-panel="3">
           <div class="calc-section-title"><h3>2. గది / Room Measurements</h3><button type="button" class="btn primary" id="calcAddRoom">+ Add Room</button></div>
-          <div class="calc-help">ప్రతి గదికి Length × Width × Height ఇవ్వండి. Ceiling కావాలంటే స్వయంచాలకంగా floor area జోడిస్తుంది. Doors, Windows, Grills మరియు ఇతర surfaces ను 3వ subtab లో నమోదు చేయండి.</div>
+          <div class="calc-help">ప్రతి గదికి Length × Width × Height ఇవ్వండి. Ceiling కావాలంటే స్వయంచాలకంగా floor area జోడిస్తుంది. Doors, Windows, Grills మరియు ఇతర surfaces ను 4వ subtab లో నమోదు చేయండి.</div>
           <div id="calcRoomList" class="room-list"></div>
           <div class="calc-actions"><button type="button" class="btn" id="calcAddRoom2">+ Add Another Room</button><button type="button" class="btn" id="calcResetRooms">Reset Rooms</button></div>
         </div>
 
-        <div class="calc-card calc-step-card" data-calc-panel="3">
-          <div class="calc-section-title"><h3>3. Doors / Windows / Grills / Special Surfaces</h3><button type="button" class="btn" id="calcAddMetal">+ Add Surface</button></div>
+        <div class="calc-card calc-step-card" data-calc-panel="4">
+          <div class="calc-section-title"><h3>4. Doors / Windows / Grills / Special Surfaces</h3><button type="button" class="btn" id="calcAddMetal">+ Add Surface</button></div>
           <label style="display:flex;align-items:center;gap:8px;margin:8px 0 12px"><input id="calcNoSpecialSurfaces" type="checkbox" checked style="width:auto"> No separate doors / windows / grills / wood / metal painting</label>
           <div class="calc-help">If these surfaces need separate painting, untick the option and add each item. Their area is deducted from wall area and their own primer/topcoat requirement is estimated separately.</div>
           <div id="calcSurfaceList"></div>
@@ -129,8 +138,8 @@
       </div>
 
       <div>
-        <div class="calc-card calc-step-card" data-calc-panel="4">
-          <h3>4. Paint System & Coats</h3>
+        <div class="calc-card calc-step-card" data-calc-panel="5">
+          <h3>5. Paint System & Coats</h3>
           <div class="calc-form">
             <label>Wall Finish<select id="calcWallProduct"></select></label>
             <label>Exterior Finish<select id="calcExteriorProduct"></select></label>
@@ -144,8 +153,8 @@
           <div class="calc-help">Recommended coats should follow the selected product's technical data and actual surface condition. Customer-entered coats override the default estimate.</div>
         </div>
 
-        <div class="calc-card calc-step-card" data-calc-panel="5">
-          <h3>5. Requirement / Estimate</h3>
+        <div class="calc-card calc-step-card" data-calc-panel="6">
+          <h3>6. Requirement / Estimate</h3>
           <div id="calcResults" style="margin-top:14px"></div>
           <div class="calc-actions"><button type="button" class="btn primary" id="calcRecalculate">Calculate Estimate</button><button type="button" class="btn" id="calcSendInvoice">Open in Invoice Print as Estimate</button></div>
         </div>
@@ -1751,7 +1760,7 @@ function calcInit(){
  calcAddRoomRow({name:'Bedroom 1',l:12,w:10,h:10,ceiling:'yes'});
  
  calcProductOptions();calcRecalculate();
- ['calcUnitValue','calcFromUnit','calcCustomerName','calcCustomerPhone','calcProject','calcSpace','calcKnownWallArea','calcKnownCeilingArea'].forEach(id=>$(id)?.addEventListener('input',calcRecalculate));
+ ['calcUnitValue','calcFromUnit','calcCustomerName','calcCustomerPhone','calcProject','calcSpace','calcKnownWallArea','calcKnownCeilingArea','calcWallUnit','calcWallMeasuredValue'].forEach(id=>$(id)?.addEventListener('input',calcRecalculate));
  $('calcAddRoom')?.addEventListener('click',()=>{calcAddRoomRow({});calcRecalculate()});
  $('calcAddRoom2')?.addEventListener('click',()=>{calcAddRoomRow({});calcRecalculate()});
  $('calcResetRooms')?.addEventListener('click',()=>{$('calcRoomList').innerHTML='';calcAddRoomRow({name:'Room',l:12,w:10,h:10,ceiling:'yes'});calcRecalculate()});
@@ -1771,6 +1780,10 @@ function calcUnitConvert(){
  const v=calcNum($('calcUnitValue')?.value||0),unit=$('calcFromUnit')?.value||'sqft';
  const sqft=v*CALC_UNITS_SQFT[unit];
  if($('calcUnitResult'))$('calcUnitResult').textContent=sqft.toLocaleString(undefined,{maximumFractionDigits:2})+' sq.ft';
+ const wv=calcNum($('calcWallMeasuredValue')?.value||0),wu=$('calcWallUnit')?.value||'sqft';
+ const wsf=wv*CALC_UNITS_SQFT[wu];
+ if($('calcWallConverted'))$('calcWallConverted').textContent=wsf.toLocaleString(undefined,{maximumFractionDigits:2})+' sq.ft';
+ if($('calcKnownWallArea') && wv>0)$('calcKnownWallArea').value=wsf;
 }
 function calcSendEstimateToInvoice(){
  calcRecalculate();
