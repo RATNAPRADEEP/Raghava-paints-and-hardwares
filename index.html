@@ -152,7 +152,21 @@
             <label>Wastage / Site Factor %<input id="calcWastage" type="number" min="0" max="25" step="1" value="10"></label>
             <label>Surface Condition<select id="calcCondition"><option value="normal">Normal / Primed</option><option value="rough">Rough / Porous</option><option value="texture">Textured / High Absorption</option></select></label>
           </div>
-          <div class="calc-help">Recommended coats should follow the selected product's technical data and actual surface condition. Customer-entered coats override the default estimate.</div>
+          <h4 style="margin:18px 0 8px">Special Treatments & Site Conditions</h4>
+          <div class="calc-form">
+            <label>Wall Stickers<select id="calcSticker"><option value="none">None</option><option value="remove">Sticker removal / surface preparation</option><option value="new">New wall sticker / decorative finish</option></select></label>
+            <label>Sticker Area (sq.ft)<input id="calcStickerArea" type="number" min="0" step="0.1" placeholder="If applicable"></label>
+            <label>Wall Cracks<select id="calcCracks"><option value="none">No crack treatment</option><option value="hairline">Hairline crack filling</option><option value="repair">Crack repair / filling</option><option value="mesh">Crack treatment with mesh — site assessment</option></select></label>
+            <label>Crack Length (running ft)<input id="calcCrackLength" type="number" min="0" step="0.1" placeholder="If known"></label>
+            <label>Waterproofing<select id="calcWaterproof"><option value="none">No waterproofing</option><option value="terrace">Terrace waterproofing</option><option value="bathroom">Bathroom waterproofing</option><option value="balcony">Balcony waterproofing</option><option value="external">External wall waterproofing</option></select></label>
+            <label>Waterproofing Area (sq.ft)<input id="calcWaterproofArea" type="number" min="0" step="0.1" placeholder="If applicable"></label>
+            <label>Weather Proofing<select id="calcWeatherproof"><option value="none">No weather proofing</option><option value="exterior">Exterior weather protection</option><option value="terrace">Terrace weather protection</option></select></label>
+            <label>Weatherproofing Area (sq.ft)<input id="calcWeatherproofArea" type="number" min="0" step="0.1" placeholder="If applicable"></label>
+            <label>Cool Paint / Roof Coating<select id="calcCoolPaint"><option value="none">None</option><option value="cool">Cool roof / terrace coating</option></select></label>
+            <label>Terrace Area (sq.ft)<input id="calcTerraceArea" type="number" min="0" step="0.1" placeholder="If applicable"></label>
+            <label>Terrace Season / Timing<select id="calcTerraceSeason"><option value="">Select</option><option value="summer">Summer / Heat</option><option value="pre-monsoon">Pre-monsoon</option><option value="monsoon">Monsoon / Rainy season</option><option value="post-monsoon">Post-monsoon</option><option value="winter">Winter</option></select></label>
+          </div>
+          <div class="calc-help">Season/timing is used as a planning flag only. Waterproofing, crack treatment, weatherproofing and cool-roof products must be selected according to site condition and the manufacturer's technical data. Structural cracks require professional site assessment.</div>
         </div>
 
         <div class="calc-card calc-step-card" data-calc-panel="6">
@@ -1744,6 +1758,16 @@ function calcRecalculate(){
  if(puttyQty>0)rows.push([acrylicPutty?'Acrylic Wall Putty':'Wall Putty',puttyQty,'kg',puttyCoverage,puttyCoats,wall+ceil]);
  if(surfacePaint>0)rows.push(['Enamel / Wood Finish',surfacePaint,'L',200,2,surfaces.reduce((a,x)=>a+x.area,0)]);
  if(surfacePrimer>0)rows.push(['Metal/Wood Primer',surfacePrimer,'L',100,1,surfaces.reduce((a,x)=>a+x.area,0)]);
+ const sticker=$('calcSticker')?.value||'none',stickerArea=calcNum($('calcStickerArea')?.value||0);
+ const cracks=$('calcCracks')?.value||'none',crackLength=calcNum($('calcCrackLength')?.value||0);
+ const waterproof=$('calcWaterproof')?.value||'none',waterproofArea=calcNum($('calcWaterproofArea')?.value||0);
+ const weatherproof=$('calcWeatherproof')?.value||'none',weatherproofArea=calcNum($('calcWeatherproofArea')?.value||0);
+ const coolPaint=$('calcCoolPaint')?.value||'none',terraceArea=calcNum($('calcTerraceArea')?.value||0),terraceSeason=$('calcTerraceSeason')?.value||'';
+ if(sticker!=='none'&&stickerArea>0)rows.push([sticker==='remove'?'Wall Sticker Removal / Surface Prep':'New Wall Sticker / Decorative Finish',stickerArea,'sq.ft','Site measured area','—',stickerArea]);
+ if(cracks!=='none'&&crackLength>0)rows.push([cracks==='hairline'?'Hairline Crack Filling':cracks==='mesh'?'Crack Treatment + Mesh':'Crack Repair / Filling',crackLength,'running ft','Site measured length','—',crackLength]);
+ if(waterproof!=='none'&&waterproofArea>0)rows.push([waterproof==='terrace'?'Terrace Waterproofing':waterproof==='bathroom'?'Bathroom Waterproofing':waterproof==='balcony'?'Balcony Waterproofing':'External Wall Waterproofing',waterproofArea,'sq.ft','Site/TDS based','—',waterproofArea]);
+ if(weatherproof!=='none'&&weatherproofArea>0)rows.push([weatherproof==='terrace'?'Terrace Weather Proofing':'Exterior Weather Proofing',weatherproofArea,'sq.ft','Site/TDS based','—',weatherproofArea]);
+ if(coolPaint==='cool'&&terraceArea>0)rows.push(['Cool Paint / Terrace Roof Coating',terraceArea,'sq.ft','Product TDS based','—',terraceArea]);
  const totalLitres=rows.filter(r=>r[2]==='L').reduce((a,r)=>a+r[1],0);
  const questions=[];
  if(!project)questions.push('Ask customer: Fresh painting or repainting?');
@@ -1751,11 +1775,17 @@ function calcRecalculate(){
  if(!rooms.length && !directWall)questions.push('Need wall area: ask for room length × width × height, or get the total paintable wall area from the painter.');
  if(!rooms.length && !directCeil)questions.push('Ceiling area not supplied; ask whether ceilings are included and obtain the area if required.');
  if(!$('calcNoSpecialSurfaces')?.checked && !surfaces.length)questions.push('Special surfaces selected but none entered; add doors/windows/grills/wood/metal measurements.');
+ if(sticker!=='none'&&!stickerArea)questions.push('Wall sticker treatment selected; enter sticker area.');
+ if(cracks!=='none'&&!crackLength)questions.push('Crack treatment selected; enter approximate crack length if known.');
+ if(waterproof!=='none'&&!waterproofArea)questions.push('Waterproofing selected; enter treatment area.');
+ if(weatherproof!=='none'&&!weatherproofArea)questions.push('Weather proofing selected; enter treatment area.');
+ if(coolPaint==='cool'&&!terraceArea)questions.push('Cool terrace coating selected; enter terrace area.');
+ if((waterproof!=='none'||weatherproof!=='none'||coolPaint==='cool')&&!terraceSeason)questions.push('Select terrace season / timing for planning.');
  $('calcResults').innerHTML='<table class="calc-table"><tr><th>Material / Finish</th><th>Estimated Qty</th><th>Unit</th><th>Coverage basis</th><th>Coats</th></tr>'+
  rows.map(r=>'<tr><td><b>'+esc(r[0])+'</b></td><td class="num"><b>'+calcCeil(r[1]).toFixed(1)+'</b></td><td>'+r[2]+'</td><td>'+r[3]+' sq.ft/L or kg</td><td>'+r[4]+'</td></tr>').join('')+
  '</table><div class="estimate-total"><span>Planning quantity including '+Math.round((waste-1)*100)+'% site factor</span><br><strong>'+calcCeil(totalLitres).toFixed(1)+' L</strong> <span>paint/primer combined + '+calcCeil(puttyQty).toFixed(1)+' kg putty</span></div>';
 
- window.__lastPaintEstimate={rooms,surfaces,wall,ceil,rows,customerName,customerPhone,project,space,questions,puttyQty,totalLitres};
+ window.__lastPaintEstimate={rooms,surfaces,wall,ceil,rows,customerName,customerPhone,project,space,questions,puttyQty,totalLitres,sticker,stickerArea,cracks,crackLength,waterproof,waterproofArea,weatherproof,weatherproofArea,coolPaint,terraceArea,terraceSeason};
 }
 function calcInit(){
  if(!$('calcRoomList')||$('calcRoomList').dataset.ready==='1')return;
@@ -1763,7 +1793,7 @@ function calcInit(){
  calcAddRoomRow({name:'Bedroom 1',l:12,w:10,h:10,ceiling:'yes'});
  
  calcProductOptions();calcRecalculate();
- ['calcUnitValue','calcFromUnit','calcCustomerName','calcCustomerPhone','calcProject','calcSpace','calcKnownWallArea','calcKnownCeilingArea','calcWallUnit','calcWallMeasuredValue'].forEach(id=>$(id)?.addEventListener('input',calcRecalculate));
+ ['calcUnitValue','calcFromUnit','calcCustomerName','calcCustomerPhone','calcProject','calcSpace','calcKnownWallArea','calcKnownCeilingArea','calcWallUnit','calcWallMeasuredValue','calcSticker','calcStickerArea','calcCracks','calcCrackLength','calcWaterproof','calcWaterproofArea','calcWeatherproof','calcWeatherproofArea','calcCoolPaint','calcTerraceArea','calcTerraceSeason'].forEach(id=>$(id)?.addEventListener('input',calcRecalculate));
  $('calcAddRoom')?.addEventListener('click',()=>{calcAddRoomRow({});calcRecalculate()});
  $('calcAddRoom2')?.addEventListener('click',()=>{calcAddRoomRow({});calcRecalculate()});
  $('calcResetRooms')?.addEventListener('click',()=>{$('calcRoomList').innerHTML='';calcAddRoomRow({name:'Room',l:12,w:10,h:10,ceiling:'yes'});calcRecalculate()});
