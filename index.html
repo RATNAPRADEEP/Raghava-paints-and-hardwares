@@ -2071,7 +2071,8 @@ function manageLoadPromoVideo(){
    native.style.display='block';
    native.src='https://drive.google.com/uc?export=download&id='+encodeURIComponent((embed.match(/\/file\/d\/([^/]+)/)||[])[1]||'');
    native.loop=loopBtn?.dataset.loop==='1';
-   native.muted=muteBtn?.dataset.muted==='1';
+   if(muteBtn && !muteBtn.dataset.muted)muteBtn.dataset.muted='1';
+   native.muted=muteBtn?.dataset.muted!=='0';
    native.load();
    native.play().catch(()=>{});
  }else{
