@@ -24,7 +24,7 @@
 </style></head>
 <body>
 <header class="top"><div><div class="eyebrow">LOCAL SHOP OPERATIONS</div><h1>Raghava Paints and Hardwares</h1></div><div><div class="connection"><span id="dot" class="dot"></span><span id="connectionText">Google Drive storage not connected</span></div><button id="connectBtn" class="btn primary">Connect Google Drive</button></div></header>
-<nav class="nav"><button class="navbtn active" data-page="dashboard">Home</button><button class="navbtn" data-page="sales">Sell</button><button class="navbtn" data-page="purchases">Purchase</button><button class="navbtn" data-page="products">Inventory</button><button class="navbtn" data-page="calculations">Estimate</button><button class="navbtn" data-page="invoices">Invoice Print</button><button class="navbtn" data-page="accounts">Contact Details</button><button id="saveBtn" class="btn save">Save to Google Drive</button><div class="reset-security-actions"><button id="resetShopBtn" class="btn danger" title="PIN required">🔒 Reset Shop Data</button></div></nav>
+<nav class="nav"><button class="navbtn active" data-page="dashboard">Manage</button><button class="navbtn" data-page="sales">Sell</button><button class="navbtn" data-page="purchases">Purchase</button><button class="navbtn" data-page="products">Track</button><button class="navbtn" data-page="accounts">Analyze</button><button class="navbtn" data-page="calculations">Calculation</button><button class="navbtn" data-page="invoices">Invoice Print</button><button id="saveBtn" class="btn save">Save to Google Drive</button><div class="reset-security-actions"><button id="resetShopBtn" class="btn danger" title="PIN required">🔒 Reset Shop Data</button></div></nav>
 <main><div id="toast"></div><div id="resetPinModal" class="pin-modal" hidden aria-hidden="true">
   <div class="pin-modal-card" role="dialog" aria-modal="true" aria-labelledby="resetPinModalTitle">
     <button type="button" class="pin-modal-close" id="resetPinClose" aria-label="Close">×</button>
@@ -54,7 +54,7 @@
     <div>
       <span class="chart-kicker">SHOP PROMOTION</span>
     </div>
-    <span class="manage-promo-badge" id="managePromoBadge">Video</span>
+    <span class="manage-promo-badge">YouTube</span>
   </div>
   <div class="manage-promo-frame" id="managePromoFrame">
     <div class="manage-promo-placeholder" id="managePromoPlaceholder">
@@ -65,7 +65,7 @@
     <iframe id="managePromoVideo" title="Raghava Paints & Hardwares Promotion" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="display:none"></iframe>
   </div>
   <div class="manage-promo-controls">
-    <input id="managePromoUrl" type="url" placeholder="Paste YouTube or Google Drive video link">
+    <input id="managePromoUrl" type="url" placeholder="Paste YouTube video link">
     <button type="button" class="btn primary" id="managePromoLoad">Show Video</button>
     <button type="button" class="btn" id="managePromoMute" title="Mute / unmute video">🔇 Mute</button>
     <button type="button" class="btn" id="managePromoFullscreen" title="Maximize video">⛶ Max Screen</button>
@@ -124,10 +124,10 @@
 
 </section><section id="sales" class="section"><div class="head"><div><div class="eyebrow">02 / SELL</div><h2>Sales</h2></div></div><div class="card"><form id="saleForm" class="form" novalidate><label>Customer Type<select id="saleCustomerType"></select><span class="hint">Choose the customer type for this sale.</span></label><label>Customer Name<input id="saleCustomerName" list="saleCustomerOptions" placeholder="Enter or select customer name"><datalist id="saleCustomerOptions"></datalist><span class="hint">This exact name will appear beside రాజ శ్రీ on the invoice. Leave blank for Walk-in Customer.</span></label><label>Paint / Main Product<select id="saleProduct"></select><span class="hint">Choose a main paint OR a subproduct below.</span></label><label>Subproduct<select id="saleSubproduct"></select><span class="hint">Choose a paint accessory or special-treatment material: Brushes, Enamels, Fillers, Rollers, Sanding Paper, Thinners / MTO, Stainers, Samples, Wall Stickers, Wall Cracks, Waterproofing, Weather Proofing or Cool Paint / Roof Coating.</span></label><label>Size<select id="saleSize"></select><span class="hint">One shared size selector for the selected paint or subproduct.</span></label><label>Selling Price<input id="salePrice" type="number" min="0" step="0.01"><span class="hint">Standard selling price is prefilled. Change it for this sale when needed. It must remain above purchase cost.</span></label><label>Quantity<input id="saleQty" type="number" min="0.01" step="0.01" required></label><label>Paid<input id="salePaid" type="number" min="0" step="0.01" value="0"></label><label>Recorded By<select id="saleRecordedBy"></select></label><label>Payment<select id="salePayment"></select></label><label class="full">Receipt Photo <button type="button" class="btn" id="attachSaleReceipt">📷 Scan / Attach Receipt</button><input id="saleReceiptPhoto" type="file" accept="image/*" capture="environment" hidden><span id="saleReceiptName" class="hint">Optional — handwritten or printed receipt.</span><span id="saleReceiptOCRStatus" class="hint"></span></label><div id="salePricePreview" class="total-preview full sale-price-preview is-locked"><button type="button" id="salePricePreviewLock" class="preview-lock" aria-label="Unlock selling price details for 2 seconds" title="Click to unlock for 2 seconds">🔒</button><span id="salePricePreviewText" class="sale-price-preview-text">Select a main product or subproduct and size to see the selling price.</span></div><div class="form-actions"><button type="button" class="btn primary" id="recordSaleBtn" onclick="recordSaleNow(event)">Record Sale</button><div id="saleActionStatus" class="hint full" aria-live="polite"></div></div></form></div><div class="card"><h3>Sales History</h3><div class="table" id="salesTable"></div></div></section>
 <section id="purchases" class="section"><div class="head"><div><div class="eyebrow">03 / PURCHASE</div><h2>Purchases</h2></div></div><div class="card"><form id="purchaseForm" class="form" onsubmit="recordPurchaseNow(event)"><label>Supplier<select id="purchaseSupplier"></select></label><label>Invoice No.<input id="purchaseInvoice" placeholder="Auto-generated if blank"><button type="button" class="btn" id="scanPurchaseInvoice">📷 Scan Invoice</button><input id="purchaseInvoicePhoto" type="file" accept="image/*" capture="environment" hidden><span class="hint">Printed or handwritten invoice. Review detected fields before saving.</span></label><div id="invoiceScanResults" class="full subbox" style="display:none"><b>Detected invoice items</b><div id="invoiceItemsTable" class="table"></div><div class="hint">OCR is an assistive scan. Check quantities, sizes and prices before recording the purchase.</div></div><label>Main Product<select id="purchaseProduct"></select></label><label>Subproduct<select id="purchaseSubproduct"></select><span class="hint">Thinners, enamels, brushes, rollers, fillers and special-treatment materials.</span></label><label>Size<select id="purchaseSize"></select><span class="hint">One shared size selector for the selected main product or subproduct.</span></label><label>Quantity<input id="purchaseQty" type="number" min="0.01" step="0.01" required></label><label>Unit Cost<input id="purchaseCost" type="number" min="0" step="0.01" required></label><label>Paid<input id="purchasePaid" type="number" min="0" step="0.01" value="0"></label><label>Recorded By<select id="purchaseRecordedBy"></select></label><label>Payment<select id="purchasePayment"></select></label><label class="full">Receipt Photo <button type="button" class="btn" id="attachPurchaseReceipt">📷 Scan / Attach Receipt</button><input id="purchaseReceiptPhoto" type="file" accept="image/*" capture="environment" hidden><span id="purchaseReceiptName" class="hint">Optional — stored with this purchase.</span><span id="purchaseReceiptOCRStatus" class="hint"></span></label><div id="purchasePricePreview" class="total-preview full sale-price-preview purchase-price-preview is-locked"><button type="button" id="purchasePricePreviewLock" class="preview-lock" aria-label="Unlock purchase price details for 4 seconds" title="Click to unlock for 4 seconds">🔒</button><span id="purchasePricePreviewText" class="sale-price-preview-text">Select a main product or subproduct and size to see the purchase price.</span></div><div class="form-actions"><button type="submit" class="btn primary" id="recordPurchaseBtn">Record Purchase</button><div id="purchaseActionStatus" class="hint full" aria-live="polite"></div></div></form></div><div class="card"><h3>Purchase History</h3><div class="table" id="purchasesTable"></div></div></section>
-<section id="products" class="section"><div class="head"><div><div class="eyebrow">04 / INVENTORY</div><h2>Products & Inventory</h2></div><div><button id="addProduct" class="btn primary">Add Product</button></div></div><div class="card"><div class="table" id="productsTable"></div></div></section>
+<section id="products" class="section"><div class="head"><div><div class="eyebrow">04 / TRACK</div><h2>Products & Inventory</h2></div><div><button id="addProduct" class="btn primary">Add Product</button></div></div><div class="card"><div class="table" id="productsTable"></div></div></section>
 
 <section id="calculations" class="section">
-  <div class="head"><div><div class="eyebrow">07 / ESTIMATE</div><h2>Paint & Material Estimator</h2></div></div>
+  <div class="head"><div><div class="eyebrow">07 / CALCULATION</div><h2>Paint & Material Estimator</h2></div></div>
   <div class="calc-shell">
     <div class="calc-hero">
   <div class="calc-subtabs" role="tablist" aria-label="Calculation steps">
@@ -904,12 +904,9 @@ function render(){
  fill('salePayment',optList('PaymentMethods',['Cash','UPI','Card','Credit','Bank Transfer']).map(x=>({value:x,label:x})),'Choose payment');fill('purchasePayment',optList('PaymentMethods',['Cash','UPI','Card','Credit','Bank Transfer']).map(x=>({value:x,label:x})),'Choose payment');fill('saleRecordedBy',optList('RecordedBy',['Me','Other']).map(x=>({value:x,label:x})),'Recorded by');fill('purchaseRecordedBy',optList('RecordedBy',['Me','Other']).map(x=>({value:x,label:x})),'Recorded by');
  const types=customerTypeItems();fill('cType',types.map(x=>({value:x,label:x})),'Choose customer type');fill('pType',optList('ProductTypes',['Interior Emulsion','Exterior Emulsion','Primer','Enamel','Putty / Filler','Waterproofing','Wood Finish','Metal Finish','Texture','Undercoat','Accessory','Other']).map(x=>({value:x,label:x})),'Choose product type');fill('pUnit',optList('Units',['Litre','Kg','Piece','Pack','Set','Metre','Sheet','Tube','Bottle','Tin','Roll']).map(x=>({value:x,label:x})),'Choose unit');
  const inventoryIds=new Set([...(db.sales||[]),...(db.purchases||[])].map(x=>String(x.productId||'')).filter(Boolean));
- const trackedProducts=[
-   ...activeProducts().map(p=>({...p,_isSubproduct:false})),
-   ...activeSubs().map(p=>({...p,_isSubproduct:true,packSize:p.size||'',type:p.category||'Subproduct',shade:p.shade||''}))
- ].filter(p=>Number(p.stock||0)>0||inventoryIds.has(String(p.id)));
- $('productsTable').innerHTML=trackedProducts.length?'<table><tr><th>SKU</th><th>Product</th><th>Brand / Type</th><th>Shade</th><th>Pack</th><th>Sell</th><th>Stock</th><th>Status</th></tr>'+trackedProducts.map(p=>`<tr><td>${esc(p.sku)}</td><td><b>${esc(p.name)}</b>${p._isSubproduct?'<br><small>Subproduct</small>':''}</td><td>${esc(p.brand)} / ${esc(p.type)}</td><td>${esc(p.shade||'—')}</td><td>${esc(p.packSize||p.size||'')} ${esc(p.unit||'')}</td><td>${money(Number(p.standardSell||p.sell||0))}</td><td>${p.stock}</td><td><span class="pill ${p.stock<=p.reorder?'low':''}">${p.stock<=0?'OUT':p.stock<=p.reorder?'LOW':'OK'}</span></td></tr>`).join('')+'</table>':'<p class="muted">No synced inventory items found in the connected workbook.</p>';
- if($('lowStock'))$('lowStock').innerHTML=trackedProducts.filter(p=>p.stock<=p.reorder).map(p=>`<p><b>${esc(p.name)}</b> — ${esc(p.size||p.packSize||'')} ${esc(p.unit||'')} — ${p.stock} in stock</p>`).join('')||'<p>No low-stock products.</p>';
+ const trackedProducts=activeProducts().filter(p=>Number(p.stock||0)>0||inventoryIds.has(String(p.id)));
+ $('productsTable').innerHTML=trackedProducts.length?'<table><tr><th>SKU</th><th>Product</th><th>Brand / Type</th><th>Shade</th><th>Pack</th><th>Sell</th><th>Stock</th><th>Status</th></tr>'+trackedProducts.map(p=>`<tr><td>${esc(p.sku)}</td><td><b>${esc(p.name)}</b></td><td>${esc(p.brand)} / ${esc(p.type)}</td><td>${esc(p.shade)}</td><td>${esc(p.packSize)} ${esc(p.unit)}</td><td>${money(p.sell)}</td><td>${p.stock}</td><td><span class="pill ${p.stock<=p.reorder?'low':''}">${p.stock<=0?'OUT':p.stock<=p.reorder?'LOW':'OK'}</span></td></tr>`).join('')+'</table>':'<p class="muted">No synced inventory items found in the connected workbook.</p>';
+ if($('lowStock'))$('lowStock').innerHTML=trackedProducts.filter(p=>p.stock<=p.reorder).map(p=>`<p><b>${esc(p.name)}</b> — ${esc(p.size||p.packSize||'')} ${esc(p.unit)} — ${p.stock} in stock</p>`).join('')||'<p>No low-stock products.</p>';
  const top={};db.sales.forEach(x=>top[x.product]=(top[x.product]||0)+x.qty);if($('topProducts'))$('topProducts').innerHTML=Object.entries(top).sort((a,b)=>b[1]-a[1]).slice(0,6).map(x=>`<p><b>${esc(x[0])}</b> — ${x[1]} sold</p>`).join('')||'<p>No sales yet.</p>';
  $('salesTable').innerHTML='<table><tr><th>Invoice</th><th>Customer</th><th>Type</th><th>Product</th><th>Qty</th><th>Total</th><th>Paid</th><th>Due</th><th>Receipt Photo / Data</th><th>Action</th></tr>'+db.sales.slice().reverse().map(x=>`<tr><td>${esc(x.invoice)}</td><td>${esc(x.customer)}</td><td>${esc(x.customerType)}</td><td>${esc(x.product)} ${x.size?'— '+esc(x.size):''}</td><td>${x.qty}</td><td>${money(x.total)}</td><td>${money(x.paid)}</td><td>${money(x.due)}</td><td>${x.receiptId?'<button type="button" class="btn" data-view-receipt="'+esc(x.receiptId)+'">📷 View</button><br><small>'+esc((x.receiptOcr||'').slice(0,120))+'</small>':'—'}</td><td><button type="button" class="btn" data-delete-sale="${esc(x.id)}">Delete</button></td></tr>`).join('')+'</table>';
 renderInvoiceTable();
@@ -2017,77 +2014,36 @@ function managePromoFullscreen(){
  }catch(e){}
 }
 function manageLoadPromoVideo(){
- const input=$('managePromoUrl'),frame=$('managePromoVideo'),placeholder=$('managePromoPlaceholder'),badge=$('managePromoBadge');
+ const input=$('managePromoUrl'),frame=$('managePromoVideo'),placeholder=$('managePromoPlaceholder');
  if(!input||!frame)return;
- let raw=(input.value||'').trim();
- let embed='',type='';
- // After a video has been saved the URL field is intentionally masked/read-only.
- // Clicking Show Video must still display the saved video instead of returning early.
- if(input.readOnly){
-   try{
-     const saved=JSON.parse(localStorage.getItem('raghavaPromoVideo')||'null');
-     if(saved?.embed){
-       embed=String(saved.embed);
-       type=String(saved.type||'Video');
-       raw=String(saved.url||'');
-     }else{
-       input.readOnly=false;
-       input.type='url';
-       input.value='';
-       input.placeholder='Paste YouTube or Google Drive video link';
-       toast('Paste a YouTube or Google Drive video link.');
-       return;
-     }
-   }catch(e){
-     input.readOnly=false;
-     input.type='url';
-     input.value='';
-     return;
-   }
- }
- if(!embed){
-   const yt=raw.match(/(?:youtube\\.com\\/(?:watch\\?v=|shorts\\/|embed\\/)|youtu\\.be\\/)([A-Za-z0-9_-]{11})/);
-   const drive=raw.match(/drive\\.google\\.com\\/file\\/d\\/([A-Za-z0-9_-]+)/)||raw.match(/[?&]id=([A-Za-z0-9_-]+)/);
-   if(yt){embed='https://www.youtube.com/embed/'+yt[1]+'?rel=0&controls=1&fs=1&enablejsapi=1&origin='+encodeURIComponent(location.origin);type='YouTube';}
-   else if(drive){embed='https://drive.google.com/file/d/'+drive[1]+'/preview';type='Google Drive';}
-   else{toast('Enter a valid YouTube or Google Drive video link.');return;}
- }
- if(yt){embed='https://www.youtube.com/embed/'+yt[1]+'?rel=0&controls=1&fs=1&enablejsapi=1&origin='+encodeURIComponent(location.origin);type='YouTube';}
- else if(drive){embed='https://drive.google.com/file/d/'+drive[1]+'/preview';type='Google Drive';}
- else{toast('Enter a valid YouTube or Google Drive video link.');return;}
- frame.src=embed;
+ const raw=(input.value||'').trim();
+ if(input.readOnly)return;
+ const m=raw.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+ if(!m){toast('Enter a valid YouTube video link.');return;}
+ const id=m[1];
+ frame.src='https://www.youtube.com/embed/'+id+'?rel=0';
  frame.style.display='block';
  if(placeholder)placeholder.style.display='none';
- if(badge)badge.textContent=type;
- try{localStorage.setItem('raghavaPromoVideo',JSON.stringify({url:raw,embed,type}));}catch(e){}
+ try{localStorage.setItem('raghavaPromoYoutube',id);}catch(e){}
  manageMaskPromoInput();
- const loadBtn=$('managePromoLoad');
- if(loadBtn)loadBtn.textContent='Show Video';
- toast(type+' video displayed.');
+ toast('Promotion video loaded.');
 }
 function manageInitPromoVideo(){
  const input=$('managePromoUrl'),btn=$('managePromoLoad');
  if(btn)btn.addEventListener('click',manageLoadPromoVideo);
- const mute=$('managePromoMute'); if(mute)mute.addEventListener('click',managePromoToggleMute);
- const full=$('managePromoFullscreen'); if(full)full.addEventListener('click',managePromoFullscreen);
+    const mute=$('managePromoMute'); if(mute)mute.addEventListener('click',managePromoToggleMute);
+    const full=$('managePromoFullscreen'); if(full)full.addEventListener('click',managePromoFullscreen);
  try{
-   let saved=null;
-   try{saved=JSON.parse(localStorage.getItem('raghavaPromoVideo')||'null');}catch(e){}
-   if(!saved){
-     const oldId=localStorage.getItem('raghavaPromoYoutube');
-     if(oldId)saved={url:'https://www.youtube.com/watch?v='+oldId,embed:'https://www.youtube.com/embed/'+oldId+'?rel=0',type:'YouTube'};
-   }
-   if(saved&&input){
-     input.value=saved.url||'';
-     const frame=$('managePromoVideo'),placeholder=$('managePromoPlaceholder'),badge=$('managePromoBadge');
-     if(frame&&saved.embed){frame.src=saved.embed;frame.style.display='block';}
+   const id=localStorage.getItem('raghavaPromoYoutube');
+   if(id&&input){
+     input.value='https://www.youtube.com/watch?v='+id;
+     const frame=$('managePromoVideo'),placeholder=$('managePromoPlaceholder');
+     if(frame){frame.src='https://www.youtube.com/embed/'+id+'?rel=0';frame.style.display='block';}
      if(placeholder)placeholder.style.display='none';
-     if(badge)badge.textContent=saved.type||'Video';
      manageMaskPromoInput();
    }
  }catch(e){}
 }
-
 
 function calcInit(){
  if(!$('calcRoomList')||$('calcRoomList').dataset.ready==='1')return;
