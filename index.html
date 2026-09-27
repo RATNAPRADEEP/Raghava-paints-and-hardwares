@@ -2074,7 +2074,7 @@ function manageLoadPromoVideo(){
    frame.style.display='block';
    // Google Drive's preview player is reliable for Drive-hosted videos; direct-download
    // playback is blocked on many browsers and can leave the player blank.
-   frame.src='https://drive.google.com/file/d/'+((embed.match(/\/file\/d\/([^/]+)/)||[])[1]||'')+'/preview';
+   frame.src='https://drive.google.com/file/d/'+((embed.match(/\/file\/d\/([^/]+)/)||[])[1]||'')+'/preview?autoplay=1';
    if(loopBtn){
      loopBtn.dataset.loop='0';
      loopBtn.textContent='🔁 Loop Off';
