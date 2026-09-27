@@ -94,8 +94,7 @@
           <h3>1. భూమి / ఇంటి కొలతల Unit Converter</h3>
           <div class="calc-form">
             <label>కొలత విలువ<input id="calcUnitValue" type="number" min="0" step="0.01" value="1"></label>
-            <label>నుండి Unit<select id="calcFromUnit"><option value="sqft">అడుగు / Sq.ft</option><option value="gajam">గజం / Sq.yd</option><option value="ankanam">అంకణం</option><option value="cent">సెంట్</option><option value="gunta">గుంట</option><option value="acre">ఎకరం</option><option value="sqm">చ.మీటర్</option></select></label>
-            <label>కు Unit<select id="calcToUnit"><option value="ankanam">అంకణం</option><option value="sqft">అడుగు / Sq.ft</option><option value="gajam">గజం / Sq.yd</option><option value="cent">సెంట్</option><option value="gunta">గుంట</option><option value="acre">ఎకరం</option><option value="sqm">చ.మీటర్</option></select></label>
+            <label>Unit<select id="calcFromUnit"><option value="sqft">అడుగు / Sq.ft</option><option value="gajam">గజం / Sq.yd</option><option value="ankanam">అంకణం</option><option value="cent">సెంట్</option><option value="gunta">గుంట</option><option value="acre">ఎకరం</option><option value="sqm">చ.మీటర్</option></select></label>
           </div>
           <div class="estimate-total"><span>Converted Area</span><br><strong id="calcUnitResult">72.00 sq.ft</strong></div>
           <div class="unit-strip">
@@ -1750,9 +1749,9 @@ function calcInit(){
  calcUnitConvert();
 }
 function calcUnitConvert(){
- const v=calcNum($('calcUnitValue')?.value||0),from=$('calcFromUnit')?.value||'sqft',to=$('calcToUnit')?.value||'sqft';
- const sqft=v*CALC_UNITS_SQFT[from],out=to?sqft/CALC_UNITS_SQFT[to]:sqft;
- if($('calcUnitResult'))$('calcUnitResult').textContent=out.toLocaleString(undefined,{maximumFractionDigits:2})+' '+CALC_LABELS[to];
+ const v=calcNum($('calcUnitValue')?.value||0),unit=$('calcFromUnit')?.value||'sqft';
+ const sqft=v*CALC_UNITS_SQFT[unit];
+ if($('calcUnitResult'))$('calcUnitResult').textContent=sqft.toLocaleString(undefined,{maximumFractionDigits:2})+' sq.ft';
 }
 function calcPrintEstimate(){
  calcRecalculate();const e=window.__lastPaintEstimate;if(!e)return;
