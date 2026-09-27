@@ -105,14 +105,14 @@
 
         <div class="calc-card calc-step-card" data-calc-panel="2">
           <div class="calc-section-title"><h3>2. గది / Room Measurements</h3><button type="button" class="btn primary" id="calcAddRoom">+ Add Room</button></div>
-          <div class="calc-help">ప్రతి గదికి Length × Width × Height ఇవ్వండి. Doors/Windows ను తగ్గించి actual paintable wall area తీసుకుంటుంది. Ceiling కావాలంటే స్వయంచాలకంగా floor area జోడిస్తుంది.</div>
+          <div class="calc-help">ప్రతి గదికి Length × Width × Height ఇవ్వండి. Ceiling కావాలంటే స్వయంచాలకంగా floor area జోడిస్తుంది. Doors, Windows, Grills మరియు ఇతర surfaces ను 3వ subtab లో నమోదు చేయండి.</div>
           <div id="calcRoomList" class="room-list"></div>
           <div class="calc-actions"><button type="button" class="btn" id="calcAddRoom2">+ Add Another Room</button><button type="button" class="btn" id="calcResetRooms">Reset Rooms</button></div>
         </div>
 
         <div class="calc-card calc-step-card" data-calc-panel="3">
           <div class="calc-section-title"><h3>3. Windows / Doors / Grills / Metal</h3><button type="button" class="btn" id="calcAddMetal">+ Add Surface</button></div>
-          <div class="calc-help">Area can be entered directly or calculated from quantity × width × height. Choose one-side or two-side painting for grills/frames.</div>
+          <div class="calc-help">ఇక్కడ Doors, Windows, Grills, Frames వంటి అన్ని openings / special surfaces ను నమోదు చేయండి. వీటి area గోడల paintable area నుంచి automatically తగ్గించి, వాటికి అవసరమైన enamel / wood finish / primer ను separately estimate చేస్తుంది.</div>
           <div id="calcSurfaceList"></div>
         </div>
       </div>
@@ -1632,13 +1632,8 @@ function calcAddRoomRow(data={}){
  '<label>Length<input data-k="l" type="number" min="0" step=".1" value="'+calcNum(data.l||12)+'"></label>'+
  '<label>Width<input data-k="w" type="number" min="0" step=".1" value="'+calcNum(data.w||10)+'"></label>'+
  '<label>Height<input data-k="h" type="number" min="0" step=".1" value="'+calcNum(data.h||10)+'"></label>'+
- '<label>Doors<input data-k="doors" type="number" min="0" step="1" value="'+calcNum(data.doors||1)+'"></label>'+
- '<label>Windows<input data-k="windows" type="number" min="0" step="1" value="'+calcNum(data.windows||1)+'"></label>'+
  '<button type="button" class="room-remove" title="Remove">×</button>'+
- '<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'+
- '<label>Ceiling<select data-k="ceiling"><option value="yes" '+((data.ceiling??'yes')==='yes'?'selected':'')+'>Yes</option><option value="no" '+((data.ceiling??'yes')==='no'?'selected':'')+'>No</option></select></label>'+
- '<label>Door size (ft)<input data-k="doorSize" value="'+esc(data.doorSize||'3x7')+'"></label>'+
- '<label>Window size (ft)<input data-k="windowSize" value="'+esc(data.windowSize||'4x4')+'"></label></div>';
+ '<label>Ceiling<select data-k="ceiling"><option value="yes" '+((data.ceiling??'yes')==='yes'?'selected':'')+'>Yes</option><option value="no" '+((data.ceiling??'yes')==='no'?'selected':'')+'>No</option></select></label>';
  $('calcRoomList').appendChild(row);
  row.querySelector('.room-remove').onclick=()=>{row.remove();calcRecalculate()};
  row.querySelectorAll('input,select').forEach(x=>x.addEventListener('input',calcRecalculate));
@@ -1666,10 +1661,9 @@ function calcParseSize(v,defaults){
 function calcRoomData(){
  return Array.from(document.querySelectorAll('#calcRoomList .room-row')).map(r=>{
   const g=k=>r.querySelector('[data-k="'+k+'"]')?.value;
-  const ds=calcParseSize(g('doorSize'),[3,7]),ws=calcParseSize(g('windowSize'),[4,4]);
-  const l=calcNum(g('l')),w=calcNum(g('w')),h=calcNum(g('h')),doors=calcNum(g('doors')),windows=calcNum(g('windows'));
-  const gross=2*(l+w)*h,open=doors*ds[0]*ds[1]+windows*ws[0]*ws[1];
-  return {name:g('name')||'Room',wall:Math.max(0,gross-open),ceiling:g('ceiling')==='yes'?l*w:0,finish:g('finish')||'Premium Interior Emulsion',coats:Math.max(1,calcNum(g('coats')||2))};
+  const l=calcNum(g('l')),w=calcNum(g('w')),h=calcNum(g('h'));
+  const gross=2*(l+w)*h;
+  return {name:g('name')||'Room',grossWall:gross,wall:gross,ceiling:g('ceiling')==='yes'?l*w:0,finish:g('finish')||'Premium Interior Emulsion',coats:Math.max(1,calcNum(g('coats')||2))};
  });
 }
 function calcSurfaceData(){
@@ -1682,7 +1676,8 @@ function calcSurfaceData(){
 function calcRecalculate(){
  if(!$('calcResults'))return;
  const rooms=calcRoomData(),surfaces=calcSurfaceData();
- const wall=rooms.reduce((a,r)=>a+r.wall,0),ceil=rooms.reduce((a,r)=>a+r.ceiling,0);
+ const openingArea=surfaces.filter(s=>s.kind==='Window'||s.kind==='Door').reduce((a,s)=>a+s.area,0);
+ const wall=rooms.reduce((a,r)=>a+r.grossWall,0)-openingArea,ceil=rooms.reduce((a,r)=>a+r.ceiling,0);
  const condition=$('calcCondition')?.value||'normal',waste=1+calcNum($('calcWastage')?.value||10)/100;
  const primerCoats=Math.max(0,calcNum($('calcPrimerCoats')?.value||2));
  const putty=$('calcPutty')?.value||'none';
@@ -1729,14 +1724,14 @@ function calcRecalculate(){
 }
 function calcInit(){
  if(!$('calcRoomList')||$('calcRoomList').dataset.ready==='1')return;
- $('calcRoomList').dataset.ready='1';calcAddRoomRow({name:'Hall',l:15,w:12,h:10,doors:1,windows:2,ceiling:'yes'});
- calcAddRoomRow({name:'Bedroom 1',l:12,w:10,h:10,doors:1,windows:1,ceiling:'yes'});
+ $('calcRoomList').dataset.ready='1';calcAddRoomRow({name:'Hall',l:15,w:12,h:10,ceiling:'yes'});
+ calcAddRoomRow({name:'Bedroom 1',l:12,w:10,h:10,ceiling:'yes'});
  calcAddSurfaceRow(CALC_SURFACE_DEFAULTS[0]);calcAddSurfaceRow(CALC_SURFACE_DEFAULTS[2]);
  calcProductOptions();calcRecalculate();
  ['calcUnitValue','calcFromUnit','calcToUnit'].forEach(id=>$(id)?.addEventListener('input',calcUnitConvert));
  $('calcAddRoom')?.addEventListener('click',()=>{calcAddRoomRow({});calcRecalculate()});
  $('calcAddRoom2')?.addEventListener('click',()=>{calcAddRoomRow({});calcRecalculate()});
- $('calcResetRooms')?.addEventListener('click',()=>{$('calcRoomList').innerHTML='';calcAddRoomRow({name:'Room',l:12,w:10,h:10,doors:1,windows:1,ceiling:'yes'});calcRecalculate()});
+ $('calcResetRooms')?.addEventListener('click',()=>{$('calcRoomList').innerHTML='';calcAddRoomRow({name:'Room',l:12,w:10,h:10,ceiling:'yes'});calcRecalculate()});
  $('calcAddMetal')?.addEventListener('click',()=>{calcAddSurfaceRow({});calcRecalculate()});
  document.querySelectorAll('#calculations input,#calculations select').forEach(x=>x.addEventListener('input',calcRecalculate));
  $('calcRecalculate')?.addEventListener('click',calcRecalculate);
