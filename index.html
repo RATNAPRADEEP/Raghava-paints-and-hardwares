@@ -2078,7 +2078,13 @@ function calcSendEstimateToInvoice(){
 function bind(){
  $('purchaseInvoicePhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'purchase');e.target.value=''});$('scanPurchaseInvoice').addEventListener('click',()=>$('purchaseInvoicePhoto').click());$('customerPhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'customer');e.target.value=''});$('scanCustomer').addEventListener('click',()=>$('customerPhoto').click());
  addPhotoOCR('photoSku','pSku','scanSku');addPhotoOCR('photoName','pName','scanName');addPhotoOCR('photoBrand','pBrand','scanBrand');addPhotoOCR('photoShade','pShade','scanShade');
- async function resetPinHash(pin){
+ let resetUnlocked=false;
+function setResetLockState(unlocked){
+ resetUnlocked=!!unlocked;
+ const btn=$('resetShopBtn');
+ if(btn){btn.textContent=resetUnlocked?'🔓 Reset Shop Data':'🔒 Reset Shop Data';btn.title=resetUnlocked?'PIN verified — click to reset shop data':'PIN required';}
+}
+async function resetPinHash(pin){
  try{
    const data=new TextEncoder().encode(String(pin||''));
    const hash=await crypto.subtle.digest('SHA-256',data);
@@ -2104,7 +2110,7 @@ async function setResetPin(){
  }
  const pin=prompt(current?'Enter a new Reset PIN (4–12 digits):':'Set a Reset PIN (4–12 digits):');
  if(pin===null)return;
- if(!/^\\d{4,12}$/.test(pin)){toast('PIN must contain 4–12 digits.',true);return;}
+ if(!/^[0-9]{4,12}$/.test(pin)){toast('PIN must contain 4–12 digits.',true);return;}
  const confirmPin=prompt('Re-enter the Reset PIN:');
  if(confirmPin===null)return;
  if(pin!==confirmPin){toast('PINs do not match.',true);return;}
@@ -2123,7 +2129,7 @@ async function recoverResetPin(){
  if(email!==recoveryEmail){toast('This is not the Gmail account linked to Reset PIN recovery.',true);return;}
  const pin=prompt('Google account verified. Enter a new Reset PIN (4–12 digits):');
  if(pin===null)return;
- if(!/^\\d{4,12}$/.test(pin)){toast('PIN must contain 4–12 digits.',true);return;}
+ if(!/^[0-9]{4,12}$/.test(pin)){toast('PIN must contain 4–12 digits.',true);return;}
  const confirmPin=prompt('Re-enter the new Reset PIN:');
  if(pin!==confirmPin){toast('PINs do not match.',true);return;}
  localStorage.setItem('raghavaResetPinHash',await resetPinHash(pin));
@@ -2169,8 +2175,10 @@ function verifyResetPin(){
    const verify=async()=>{
      const saved=localStorage.getItem('raghavaResetPinHash')||'133806ca086fa756e78e210c0aca10be245bd2f8ad9544cb599e355020bbd59b';
      const pin=input.value.trim();
-     if(!/^\\d{4,12}$/.test(pin)){toast('Enter your 4–12 digit Reset PIN.',true);input.focus();return;}
+     if(!/^[0-9]{4,12}$/.test(pin)){toast('Enter your 4–12 digit Reset PIN.',true);input.focus();return;}
      if(await resetPinHash(pin)!==saved){toast('Incorrect Reset PIN.',true);input.select();return;}
+     setResetLockState(true);
+     toast('PIN verified. Reset Shop Data is unlocked. Click the button again to reset.');
      close(true);
    };
    const forgot=async()=>{
@@ -2191,7 +2199,7 @@ function verifyResetPin(){
  });
 }
 async function resetShopData(){
- if(!(await verifyResetPin()))return;
+ if(!resetUnlocked){await verifyResetPin();return;}
  const hasData=(db.sales?.length||db.purchases?.length||db.receipts?.length||db.myRecords?.length||db.otherRecords?.length||activeProducts().some(p=>Number(p.stock||0)!==0)||activeSubs().some(p=>Number(p.stock||0)!==0));
  if(!hasData){toast('Shop is already reset. No sales, purchases or stock to clear.');return}
  const ok=confirm('RESET SHOP DATA?\\n\\nThis will clear Sales History, Purchase History, inventory stock quantities, receipt photos/data, and transaction records.\\n\\nIt will NOT delete your product catalogue, subproducts, customers, suppliers, prices, sizes, GST, master data, settings, or promotion link.\\n\\nThe connected Google Drive workbook will also be reset. Continue?');
