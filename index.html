@@ -884,7 +884,7 @@ function render(){
  $('productsTable').innerHTML=trackedProducts.length?'<table><tr><th>SKU</th><th>Product</th><th>Brand / Type</th><th>Shade</th><th>Pack</th><th>Sell</th><th>Stock</th><th>Status</th></tr>'+trackedProducts.map(p=>`<tr><td>${esc(p.sku)}</td><td><b>${esc(p.name)}</b></td><td>${esc(p.brand)} / ${esc(p.type)}</td><td>${esc(p.shade)}</td><td>${esc(p.packSize)} ${esc(p.unit)}</td><td>${money(p.sell)}</td><td>${p.stock}</td><td><span class="pill ${p.stock<=p.reorder?'low':''}">${p.stock<=0?'OUT':p.stock<=p.reorder?'LOW':'OK'}</span></td></tr>`).join('')+'</table>':'<p class="muted">No synced inventory items found in the connected workbook.</p>';
  if($('lowStock'))$('lowStock').innerHTML=trackedProducts.filter(p=>p.stock<=p.reorder).map(p=>`<p><b>${esc(p.name)}</b> — ${esc(p.size||p.packSize||'')} ${esc(p.unit)} — ${p.stock} in stock</p>`).join('')||'<p>No low-stock products.</p>';
  const top={};db.sales.forEach(x=>top[x.product]=(top[x.product]||0)+x.qty);if($('topProducts'))$('topProducts').innerHTML=Object.entries(top).sort((a,b)=>b[1]-a[1]).slice(0,6).map(x=>`<p><b>${esc(x[0])}</b> — ${x[1]} sold</p>`).join('')||'<p>No sales yet.</p>';
- $('salesTable').innerHTML='<table><tr><th>Invoice</th><th>Customer</th><th>Type</th><th>Product</th><th>Qty</th><th>Total</th><th>Paid</th><th>Due</th><th>Receipt Photo / Data</th></tr>'+db.sales.slice().reverse().map(x=>`<tr><td>${esc(x.invoice)}</td><td>${esc(x.customer)}</td><td>${esc(x.customerType)}</td><td>${esc(x.product)} ${x.size?'— '+esc(x.size):''}</td><td>${x.qty}</td><td>${money(x.total)}</td><td>${money(x.paid)}</td><td>${money(x.due)}</td><td>${x.receiptId?'<button type="button" class="btn" data-view-receipt="'+esc(x.receiptId)+'">📷 View</button><br><small>'+esc((x.receiptOcr||'').slice(0,120))+'</small>':'—'}</td></tr>`).join('')+'</table>';
+ $('salesTable').innerHTML='<table><tr><th>Invoice</th><th>Customer</th><th>Type</th><th>Product</th><th>Qty</th><th>Total</th><th>Paid</th><th>Due</th><th>Receipt Photo / Data</th><th>Action</th></tr>'+db.sales.slice().reverse().map(x=>`<tr><td>${esc(x.invoice)}</td><td>${esc(x.customer)}</td><td>${esc(x.customerType)}</td><td>${esc(x.product)} ${x.size?'— '+esc(x.size):''}</td><td>${x.qty}</td><td>${money(x.total)}</td><td>${money(x.paid)}</td><td>${money(x.due)}</td><td>${x.receiptId?'<button type="button" class="btn" data-view-receipt="'+esc(x.receiptId)+'">📷 View</button><br><small>'+esc((x.receiptOcr||'').slice(0,120))+'</small>':'—'}</td><td><button type="button" class="btn" data-delete-sale="${esc(x.id)}">Delete</button></td></tr>`).join('')+'</table>';
 renderInvoiceTable();
  $('purchasesTable').innerHTML='<table><tr><th>Invoice</th><th>Supplier</th><th>Class</th><th>Product</th><th>Qty</th><th>Total</th><th>Paid</th><th>Due</th></tr>'+db.purchases.slice().reverse().map(x=>`<tr><td>${esc(x.invoice)}</td><td>${esc(x.supplier)}</td><td>${esc(x.productClass)}</td><td>${esc(x.product)}</td><td>${x.qty}</td><td>${money(x.total)}</td><td>${money(x.paid)}</td><td>${money(x.due)}</td></tr>`).join('')+'</table>';
  const activeCustomerIds=new Set((db.sales||[]).map(x=>String(x.customerId||'')).filter(Boolean));
@@ -1291,6 +1291,39 @@ async function recordSaleNow(e){
  }catch(err){console.error('Record Sale failed:',err);show(err?.message||'Record Sale failed. Check the form.',true)}
  finally{if(submitBtn)submitBtn.disabled=false}
 };
+async function deleteSaleNow(saleId){
+ const sale=db.sales.find(x=>String(x.id)===String(saleId));
+ if(!sale)return;
+ const label=sale.invoice||sale.product||'this sale';
+ if(!confirm('Delete '+label+' from Sales History?\\n\\nThis will also restore the sold quantity to stock and update the Google Drive workbook.'))return;
+ const btn=document.querySelector('[data-delete-sale="'+CSS.escape(String(saleId))+'"]');
+ if(btn)btn.disabled=true;
+ try{
+   const product=[...db.products,...db.subproducts].find(x=>String(x.id)===String(sale.productId));
+   if(product)product.stock=Number(product.stock||0)+Number(sale.qty||0);
+   db.sales=db.sales.filter(x=>String(x.id)!==String(saleId));
+   const receiptIds=new Set([String(sale.receiptId||'')].filter(Boolean));
+   db.receipts=db.receipts.filter(x=>!(String(x.transactionId||'')===String(saleId)||receiptIds.has(String(x.id||''))));
+   render();
+
+   let syncMessage='Sale deleted locally.';
+   const activeDriveFileId=getDriveFileId();
+   if(activeDriveFileId){
+     try{
+       if(!accessToken){await Promise.all([gapiReady,gisReady]);await requestToken('');}
+       await writeExcel();
+       syncMessage='Sale deleted and Google Drive workbook updated.';
+     }catch(syncErr){
+       syncMessage='Sale deleted locally, but Google Drive sync failed: '+(syncErr.message||'Unknown error')+'.';
+     }
+   }
+   toast(syncMessage,!syncMessage.includes('Google Drive workbook updated'));
+ }catch(err){
+   console.error('Delete sale failed:',err);
+   toast(err.message||'Could not delete sale.',true);
+   render();
+ }
+}
 async function recordPurchaseNow(e){
  if(e)e.preventDefault();
  const btn=$('recordPurchaseBtn'),status=$('purchaseActionStatus');
@@ -2037,7 +2070,7 @@ function bind(){
 
  if($('attachSaleReceipt')){$('attachSaleReceipt').addEventListener('click',e=>{e.preventDefault();$('saleReceiptPhoto').click()});$('saleReceiptPhoto').addEventListener('change',async()=>{const f=$('saleReceiptPhoto').files?.[0];saleReceiptOCR='';if(!f){$('saleReceiptName').textContent='Optional — handwritten or printed receipt.';return}$('saleReceiptName').textContent='Attached: '+f.name;$('saleReceiptOCRStatus').textContent='Preparing receipt…';try{if(!window.Tesseract)throw Error('OCR library not loaded');const image=await preprocessSalesReceiptImage(f);const opts=mode=>({tessedit_pageseg_mode:mode,logger:m=>{if(m.status==='recognizing text')$('saleReceiptOCRStatus').textContent='Reading receipt '+Math.round((m.progress||0)*100)+'%…'}});let matched=false;for(const mode of [11,6,12]){const r=await Tesseract.recognize(image,'eng',opts(mode));const t=(r.data.text||'').replace(/\r\n?/g,'\n').replace(/[ \t]+/g,' ').trim();if(t){saleReceiptOCR=t;if(parseSaleReceiptScan(t)){matched=true;break}}}if(!matched){const r=await Tesseract.recognize(image,'eng+tel',opts(11));saleReceiptOCR=(r.data.text||'').replace(/\r\n?/g,'\n').replace(/[ \t]+/g,' ').trim();if(saleReceiptOCR)parseSaleReceiptScan(saleReceiptOCR)}if(!saleReceiptOCR)$('saleReceiptOCRStatus').textContent='No readable text detected — photo will still be saved.'}catch(err){console.error('Sales receipt OCR failed:',err);$('saleReceiptOCRStatus').textContent='Photo attached, but OCR could not read it. Try a clear, straight photo.'}});}
 
- document.addEventListener('click',e=>{const b=e.target.closest('[data-view-receipt]');if(b)viewReceipt(b.dataset.viewReceipt)});document.addEventListener('click',e=>{const lock=e.target.closest('#salePricePreviewLock');if(!lock)return;const box=$('salePricePreview');if(!box)return;box.classList.remove('is-locked');lock.textContent='🔓';if(window.salePreviewLockTimer)clearTimeout(window.salePreviewLockTimer);window.salePreviewLockTimer=setTimeout(()=>{box.classList.add('is-locked');lock.textContent='🔒';},4000);});document.addEventListener('click',e=>{const b=e.target.closest('[data-print-invoice]');if(b)printInvoice(b.dataset.printInvoice)});$('invoicePrintBtn').addEventListener('click',printInvoice);$('saveBtn').addEventListener('click',async()=>{try{await writeExcel();toast('Workbook saved and synced to Google Drive.')}catch(e){toast(e.message,true)}});document.querySelectorAll('.navbtn,.action').forEach(b=>b.addEventListener('click',()=>nav(b.dataset.page)));
+ document.addEventListener('click',e=>{const b=e.target.closest('[data-view-receipt]');if(b)viewReceipt(b.dataset.viewReceipt)});document.addEventListener('click',e=>{const b=e.target.closest('[data-delete-sale]');if(b)deleteSaleNow(b.dataset.deleteSale)});document.addEventListener('click',e=>{const lock=e.target.closest('#salePricePreviewLock');if(!lock)return;const box=$('salePricePreview');if(!box)return;box.classList.remove('is-locked');lock.textContent='🔓';if(window.salePreviewLockTimer)clearTimeout(window.salePreviewLockTimer);window.salePreviewLockTimer=setTimeout(()=>{box.classList.add('is-locked');lock.textContent='🔒';},4000);});document.addEventListener('click',e=>{const b=e.target.closest('[data-print-invoice]');if(b)printInvoice(b.dataset.printInvoice)});$('invoicePrintBtn').addEventListener('click',printInvoice);$('saveBtn').addEventListener('click',async()=>{try{await writeExcel();toast('Workbook saved and synced to Google Drive.')}catch(e){toast(e.message,true)}});document.querySelectorAll('.navbtn,.action').forEach(b=>b.addEventListener('click',()=>nav(b.dataset.page)));
  $('saleProduct').addEventListener('change',()=>{if($('saleProduct').value)$('saleSubproduct').value='';updateSharedSize('sale');setSalePriceFromStandard();updateSalePricePreview()});$('saleSubproduct').addEventListener('change',()=>{if($('saleSubproduct').value)$('saleProduct').value='';updateSharedSize('sale');setSalePriceFromStandard();updateSalePricePreview()});$('saleSize').addEventListener('change',()=>{setSalePriceFromStandard();updateSalePricePreview()});$('salePrice').addEventListener('input',updateSalePricePreview);$('saleQty').addEventListener('input',updateSalePricePreview);$('purchaseProduct').addEventListener('change',()=>{if($('purchaseProduct').value)$('purchaseSubproduct').value='';updateSharedSize('purchase')});$('purchaseSubproduct').addEventListener('change',()=>{if($('purchaseSubproduct').value)$('purchaseProduct').value='';updateSharedSize('purchase')});$('purchaseSize').addEventListener('change',updatePurchasePricePreview);$('purchaseQty').addEventListener('input',updatePurchasePricePreview);$('purchaseCost').addEventListener('input',updatePurchasePricePreview);
 
  $('addProduct').addEventListener('click',()=>{$('productForm').reset();$('pGst').value=18;$('pReorder').value=5;$('productDialog').showModal();render()});$('addCustomer').addEventListener('click',()=>{$('customerForm').reset();$('customerDialog').showModal();render()});$('addSupplier').addEventListener('click',()=>{$('supplierForm').reset();$('supplierDialog').showModal()});
