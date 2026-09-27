@@ -1615,8 +1615,12 @@ function calcGetProduct(key){
  return (db?.products||[]).find(p=>String(p.id)===String(key).slice(3))||CALC_DEFAULTS[0];
 }
 function calcCoverageForSelected(key,condition){
- const p=calcGetProduct(key),name=String(p.name||'').toLowerCase();
- if(p.coverage)return calcCoverage(p.key||key,condition);
+ const raw=String(key||'');
+ if(raw==='Premium Interior Emulsion')return condition==='rough'?110:135;
+ if(raw==='Interior Emulsion')return condition==='rough'?98:120;
+ if(raw==='Apex Exterior Emulsion')return condition==='rough'?45:55;
+ const p=calcGetProduct(raw),name=String(p.name||raw).toLowerCase();
+ if(p.coverage)return calcCoverage(p.key||raw,condition);
  if(/apex|exterior/.test(name))return condition==='rough'?45:55;
  if(/enamel/.test(name))return condition==='rough'?115:140;
  return condition==='rough'?100:135;
