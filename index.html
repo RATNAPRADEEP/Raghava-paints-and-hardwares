@@ -2083,7 +2083,7 @@ async function getGoogleRecoveryEmail(){
  }catch(e){toast('Google account verification failed. Please connect Google Drive again.',true);return '';}
 }
 async function setResetPin(){
- const current=localStorage.getItem('raghavaResetPinHash')||'';
+ const current=localStorage.getItem('raghavaResetPinHash')||'133806ca086fa756e78e210c0aca10be245bd2f8ad9544cb599e355020bbd59b';
  if(current){
    const old=prompt('Enter your current Reset PIN:');
    if(old===null)return;
@@ -2102,7 +2102,7 @@ async function setResetPin(){
  toast('Reset PIN saved. Google account '+email+' is linked for PIN recovery.');
 }
 async function recoverResetPin(){
- const saved=localStorage.getItem('raghavaResetPinHash')||'';
+ const saved=localStorage.getItem('raghavaResetPinHash')||'133806ca086fa756e78e210c0aca10be245bd2f8ad9544cb599e355020bbd59b';
  const recoveryEmail=(localStorage.getItem('raghavaResetRecoveryEmail')||'').toLowerCase();
  if(!saved||!recoveryEmail){toast('Set the Reset PIN once while connected to your Gmail account.',true);return;}
  const email=await getGoogleRecoveryEmail();
