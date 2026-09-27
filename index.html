@@ -136,7 +136,7 @@
             <label>Project Type<select id="calcProject"><option value="">Select</option><option value="fresh">Fresh Painting</option><option value="repaint">Repainting</option></select></label>
             <label>Area / Space<select id="calcSpace"><option value="">Select</option><option value="interior">Interior</option><option value="exterior">Exterior</option><option value="both">Interior + Exterior</option></select></label>
           </div>
-          <div class="calc-help">Customer can provide whatever is known. Wall measurements are entered separately in the Walls tab.</div>          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved1"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="1">Save</button><button type="button" class="btn primary" data-calc-next="2">Next → Walls</button></div></div>
+          <div class="calc-help">Customer can provide whatever is known. Wall measurements are entered separately in the Walls tab.</div>          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved1"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="1">Save</button><button type="button" class="btn primary" data-calc-next="2">Next</button></div></div>
         </div>
 
         <div class="calc-card calc-step-card" data-calc-panel="2">
@@ -154,21 +154,21 @@
           <div class="calc-form">
             <label>కొలత విలువ<input id="calcUnitValue" type="number" min="0" step="0.01" value="1"></label>
             <label>Unit<select id="calcFromUnit"><option value="sqft">అడుగు / Sq.ft</option><option value="gajam">గజం / Sq.yd</option><option value="ankanam">అంకణం</option><option value="cent">సెంట్</option><option value="gunta">గుంట</option><option value="acre">ఎకరం</option><option value="sqm">చ.మీటర్</option></select></label>
-          </div>          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved2"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="2">Save</button><button type="button" class="btn primary" data-calc-next="3">Next → Rooms</button></div></div>
+          </div>          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved2"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="2">Save</button><button type="button" class="btn primary" data-calc-next="3">Next</button></div></div>
         </div>
 
         <div class="calc-card calc-step-card" data-calc-panel="3">
           <div class="calc-section-title"><h3>3. గది / Room Measurements</h3><button type="button" class="btn primary" id="calcAddRoom">+ Add Room</button></div>
           <div class="calc-help">ప్రతి గదికి Length × Width × Height ఇవ్వండి. Ceiling కావాలంటే స్వయంచాలకంగా floor area జోడిస్తుంది. Doors, Windows, Grills మరియు ఇతర surfaces ను 4వ subtab లో నమోదు చేయండి.</div>
           <div id="calcRoomList" class="room-list"></div>
-          <div class="calc-actions"><button type="button" class="btn" id="calcAddRoom2">+ Add Another Room</button><button type="button" class="btn" id="calcResetRooms">Reset Rooms</button></div>          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved3"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="3">Save</button><button type="button" class="btn primary" data-calc-next="4">Next → Doors / Windows</button></div></div>
+          <div class="calc-actions"><button type="button" class="btn" id="calcAddRoom2">+ Add Another Room</button><button type="button" class="btn" id="calcResetRooms">Reset Rooms</button></div>          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved3"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="3">Save</button><button type="button" class="btn primary" data-calc-next="4">Next</button></div></div>
         </div>
 
         <div class="calc-card calc-step-card" data-calc-panel="4">
           <div class="calc-section-title"><h3>4. Doors / Windows / Grills / Special Surfaces</h3><button type="button" class="btn" id="calcAddMetal">+ Add Surface</button></div>
           <label style="display:flex;align-items:center;gap:8px;margin:8px 0 12px"><input id="calcNoSpecialSurfaces" type="checkbox" checked style="width:auto"> No separate doors / windows / grills / wood / metal painting</label>
           <div class="calc-help">If these surfaces need separate painting, untick the option and add each item. Their area is deducted from wall area and their own primer/topcoat requirement is estimated separately.</div>
-          <div id="calcSurfaceList"></div>          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved4"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="4">Save</button><button type="button" class="btn primary" data-calc-next="5">Next → Paint System</button></div></div>
+          <div id="calcSurfaceList"></div>          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved4"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="4">Save</button><button type="button" class="btn primary" data-calc-next="5">Next</button></div></div>
         </div>
       </div>
 
@@ -199,7 +199,7 @@
             <label>Terrace Area<input id="calcTerraceArea" type="number" min="0" step="0.1" placeholder="Enter area"><select id="calcTerraceUnit"><option value="sqft">Sq.ft</option><option value="gajam">Gajam / Sq.yd</option><option value="ankanam">Ankanam</option><option value="cent">Cent</option><option value="gunta">Gunta</option><option value="acre">Acre</option><option value="sqm">Sq.m</option></select></label>
             <label>Terrace Season / Timing<select id="calcTerraceSeason"><option value="">Select</option><option value="summer">Summer / Heat</option><option value="pre-monsoon">Pre-monsoon</option><option value="monsoon">Monsoon / Rainy season</option><option value="post-monsoon">Post-monsoon</option><option value="winter">Winter</option></select></label>
           </div>
-          <div class="calc-help">Season/timing is used as a planning flag only. Waterproofing, crack treatment, weatherproofing and cool-roof products must be selected according to site condition and the manufacturer's technical data. Structural cracks require professional site assessment.</div>          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved5"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="5">Save</button><button type="button" class="btn primary" data-calc-next="6">Next → Requirement</button></div></div>
+          <div class="calc-help">Season/timing is used as a planning flag only. Waterproofing, crack treatment, weatherproofing and cool-roof products must be selected according to site condition and the manufacturer's technical data. Structural cracks require professional site assessment.</div>          <div class="calc-step-footer"><div class="calc-saved" id="calcSaved5"><b>Saved details</b><span>Nothing saved yet.</span></div><div class="calc-actions"><button type="button" class="btn" data-calc-save="5">Save</button><button type="button" class="btn primary" data-calc-next="6">Next</button></div></div>
         </div>
 
         <div class="calc-card calc-step-card" data-calc-panel="6">
