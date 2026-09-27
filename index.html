@@ -2067,23 +2067,25 @@ function manageLoadPromoVideo(){
      type='Google Drive';
    }else{toast('Enter a valid YouTube or Google Drive video link.');return;}
  }
- if(type==='Google Drive' && native){
-   frame.style.display='none';
-   native.style.display='block';
-   native.src='https://drive.google.com/uc?export=download&id='+encodeURIComponent((embed.match(/\/file\/d\/([^/]+)/)||[])[1]||'');
-   native.loop=loopBtn?.dataset.loop==='1';
-   if(muteBtn && !muteBtn.dataset.muted)muteBtn.dataset.muted='1';
-   native.muted=muteBtn?.dataset.muted!=='0';
-   native.load();
-   native.play().catch(()=>{});
+ if(native){native.pause();native.removeAttribute('src');native.load();native.style.display='none';}
+ if(type==='Google Drive'){
+   frame.dataset.videoId='';
+   frame.src='';
+   frame.style.display='block';
+   // Google Drive's preview player is reliable for Drive-hosted videos; direct-download
+   // playback is blocked on many browsers and can leave the player blank.
+   frame.src='https://drive.google.com/file/d/'+((embed.match(/\/file\/d\/([^/]+)/)||[])[1]||'')+'/preview';
+   if(loopBtn){
+     loopBtn.dataset.loop='0';
+     loopBtn.textContent='🔁 Loop Off';
+     loopBtn.title='Loop is controlled by the Drive player for this video';
+   }
  }else{
-   if(native){native.pause();native.removeAttribute('src');native.load();native.style.display='none';}
    frame.dataset.videoId=videoId;
    frame.src='';
    frame.style.display='block';
    const loopOn=loopBtn?.dataset.loop==='1';
-   const muted=muteBtn?.dataset.muted==='1';
-   frame.src='https://www.youtube.com/embed/'+videoId+'?autoplay=1&mute='+(muted?'1':'1')+'&rel=0&controls=1&fs=1&enablejsapi=1&playsinline=1&loop='+(loopOn?'1':'0')+'&playlist='+encodeURIComponent(videoId)+'&origin='+encodeURIComponent(location.origin);
+   frame.src='https://www.youtube.com/embed/'+videoId+'?autoplay=1&mute=1&rel=0&controls=1&fs=1&enablejsapi=1&playsinline=1&loop='+(loopOn?'1':'0')+'&playlist='+encodeURIComponent(videoId)+'&origin='+encodeURIComponent(location.origin);
  }
  if(placeholder)placeholder.style.display='none';
  if(badge)badge.textContent=type;
