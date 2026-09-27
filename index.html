@@ -864,7 +864,16 @@ function getPurchaseCost(prefix,item){
 function updatePurchasePricePreview(){
  const p=selectedItem('purchase'),q=+$('purchaseQty').value||0,box=$('purchasePricePreview');
  if(!box)return;
- if(!p){box.textContent='Select a main product or subproduct and size to see the purchase price.';return}
+ const sub=selectedSubproduct('purchase');
+ const size=String($('purchaseSize')?.value||'').trim();
+ if(!p){box.textContent='Select a main product or subproduct and size to see the purchase price.';box.classList.remove('price-warning');return}
+ // Do not compare a pack purchase price with a per-litre/per-kg catalogue rate
+ // while the user has not selected a pack size.
+ if(!sub&&!size){
+   box.textContent='Select a size to see the correct purchase price and catalogue-price check.';
+   box.classList.remove('price-warning');
+   return;
+ }
  const unit=getPurchaseCost('purchase',p),sell=getTransactionPrice('purchase',p),total=q*unit;
  if(sell>0&&unit>=sell){
    box.textContent='⚠ Pricing check: Purchase cost '+money(unit)+' is not below selling price '+money(sell)+' for this selected size. Review the catalogue prices.';
