@@ -29,8 +29,8 @@
   <div class="pin-modal-card" role="dialog" aria-modal="true" aria-labelledby="resetPinModalTitle">
     <button type="button" class="pin-modal-close" id="resetPinClose" aria-label="Close">×</button>
     <span class="chart-kicker">SECURITY</span>
-    <h3 id="resetPinModalTitle">Enter Reset PIN</h3>
-    <p class="muted">Enter your 4–12 digit PIN to continue.</p>
+    <h3 id="resetPinModalTitle">Reset Shop Data</h3>
+    <p class="muted">Enter your PIN to continue.</p>
     <input id="resetPinInput" class="pin-modal-input" type="password" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="Enter PIN">
     <div class="pin-modal-actions">
       <button type="button" class="btn" id="resetPinCancel">Cancel</button>
@@ -2161,6 +2161,7 @@ function verifyResetPin(){
    $('resetPinCancel').onclick=()=>close(false);
    $('resetPinClose').onclick=()=>close(false);
    $('resetPinForgot').onclick=forgot;
+   input.value='';
    modal.hidden=false;
    modal.classList.add('show');
    modal.setAttribute('aria-hidden','false');
