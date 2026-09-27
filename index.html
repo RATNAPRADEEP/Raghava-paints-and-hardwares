@@ -2133,6 +2133,9 @@ function verifyResetPin(){
  return new Promise(resolve=>{
    const modal=$('resetPinModal'),input=$('resetPinInput');
    if(!modal||!input){resolve(false);return;}
+   // Keep the fixed dialog directly under the top-right Reset button.
+   // Move it to body so transformed page containers cannot change its fixed-position reference.
+   if(modal.parentElement!==document.body)document.body.appendChild(modal);
    let settled=false;
    const cleanup=()=>{document.removeEventListener('keydown',onKey)};
    const close=ok=>{
