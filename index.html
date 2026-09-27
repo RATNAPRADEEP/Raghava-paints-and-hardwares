@@ -24,7 +24,7 @@
 </style></head>
 <body>
 <header class="top"><div><div class="eyebrow">LOCAL SHOP OPERATIONS</div><h1>Raghava Paints and Hardwares</h1></div><div><div class="connection"><span id="dot" class="dot"></span><span id="connectionText">Google Drive storage not connected</span></div><button id="connectBtn" class="btn primary">Connect Google Drive</button></div></header>
-<nav class="nav"><button class="navbtn active" data-page="dashboard">Manage</button><button class="navbtn" data-page="sales">Sell</button><button class="navbtn" data-page="purchases">Purchase</button><button class="navbtn" data-page="products">Track</button><button class="navbtn" data-page="accounts">Analyze</button><button class="navbtn" data-page="calculations">Calculation</button><button class="navbtn" data-page="invoices">Invoice Print</button><button id="saveBtn" class="btn save">Save to Google Drive</button><button id="resetShopBtn" class="btn danger">Reset Shop Data</button></nav>
+<nav class="nav"><button class="navbtn active" data-page="dashboard">Manage</button><button class="navbtn" data-page="sales">Sell</button><button class="navbtn" data-page="purchases">Purchase</button><button class="navbtn" data-page="products">Track</button><button class="navbtn" data-page="accounts">Analyze</button><button class="navbtn" data-page="calculations">Calculation</button><button class="navbtn" data-page="invoices">Invoice Print</button><button id="saveBtn" class="btn save">Save to Google Drive</button><button id="resetPinBtn" class="btn">⚙ Set Reset PIN</button><button id="resetShopBtn" class="btn danger" title="PIN required">🔒 Reset Shop Data</button></nav>
 <main><div id="toast"></div><div id="printArea" class="invoice-paper"></div></div>
 <section id="dashboard" class="section show">
 <div class="manage-head">
@@ -2065,7 +2065,39 @@ function calcSendEstimateToInvoice(){
 function bind(){
  $('purchaseInvoicePhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'purchase');e.target.value=''});$('scanPurchaseInvoice').addEventListener('click',()=>$('purchaseInvoicePhoto').click());$('customerPhoto').addEventListener('change',e=>{scanInvoiceToFields(e.target.files?.[0],'customer');e.target.value=''});$('scanCustomer').addEventListener('click',()=>$('customerPhoto').click());
  addPhotoOCR('photoSku','pSku','scanSku');addPhotoOCR('photoName','pName','scanName');addPhotoOCR('photoBrand','pBrand','scanBrand');addPhotoOCR('photoShade','pShade','scanShade');
- async function resetShopData(){
+ async function resetPinHash(pin){
+ try{
+   const data=new TextEncoder().encode(String(pin||''));
+   const hash=await crypto.subtle.digest('SHA-256',data);
+   return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+ }catch(e){return String(pin||'');}
+}
+async function setResetPin(){
+ const current=localStorage.getItem('raghavaResetPinHash')||'';
+ if(current){
+   const old=prompt('Enter your current Reset PIN:');
+   if(old===null)return;
+   if(await resetPinHash(old)!==current){toast('Incorrect current Reset PIN.',true);return;}
+ }
+ const pin=prompt(current?'Enter a new Reset PIN (4–12 digits):':'Set a Reset PIN (4–12 digits):');
+ if(pin===null)return;
+ if(!/^\\d{4,12}$/.test(pin)){toast('PIN must contain 4–12 digits.',true);return;}
+ const confirmPin=prompt('Re-enter the Reset PIN:');
+ if(confirmPin===null)return;
+ if(pin!==confirmPin){toast('PINs do not match.',true);return;}
+ localStorage.setItem('raghavaResetPinHash',await resetPinHash(pin));
+ toast(current?'Reset PIN changed successfully.':'Reset PIN set. Reset Shop Data is now unlocked after PIN verification.');
+}
+async function verifyResetPin(){
+ const saved=localStorage.getItem('raghavaResetPinHash')||'';
+ if(!saved){toast('Set a Reset PIN first using “⚙ Set Reset PIN”.',true);return false;}
+ const pin=prompt('Enter Reset PIN to continue:');
+ if(pin===null)return false;
+ if(await resetPinHash(pin)!==saved){toast('Incorrect Reset PIN. Reset cancelled.',true);return false;}
+ return true;
+}
+async function resetShopData(){
+ if(!(await verifyResetPin()))return;
  const hasData=(db.sales?.length||db.purchases?.length||db.receipts?.length||db.myRecords?.length||db.otherRecords?.length||activeProducts().some(p=>Number(p.stock||0)!==0)||activeSubs().some(p=>Number(p.stock||0)!==0));
  if(!hasData){toast('Shop is already reset. No sales, purchases or stock to clear.');return}
  const ok=confirm('RESET SHOP DATA?\\n\\nThis will clear Sales History, Purchase History, inventory stock quantities, receipt photos/data, and transaction records.\\n\\nIt will NOT delete your product catalogue, subproducts, customers, suppliers, prices, sizes, GST, master data, settings, or promotion link.\\n\\nThe connected Google Drive workbook will also be reset. Continue?');
@@ -2093,6 +2125,7 @@ function bind(){
 }
 
 $('connectBtn').addEventListener('click',connect);
+ $('resetPinBtn')?.addEventListener('click',setResetPin);
  if($('attachPurchaseReceipt')){$('attachPurchaseReceipt').addEventListener('click',e=>{e.preventDefault();$('purchaseReceiptPhoto').click()});$('purchaseReceiptPhoto').addEventListener('change',async()=>{const f=$('purchaseReceiptPhoto').files?.[0];if(!f)return;$('purchaseReceiptName').textContent='Attached: '+f.name;$('purchaseReceiptOCRStatus').textContent='Reading receipt…';try{const r=await Tesseract.recognize(f,'eng');const t=(r.data.text||'').replace(/\r\n?/g,'\n').replace(/[ \t]+/g,' ').trim();parsePurchaseInvoice(t);$('purchaseReceiptOCRStatus').textContent=invoiceScanItems.length?'✓ Receipt scanned and product/quantity/cost filled automatically.':'Receipt text was read, but no catalogue product was matched. Please check the product name or enter it manually.'}catch(e){$('purchaseReceiptOCRStatus').textContent='Receipt scan failed. Enter details manually.'}})}
 
  if($('attachSaleReceipt')){$('attachSaleReceipt').addEventListener('click',e=>{e.preventDefault();$('saleReceiptPhoto').click()});$('saleReceiptPhoto').addEventListener('change',async()=>{const f=$('saleReceiptPhoto').files?.[0];saleReceiptOCR='';if(!f){$('saleReceiptName').textContent='Optional — handwritten or printed receipt.';return}$('saleReceiptName').textContent='Attached: '+f.name;$('saleReceiptOCRStatus').textContent='Preparing receipt…';try{if(!window.Tesseract)throw Error('OCR library not loaded');const image=await preprocessSalesReceiptImage(f);const opts=mode=>({tessedit_pageseg_mode:mode,logger:m=>{if(m.status==='recognizing text')$('saleReceiptOCRStatus').textContent='Reading receipt '+Math.round((m.progress||0)*100)+'%…'}});let matched=false;for(const mode of [11,6,12]){const r=await Tesseract.recognize(image,'eng',opts(mode));const t=(r.data.text||'').replace(/\r\n?/g,'\n').replace(/[ \t]+/g,' ').trim();if(t){saleReceiptOCR=t;if(parseSaleReceiptScan(t)){matched=true;break}}}if(!matched){const r=await Tesseract.recognize(image,'eng+tel',opts(11));saleReceiptOCR=(r.data.text||'').replace(/\r\n?/g,'\n').replace(/[ \t]+/g,' ').trim();if(saleReceiptOCR)parseSaleReceiptScan(saleReceiptOCR)}if(!saleReceiptOCR)$('saleReceiptOCRStatus').textContent='No readable text detected — photo will still be saved.'}catch(err){console.error('Sales receipt OCR failed:',err);$('saleReceiptOCRStatus').textContent='Photo attached, but OCR could not read it. Try a clear, straight photo.'}});}
