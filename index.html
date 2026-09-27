@@ -596,16 +596,23 @@ const FALLBACK_SUBPRODUCTS=[
 ];
 
 const REQUIRED_SPECIAL_SUBPRODUCTS=[
-{id:'SP-SPECIAL-STICKER',sku:'SPECIAL-WALL-STICKER',category:'Wall Stickers',brand:'Raghava Paints & Hardwares',name:'Wall Sticker / Decorative Finish',variant:'Surface preparation / decorative finish',size:'Sq.ft',unit:'Sq.ft',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true,source:'Calculation special-treatment sync'},
-{id:'SP-CRACK-SEAL',sku:'AP-SC-CRACK-SEAL',category:'Crack Repair',brand:'Asian Paints',name:'SmartCare Crack Seal',variant:'Ready-to-use crack filling compound',size:'0.36 / 0.9 / 5',unit:'Litre',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true,source:'Asian Paints official product page'},
-{id:'SP-DAMP-PROOF',sku:'AP-SC-DAMP-PROOF',category:'Waterproofing',brand:'Asian Paints',name:'SmartCare Damp Proof',variant:'Terrace / exterior waterproofing',size:'Pack',unit:'Litre',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true,source:'Asian Paints official product page'},
-{id:'SP-DAMP-SHEATH',sku:'AP-DAMP-SHEATH-EXT',category:'Weather Proofing',brand:'Asian Paints',name:'Damp Sheath Exterior',variant:'Exterior weather and moisture protection',size:'Pack',unit:'Litre',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true,source:'Asian Paints official product page'},
-{id:'SP-ULTRA-COOL',sku:'AP-DAMP-PROOF-ULTRA-COOL',category:'Cool Roof / Heat Reduction',brand:'Asian Paints',name:'DAMP PROOF ULTRA COOL PU',variant:'Surface heat reduction / waterproofing',size:'Pack',unit:'Litre',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true,source:'Asian Paints official product page'}
+{id:'SP-SPECIAL-STICKER',sku:'SPECIAL-WALL-STICKER',category:'Wall Stickers',brand:'Raghava Paints & Hardwares',name:'Wall Sticker Removal / Surface Prep',variant:'Sticker removal and surface preparation',size:'Sq.ft',unit:'Sq.ft',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true},
+{id:'SP-CRACK-SEAL',sku:'AP-SC-CRACK-SEAL',category:'Crack Repair',brand:'Asian Paints',name:'SmartCare Crack Seal',variant:'Ready-to-use crack filling compound',size:'0.36 / 0.9 / 5 L',unit:'Litre',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true},
+{id:'SP-CRACK-TEXTURED',sku:'AP-SC-TEXTURED-CRACK-FILLER',category:'Crack Repair',brand:'Asian Paints',name:'SmartCare Textured Crack Filler',variant:'Exterior plaster crack filler',size:'1 / 9 Kg',unit:'Kg',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true},
+{id:'SP-CRACK-HYBRID-PU',sku:'AP-SC-HYBRID-PU-SEALANT',category:'Crack Repair',brand:'Asian Paints',name:'SmartCare Hybrid PU Sealant',variant:'Dynamic joint and crack sealant',size:'300 ml',unit:'Cartridge',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true},
+{id:'SP-CRACK-AKRYLMAX',sku:'AP-SC-AKRYLMAX',category:'Crack Repair',brand:'Asian Paints',name:'SmartCare AkrylMax',variant:'Paintable acrylic sealant',size:'310 ml',unit:'Cartridge',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true},
+{id:'SP-CRACK-ADVANCED',sku:'AP-SC-CRACK-SEAL-ADVANCED',category:'Crack Repair',brand:'Asian Paints',name:'SmartCare Crack Seal Advanced',variant:'Advanced crack filling compound',size:'0.36 / 0.9 / 3 L',unit:'Litre',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true},
+{id:'SP-ROOF-TAPES',sku:'AP-SC-ROOF-TAPES',category:'Waterproofing',brand:'Asian Paints',name:'SmartCare Roof Tapes',variant:'EPDM reinforcement tape for corners and joints',size:'1 L',unit:'Pack',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true},
+{id:'SP-DAMP-PROOF',sku:'AP-SC-DAMP-PROOF',category:'Waterproofing',brand:'Asian Paints',name:'SmartCare Damp Proof',variant:'Terrace and exterior waterproofing',size:'Pack',unit:'Litre',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true},
+{id:'SP-DAMP-SHEATH',sku:'AP-DAMP-SHEATH-EXT',category:'Weather Proofing',brand:'Asian Paints',name:'Damp Sheath Exterior',variant:'Exterior weather and moisture protection',size:'Pack',unit:'Litre',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true},
+{id:'SP-ULTRA-COOL',sku:'AP-DAMP-PROOF-ULTRA-COOL',category:'Cool Roof / Heat Reduction',brand:'Asian Paints',name:'DAMP PROOF ULTRA COOL PU',variant:'Surface heat reduction and waterproofing',size:'Pack',unit:'Litre',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true}
 ];
 function ensureSpecialSubproducts(){
- const existing=new Set(activeSubs().map(x=>String(x.category||'').trim().toLowerCase()+'|'+String(x.size||'').trim().toLowerCase()));
+ const oldIds=new Set(['SP-SPECIAL-CRACK','SP-SPECIAL-WATERPROOF','SP-SPECIAL-WEATHER','SP-SPECIAL-COOL']);
+ db.subproducts=db.subproducts.filter(x=>!oldIds.has(String(x.id||'')));
+ const existing=new Set(activeSubs().map(x=>String(x.category||'').trim().toLowerCase()+'|'+String(x.name||'').trim().toLowerCase()+'|'+String(x.size||'').trim().toLowerCase()));
  REQUIRED_SPECIAL_SUBPRODUCTS.forEach(item=>{
-   const key=String(item.category).trim().toLowerCase()+'|'+String(item.size).trim().toLowerCase();
+   const key=String(item.category).trim().toLowerCase()+'|'+String(item.name).trim().toLowerCase()+'|'+String(item.size).trim().toLowerCase();
    if(!existing.has(key)){db.subproducts.push({...item});existing.add(key);}
  });
 }
