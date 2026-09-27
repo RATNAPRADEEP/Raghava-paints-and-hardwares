@@ -597,10 +597,10 @@ const FALLBACK_SUBPRODUCTS=[
 
 const REQUIRED_SPECIAL_SUBPRODUCTS=[
 {id:'SP-SPECIAL-STICKER',sku:'SPECIAL-WALL-STICKER',category:'Wall Stickers',brand:'Raghava Paints & Hardwares',name:'Wall Sticker / Decorative Finish',variant:'Surface preparation / decorative finish',size:'Sq.ft',unit:'Sq.ft',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true,source:'Calculation special-treatment sync'},
-{id:'SP-SPECIAL-CRACK',sku:'SPECIAL-WALL-CRACK',category:'Wall Cracks',brand:'Asian Paints',name:'Wall Crack Treatment / Filler',variant:'Crack filling / repair',size:'Running ft',unit:'Running ft',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true,source:'Asian Paints SmartCare crack-treatment category'},
-{id:'SP-SPECIAL-WATERPROOF',sku:'SPECIAL-WATERPROOF',category:'Waterproofing',brand:'Asian Paints',name:'Waterproofing Treatment',variant:'Terrace / bathroom / balcony / external wall',size:'Sq.ft',unit:'Sq.ft',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true,source:'Asian Paints SmartCare waterproofing category'},
-{id:'SP-SPECIAL-WEATHER',sku:'SPECIAL-WEATHERPROOF',category:'Weather Proofing',brand:'Asian Paints',name:'Weather Proofing Treatment',variant:'Exterior / terrace weather protection',size:'Sq.ft',unit:'Sq.ft',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true,source:'Asian Paints exterior/roof protection category'},
-{id:'SP-SPECIAL-COOL',sku:'SPECIAL-COOL-ROOF',category:'Cool Paint / Roof Coating',brand:'Asian Paints',name:'Cool Roof / Terrace Coating',variant:'Cool roof / heat-reduction coating',size:'Sq.ft',unit:'Sq.ft',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true,source:'Asian Paints cool-roof coating category'}
+{id:'SP-CRACK-SEAL',sku:'AP-SC-CRACK-SEAL',category:'Crack Repair',brand:'Asian Paints',name:'SmartCare Crack Seal',variant:'Ready-to-use crack filling compound',size:'0.36 / 0.9 / 5',unit:'Litre',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true,source:'Asian Paints official product page'},
+{id:'SP-DAMP-PROOF',sku:'AP-SC-DAMP-PROOF',category:'Waterproofing',brand:'Asian Paints',name:'SmartCare Damp Proof',variant:'Terrace / exterior waterproofing',size:'Pack',unit:'Litre',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true,source:'Asian Paints official product page'},
+{id:'SP-DAMP-SHEATH',sku:'AP-DAMP-SHEATH-EXT',category:'Weather Proofing',brand:'Asian Paints',name:'Damp Sheath Exterior',variant:'Exterior weather and moisture protection',size:'Pack',unit:'Litre',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true,source:'Asian Paints official product page'},
+{id:'SP-ULTRA-COOL',sku:'AP-DAMP-PROOF-ULTRA-COOL',category:'Cool Roof / Heat Reduction',brand:'Asian Paints',name:'DAMP PROOF ULTRA COOL PU',variant:'Surface heat reduction / waterproofing',size:'Pack',unit:'Litre',cost:0,sell:0,standardSell:0,gst:18,stock:0,reorder:0,active:true,source:'Asian Paints official product page'}
 ];
 function ensureSpecialSubproducts(){
  const existing=new Set(activeSubs().map(x=>String(x.category||'').trim().toLowerCase()+'|'+String(x.size||'').trim().toLowerCase()));
@@ -623,14 +623,14 @@ function simpleSubCategory(v){
  if(s==='stainer'||s==='stainers')return 'Stainers';
  if(s==='sample'||s==='samples')return 'Samples';
  if(s==='wall sticker'||s==='wall stickers')return 'Wall Stickers';
- if(s==='wall crack'||s==='wall cracks'||s==='crack treatment')return 'Wall Cracks';
+ if(s==='wall crack'||s==='wall cracks'||s==='crack treatment'||s==='crack repair')return 'Crack Repair';
  if(s==='waterproofing')return 'Waterproofing';
  if(s==='weather proofing'||s==='weatherproofing')return 'Weather Proofing';
- if(s==='cool paint / roof coating'||s==='cool roof / roof coating'||s==='cool paint')return 'Cool Paint / Roof Coating';
+ if(s==='cool paint / roof coating'||s==='cool roof / roof coating'||s==='cool paint'||s==='cool roof / heat reduction')return 'Cool Roof / Heat Reduction';
  return String(v||'Other');
 }
 function subproductItems(){
- const order=['Brushes','Enamels','Fillers','Rollers','Sanding Paper','Thinners / MTO','Stainers','Samples','Wall Stickers','Wall Cracks','Waterproofing','Weather Proofing','Cool Paint / Roof Coating'];
+ const order=['Brushes','Enamels','Fillers','Rollers','Sanding Paper','Thinners / MTO','Stainers','Samples','Wall Stickers','Crack Repair','Waterproofing','Weather Proofing','Cool Roof / Heat Reduction'];
  return order.filter(cat=>activeSubs().some(p=>simpleSubCategory(p.category)===cat)).map(cat=>({value:cat,label:cat}));
 }
 function sourcePackSizesForProduct(p){
