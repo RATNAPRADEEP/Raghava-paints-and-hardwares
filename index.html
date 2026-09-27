@@ -67,7 +67,6 @@
   <div class="manage-promo-controls">
     <input id="managePromoUrl" type="url" placeholder="Paste YouTube or Google Drive video link">
     <button type="button" class="btn primary" id="managePromoLoad">Show Video</button>
-    <button type="button" class="btn" id="managePromoMute" title="Mute / unmute video">🔇 Mute</button>
     <button type="button" class="btn" id="managePromoFullscreen" title="Maximize video">⛶ Max Screen</button>
   </div>
 </div>
@@ -2051,8 +2050,7 @@ function manageLoadPromoVideo(){
 function manageInitPromoVideo(){
  const input=$('managePromoUrl'),btn=$('managePromoLoad');
  if(btn)btn.addEventListener('click',manageLoadPromoVideo);
- const mute=$('managePromoMute'); if(mute)mute.addEventListener('click',managePromoToggleMute);
- const full=$('managePromoFullscreen'); if(full)full.addEventListener('click',managePromoFullscreen);
+  const full=$('managePromoFullscreen'); if(full)full.addEventListener('click',managePromoFullscreen);
  try{
    let saved=null;
    try{saved=JSON.parse(localStorage.getItem('raghavaPromoVideo')||'null');}catch(e){}
