@@ -2312,7 +2312,23 @@ function forceInvoiceToday(){
  if(!el.textContent.trim()||el.textContent.trim()==='DD-MM-YYYY')el.textContent=today;
  $('receiptDatePrint').textContent=el.textContent;
 }
-bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try{calcInit()}catch(e){console.error('Calculation tab init failed:',e)}},0);
+/* UI safety net: keep primary controls functional even if a non-critical initializer fails. */
+(function(){
+  const bootNav=()=>{
+    document.addEventListener('click',e=>{
+      const b=e.target.closest('.navbtn,.action,[data-page]');
+      if(!b)return;
+      const page=b.dataset.page;
+      if(page && typeof nav==='function')nav(page);
+    },true);
+  };
+  bootNav();
+  try{bind();}catch(e){console.error('Primary bind failed; safety navigation remains active.',e);}
+  try{render();}catch(e){console.error('Initial render failed.',e);}
+  try{forceInvoiceToday();}catch(e){console.error('Invoice date init failed.',e);}
+  try{restoreDriveConnection();}catch(e){console.error('Drive restore failed.',e);}
+  setTimeout(()=>{try{calcInit()}catch(e){console.error('Calculation tab init failed:',e)}},0);
+})();
 </script><script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script><script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body></html>
 <!-- restore promotion video player -->
