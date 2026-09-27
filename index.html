@@ -1639,7 +1639,30 @@ function calcCoverageForSelected(key,condition){
 function calcAddRoomRow(data={}){
  const id='cr-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
  const row=document.createElement('div');row.className='room-row';row.dataset.id=id;
- row.innerHTML='<label>Room / గది<input data-k="name" value="'+esc(data.name||'Room')+'"></label><label>Wall Finish<select data-k="finish"><option value="Premium Interior Emulsion">Premium Emulsion</option><option value="Interior Emulsion">Interior Emulsion</option><option value="Apex Exterior Emulsion">Exterior Emulsion</option></select></label><label>Wall Coats<input data-k="coats" type="number" min="1" max="4" step="1" value="'+calcNum(data.coats||2)+'"></label>'+
+ row.innerHTML='<label>Room / గది<select data-k="name">
+<option value="Hall" '+((data.name||'Hall')==='Hall'?'selected':'')+'>Hall / హాల్</option>
+<option value="Living Room" '+(data.name==='Living Room'?'selected':'')+'>Living Room / లివింగ్ రూమ్</option>
+<option value="Bedroom" '+(data.name==='Bedroom'?'selected':'')+'>Bedroom / బెడ్‌రూమ్</option>
+<option value="Bedroom 1" '+(data.name==='Bedroom 1'?'selected':'')+'>Bedroom 1</option>
+<option value="Bedroom 2" '+(data.name==='Bedroom 2'?'selected':'')+'>Bedroom 2</option>
+<option value="Kitchen" '+(data.name==='Kitchen'?'selected':'')+'>Kitchen / వంటగది</option>
+<option value="Dining Room" '+(data.name==='Dining Room'?'selected':'')+'>Dining Room / భోజన గది</option>
+<option value="Bathroom" '+(data.name==='Bathroom'?'selected':'')+'>Bathroom / బాత్‌రూమ్</option>
+<option value="Toilet" '+(data.name==='Toilet'?'selected':'')+'>Toilet / టాయిలెట్</option>
+<option value="Pooja Room" '+(data.name==='Pooja Room'?'selected':'')+'>Pooja Room / పూజ గది</option>
+<option value="Study Room" '+(data.name==='Study Room'?'selected':'')+'>Study Room / స్టడీ రూమ్</option>
+<option value="Reading Room" '+(data.name==='Reading Room'?'selected':'')+'>Reading Room / రీడింగ్ రూమ్</option>
+<option value="Kids Room" '+(data.name==='Kids Room'?'selected':'')+'>Kids Room / పిల్లల గది</option>
+<option value="Guest Room" '+(data.name==='Guest Room'?'selected':'')+'>Guest Room / అతిథి గది</option>
+<option value="Office Room" '+(data.name==='Office Room'?'selected':'')+'>Office Room / ఆఫీస్</option>
+<option value="Store Room" '+(data.name==='Store Room'?'selected':'')+'>Store Room / స్టోర్</option>
+<option value="Utility Room" '+(data.name==='Utility Room'?'selected':'')+'>Utility Room / యుటిలిటీ</option>
+<option value="Balcony" '+(data.name==='Balcony'?'selected':'')+'>Balcony / బాల్కనీ</option>
+<option value="Corridor" '+(data.name==='Corridor'?'selected':'')+'>Corridor / కారిడార్</option>
+<option value="Staircase" '+(data.name==='Staircase'?'selected':'')+'>Staircase / మెట్ల ప్రదేశం</option>
+<option value="Verandah" '+(data.name==='Verandah'?'selected':'')+'>Verandah / వరండా</option>
+<option value="Other" '+(data.name==='Other'?'selected':'')+'>Other / ఇతర</option>
+</select></label><label>Wall Finish<select data-k="finish"><option value="Premium Interior Emulsion">Premium Emulsion</option><option value="Interior Emulsion">Interior Emulsion</option><option value="Apex Exterior Emulsion">Exterior Emulsion</option></select></label><label>Wall Coats<input data-k="coats" type="number" min="1" max="4" step="1" value="'+calcNum(data.coats||2)+'"></label>'+
  '<label>Length<input data-k="l" type="number" min="0" step=".1" value="'+calcNum(data.l||12)+'"></label>'+
  '<label>Width<input data-k="w" type="number" min="0" step=".1" value="'+calcNum(data.w||10)+'"></label>'+
  '<label>Height<input data-k="h" type="number" min="0" step=".1" value="'+calcNum(data.h||10)+'"></label>'+
