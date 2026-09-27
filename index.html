@@ -724,6 +724,18 @@ function commonSizeRows(prefix){
    activeSubs().forEach(x=>{
      if(simpleSubCategory(x.category)===subCategory&&String(x.size||'').trim())out.push({size:String(x.size).trim(),unit:String(x.unit||'Piece').trim()});
    });
+   // Special-treatment subproducts must always expose a usable size/unit even
+   // when an older workbook row was saved without those fields.
+   if(!out.length){
+     const defaults={
+       'Wall Stickers':{size:'Sq.ft',unit:'Sq.ft'},
+       'Crack Repair':{size:'Pack',unit:'Pack'},
+       'Waterproofing':{size:'Litre',unit:'Litre'},
+       'Weather Proofing':{size:'Litre',unit:'Litre'},
+       'Cool Roof / Heat Reduction':{size:'Litre',unit:'Litre'}
+     };
+     if(defaults[subCategory])out.push(defaults[subCategory]);
+   }
  }else if(mainId){
    const p=activeProducts().find(x=>String(x.id)===mainId);
    if(p){
@@ -783,7 +795,7 @@ function getStandardSellingPrice(prefix,item){
  if(n>1&&(u==='litre'||u==='liter'||u==='l'||u==='kg')&&base>0&&base<1000)return base*n;
  return base;
 }
-function setSalePriceFromStandard(){const el=$('salePrice'),p=selectedItem('sale');if(!el)return;const v=getStandardSellingPrice('sale',p);el.value=v>0?v:'';}
+function setSalePriceFromStandard(){const el=$('salePrice'),p=selectedItem('sale');if(!el)return;const v=getStandardSellingPrice('sale',p);el.value=v>0?v:'';el.placeholder=p&&selectedSubproduct('sale')?'Enter selling price':'Standard selling price';}
 function getTransactionPrice(prefix,item){
  if(!item)return 0;
  if(prefix==='sale'){const entered=Number($('salePrice')?.value||0);if(entered>0)return entered;}
