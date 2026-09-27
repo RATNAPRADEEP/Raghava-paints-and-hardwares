@@ -1880,10 +1880,19 @@ function calcGoStep(step){
  const btn=document.querySelector('.calc-subtab[data-calc-step="'+step+'"]');
  if(btn)btn.click();
 }
+function manageMaskPromoInput(){
+ const input=$('managePromoUrl');
+ if(!input)return;
+ input.type='password';
+ input.placeholder='Promotion link saved';
+ input.value='••••••••••••••••';
+ input.readOnly=true;
+}
 function manageLoadPromoVideo(){
  const input=$('managePromoUrl'),frame=$('managePromoVideo'),placeholder=$('managePromoPlaceholder');
  if(!input||!frame)return;
  const raw=(input.value||'').trim();
+ if(input.readOnly)return;
  const m=raw.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
  if(!m){toast('Enter a valid YouTube video link.');return;}
  const id=m[1];
@@ -1891,6 +1900,7 @@ function manageLoadPromoVideo(){
  frame.style.display='block';
  if(placeholder)placeholder.style.display='none';
  try{localStorage.setItem('raghavaPromoYoutube',id);}catch(e){}
+ manageMaskPromoInput();
  toast('Promotion video loaded.');
 }
 function manageInitPromoVideo(){
@@ -1898,7 +1908,13 @@ function manageInitPromoVideo(){
  if(btn)btn.addEventListener('click',manageLoadPromoVideo);
  try{
    const id=localStorage.getItem('raghavaPromoYoutube');
-   if(id&&input){input.value='https://www.youtube.com/watch?v='+id;manageLoadPromoVideo();}
+   if(id&&input){
+     input.value='https://www.youtube.com/watch?v='+id;
+     const frame=$('managePromoVideo'),placeholder=$('managePromoPlaceholder');
+     if(frame){frame.src='https://www.youtube.com/embed/'+id+'?rel=0';frame.style.display='block';}
+     if(placeholder)placeholder.style.display='none';
+     manageMaskPromoInput();
+   }
  }catch(e){}
 }
 
