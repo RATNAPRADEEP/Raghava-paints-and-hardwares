@@ -1624,7 +1624,7 @@ function calcCoverageForSelected(key,condition){
 function calcAddRoomRow(data={}){
  const id='cr-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
  const row=document.createElement('div');row.className='room-row';row.dataset.id=id;
- row.innerHTML='<label>Room / గది<input data-k="name" value="'+esc(data.name||'Room')+'"></label>'+
+ row.innerHTML='<label>Room / గది<input data-k="name" value="'+esc(data.name||'Room')+'"></label><label>Wall Finish<select data-k="finish"><option value="Premium Interior Emulsion">Premium Emulsion</option><option value="Interior Emulsion">Interior Emulsion</option><option value="Apex Exterior Emulsion">Exterior Emulsion</option></select></label><label>Wall Coats<input data-k="coats" type="number" min="1" max="4" step="1" value="'+calcNum(data.coats||2)+'"></label>'+
  '<label>Length<input data-k="l" type="number" min="0" step=".1" value="'+calcNum(data.l||12)+'"></label>'+
  '<label>Width<input data-k="w" type="number" min="0" step=".1" value="'+calcNum(data.w||10)+'"></label>'+
  '<label>Height<input data-k="h" type="number" min="0" step=".1" value="'+calcNum(data.h||10)+'"></label>'+
@@ -1665,7 +1665,7 @@ function calcRoomData(){
   const ds=calcParseSize(g('doorSize'),[3,7]),ws=calcParseSize(g('windowSize'),[4,4]);
   const l=calcNum(g('l')),w=calcNum(g('w')),h=calcNum(g('h')),doors=calcNum(g('doors')),windows=calcNum(g('windows'));
   const gross=2*(l+w)*h,open=doors*ds[0]*ds[1]+windows*ws[0]*ws[1];
-  return {name:g('name')||'Room',wall:Math.max(0,gross-open),ceiling:g('ceiling')==='yes'?l*w:0};
+  return {name:g('name')||'Room',wall:Math.max(0,gross-open),ceiling:g('ceiling')==='yes'?l*w:0,finish:g('finish')||'Premium Interior Emulsion',coats:Math.max(1,calcNum(g('coats')||2))};
  });
 }
 function calcSurfaceData(){
@@ -1680,38 +1680,47 @@ function calcRecalculate(){
  const rooms=calcRoomData(),surfaces=calcSurfaceData();
  const wall=rooms.reduce((a,r)=>a+r.wall,0),ceil=rooms.reduce((a,r)=>a+r.ceiling,0);
  const condition=$('calcCondition')?.value||'normal',waste=1+calcNum($('calcWastage')?.value||10)/100;
- const wallKey=$('calcWallProduct')?.value||'Premium Interior Emulsion',extKey=$('calcExteriorProduct')?.value||'Apex Exterior Emulsion';
- const wallCoverage=calcCoverageForSelected(wallKey,condition),extCoverage=calcCoverageForSelected(extKey,condition);
- const wallCoats=Math.max(1,calcNum($('calcWallCoats')?.value||2)),extCoats=Math.max(1,calcNum($('calcExteriorCoats')?.value||2));
  const primerCoats=Math.max(0,calcNum($('calcPrimerCoats')?.value||2));
  const putty=$('calcPutty')?.value||'none';
  const puttyCoats=putty==='acrylic2'||putty==='cement2'?2:(putty==='acrylic1'||putty==='cement1'?1:0);
  const acrylicPutty=putty.startsWith('acrylic'),puttyCoverage=acrylicPutty?41:22.5;
- const wallPaint=wall*wallCoats/wallCoverage*waste,ceilingPaint=ceil*wallCoats/wallCoverage*waste;
+ const groups={};
+ rooms.forEach(r=>{
+   if(r.wall<=0)return;
+   const coverage=calcCoverageForSelected(r.finish,condition);
+   const qty=r.wall*r.coats/coverage*waste;
+   const key=r.finish+'|'+r.coats;
+   groups[key]=groups[key]||{name:r.finish,qty:0,coats:r.coats,coverage};
+   groups[key].qty+=qty;
+ });
+ const ceilingKey=$('calcWallProduct')?.value||'Premium Interior Emulsion';
+ const ceilingCoats=Math.max(1,calcNum($('calcWallCoats')?.value||2));
+ const ceilingCoverage=calcCoverageForSelected(ceilingKey,condition);
+ const ceilingPaint=ceil*ceilingCoats/ceilingCoverage*waste;
  const primer=(wall+ceil)*primerCoats/100*waste;
  const puttyQty=(wall+ceil)*puttyCoats/puttyCoverage*waste;
  const surfaceRows=surfaces.map(s=>{
-   const coverage=s.product==='wood'?145:140, paint=s.area*s.coats/coverage*waste;
+   const coverage=s.product==='wood'?145:140,paint=s.area*s.coats/coverage*waste;
    const prim=s.primer==='yes'?s.area/100*waste:0;
    return {...s,paint,prim};
  });
  const surfacePaint=surfaceRows.reduce((a,x)=>a+x.paint,0),surfacePrimer=surfaceRows.reduce((a,x)=>a+x.prim,0);
  $('calcWallArea').textContent=calcCeil(wall).toLocaleString()+' sq.ft';
  $('calcCeilingArea').textContent=calcCeil(ceil).toLocaleString()+' sq.ft';
- $('calcExteriorArea').textContent='0 sq.ft';
+ $('calcExteriorArea').textContent=calcCeil(rooms.filter(r=>/exterior/i.test(r.finish)).reduce((a,r)=>a+r.wall,0)).toLocaleString()+' sq.ft';
  $('calcMetalArea').textContent=calcCeil(surfaces.reduce((a,x)=>a+x.area,0)).toLocaleString()+' sq.ft';
  const rows=[];
- if(wall+ceil>0){rows.push(['Interior Emulsion / Wall Finish',wallPaint+ceilingPaint,'L',wallCoverage,wallCoats,wall+ceil]);}
- if(primer>0)rows.push(['Wall Primer',(primer),'L',100,primerCoats,wall+ceil]);
+ Object.values(groups).forEach(g=>rows.push([g.name,g.qty,'L',g.coverage,g.coats,wall]));
+ if(ceilingPaint>0)rows.push(['Ceiling — '+ceilingKey,ceilingPaint,'L',ceilingCoverage,ceilingCoats,ceil]);
+ if(primer>0)rows.push(['Wall Primer',primer,'L',100,primerCoats,wall+ceil]);
  if(puttyQty>0)rows.push([acrylicPutty?'Acrylic Wall Putty':'Wall Putty',puttyQty,'kg',puttyCoverage,puttyCoats,wall+ceil]);
  if(surfacePaint>0)rows.push(['Enamel / Wood Finish',surfacePaint,'L',140,2,surfaces.reduce((a,x)=>a+x.area,0)]);
  if(surfacePrimer>0)rows.push(['Metal/Wood Primer',surfacePrimer,'L',100,1,surfaces.reduce((a,x)=>a+x.area,0)]);
  const totalLitres=rows.filter(r=>r[2]==='L').reduce((a,r)=>a+r[1],0);
- $('calcResults').innerHTML='<table class="calc-table"><tr><th>Material</th><th>Estimated Qty</th><th>Unit</th><th>Coverage basis</th><th>Coats</th></tr>'+
+ $('calcResults').innerHTML='<table class="calc-table"><tr><th>Material / Finish</th><th>Estimated Qty</th><th>Unit</th><th>Coverage basis</th><th>Coats</th></tr>'+
  rows.map(r=>'<tr><td><b>'+esc(r[0])+'</b></td><td class="num"><b>'+calcCeil(r[1]).toFixed(1)+'</b></td><td>'+r[2]+'</td><td>'+r[3]+' sq.ft/L or kg</td><td>'+r[4]+'</td></tr>').join('')+
  '</table><div class="estimate-total"><span>Planning quantity including '+Math.round((waste-1)*100)+'% site factor</span><br><strong>'+calcCeil(totalLitres).toFixed(1)+' L</strong> <span>paint/primer combined + '+calcCeil(puttyQty).toFixed(1)+' kg putty</span></div>';
- const roomCount=rooms.length;
- $('calcProfessionalNotes').innerHTML='<b>Professional estimate summary</b><br>'+roomCount+' room(s), '+calcCeil(wall)+' sq.ft net wall area and '+calcCeil(ceil)+' sq.ft ceiling area. Openings are deducted from each room using the entered door/window dimensions. Metal/wood surfaces are calculated separately with side count and coats.<br><br><b>Important:</b> coverage values are conservative planning defaults; product-specific technical data should take precedence. Fresh/repaint systems, substrate condition, colour change and application method can materially change consumption.';
+ $('calcProfessionalNotes').innerHTML='<b>Professional estimate summary</b><br>'+rooms.length+' room(s), '+calcCeil(wall)+' sq.ft net wall area and '+calcCeil(ceil)+' sq.ft ceiling area. Each room can use its own finish and coat count. Doors/windows are deducted from that room; grills, frames and other metal/wood surfaces are estimated separately with side count, top coats and primer.<br><br><b>Important:</b> coverage values are conservative planning defaults; product-specific technical data should take precedence. Fresh/repaint systems, colour change, substrate porosity and application method can materially change consumption.';
  window.__lastPaintEstimate={rooms,surfaces,wall,ceil,rows};
 }
 function calcInit(){
@@ -1732,7 +1741,7 @@ function calcInit(){
 }
 function calcUnitConvert(){
  const v=calcNum($('calcUnitValue')?.value||0),from=$('calcFromUnit')?.value||'sqft',to=$('calcToUnit')?.value||'sqft';
- const sqft=v*CALC_UNITS_SQFT[from],out=to?sfqt=sqft/CALC_UNITS_SQFT[to]:sqft;
+ const sqft=v*CALC_UNITS_SQFT[from],out=to?sqft/CALC_UNITS_SQFT[to]:sqft;
  if($('calcUnitResult'))$('calcUnitResult').textContent=out.toLocaleString(undefined,{maximumFractionDigits:2})+' '+CALC_LABELS[to];
 }
 function calcPrintEstimate(){
