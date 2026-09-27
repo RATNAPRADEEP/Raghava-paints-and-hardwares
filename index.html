@@ -1716,7 +1716,7 @@ function calcRecalculate(){
  $('calcResults').innerHTML='<table class="calc-table"><tr><th>Material / Finish</th><th>Estimated Qty</th><th>Unit</th><th>Coverage basis</th><th>Coats</th></tr>'+
  rows.map(r=>'<tr><td><b>'+esc(r[0])+'</b></td><td class="num"><b>'+calcCeil(r[1]).toFixed(1)+'</b></td><td>'+r[2]+'</td><td>'+r[3]+' sq.ft/L or kg</td><td>'+r[4]+'</td></tr>').join('')+
  '</table><div class="estimate-total"><span>Planning quantity including '+Math.round((waste-1)*100)+'% site factor</span><br><strong>'+calcCeil(totalLitres).toFixed(1)+' L</strong> <span>paint/primer combined + '+calcCeil(puttyQty).toFixed(1)+' kg putty</span></div>';
- $('calcProfessionalNotes').innerHTML='<b>Professional estimate summary</b><br>'+rooms.length+' room(s), '+calcCeil(wall)+' sq.ft net wall area and '+calcCeil(ceil)+' sq.ft ceiling area. Each room can use its own finish and coat count. Doors/windows are deducted from that room; grills, frames and other metal/wood surfaces are estimated separately with side count, top coats and primer.<br><br><b>Important:</b> coverage values are conservative planning defaults; product-specific technical data should take precedence. Fresh/repaint systems, colour change, substrate porosity and application method can materially change consumption.';
+
  window.__lastPaintEstimate={rooms,surfaces,wall,ceil,rows};
 }
 function calcInit(){
