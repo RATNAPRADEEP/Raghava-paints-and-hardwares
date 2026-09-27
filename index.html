@@ -67,6 +67,8 @@
   <div class="manage-promo-controls">
     <input id="managePromoUrl" type="url" placeholder="Paste YouTube video link">
     <button type="button" class="btn primary" id="managePromoLoad">Show Video</button>
+    <button type="button" class="btn" id="managePromoMute" title="Mute / unmute video">🔇 Mute</button>
+    <button type="button" class="btn" id="managePromoFullscreen" title="Maximize video">⛶ Max Screen</button>
   </div>
 </div>
 
@@ -1989,6 +1991,28 @@ function manageMaskPromoInput(){
  input.value='••••••••••••••••';
  input.readOnly=true;
 }
+function managePromoCommand(command){
+ const video=$('managePromoVideo');
+ if(!video||video.style.display==='none'||!video.contentWindow)return;
+ try{video.contentWindow.postMessage(JSON.stringify({event:'command',func:command,args:[]}),'https://www.youtube.com');}catch(e){}
+}
+function managePromoToggleMute(){
+ const btn=$('managePromoMute');
+ if(!btn)return;
+ const muted=btn.dataset.muted==='1';
+ managePromoCommand(muted?'unMute':'mute');
+ btn.dataset.muted=muted?'0':'1';
+ btn.textContent=muted?'🔊 Unmute':'🔇 Mute';
+}
+function managePromoFullscreen(){
+ const frame=$('managePromoFrame'),video=$('managePromoVideo');
+ if(!frame||!video||video.style.display==='none')return;
+ try{
+   if(document.fullscreenElement)document.exitFullscreen();
+   else if(video.requestFullscreen)video.requestFullscreen();
+   else if(frame.requestFullscreen)frame.requestFullscreen();
+ }catch(e){}
+}
 function manageLoadPromoVideo(){
  const input=$('managePromoUrl'),frame=$('managePromoVideo'),placeholder=$('managePromoPlaceholder');
  if(!input||!frame)return;
@@ -2007,6 +2031,8 @@ function manageLoadPromoVideo(){
 function manageInitPromoVideo(){
  const input=$('managePromoUrl'),btn=$('managePromoLoad');
  if(btn)btn.addEventListener('click',manageLoadPromoVideo);
+    const mute=$('managePromoMute'); if(mute)mute.addEventListener('click',managePromoToggleMute);
+    const full=$('managePromoFullscreen'); if(full)full.addEventListener('click',managePromoFullscreen);
  try{
    const id=localStorage.getItem('raghavaPromoYoutube');
    if(id&&input){
