@@ -2857,10 +2857,14 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
   if(libraryBtn){
     const status=document.createElement('div');
     status.className='ai-library-status';
-    status.style.gridColumn='1 / -1';
+    status.style.fontSize='11px';
+    status.style.color='#667085';
+    status.style.padding='6px 2px 0';
+    status.style.width='100%';
+    status.style.flexBasis='100%';
     status.setAttribute('role','status');
     status.setAttribute('aria-live','polite');
-    libraryBtn.parentElement.appendChild(status);
+    libraryBtn.closest('.ai-header').appendChild(status);
     libraryBtn.addEventListener('click',()=>buildAIProductLibrary(status,libraryBtn));
   }
   async function buildAIProductLibrary(status,button){
