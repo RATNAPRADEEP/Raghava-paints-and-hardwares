@@ -26,6 +26,8 @@
 .ai-shell{display:grid;gap:16px}.ai-header{display:flex;justify-content:space-between;align-items:flex-end;gap:18px}.ai-header h2{margin:5px 0 6px}.ai-header p{margin:0;color:#667085;font-size:12px}.ai-kicker{font-size:10px;letter-spacing:.16em;font-weight:850;color:#2457d6}.ai-card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden}.ai-messages{height:min(58vh,560px);min-height:360px;overflow:auto;padding:20px;background:#f8fafc;display:flex;flex-direction:column;gap:12px}.ai-message{max-width:min(820px,88%);padding:12px 14px;border-radius:14px;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}.ai-message.user{align-self:flex-end;background:#2457d6;color:#fff;border-bottom-right-radius:5px}.ai-message.assistant{align-self:flex-start;background:#fff;border:1px solid #e5e7eb;color:#182230;border-bottom-left-radius:5px}.ai-message.system{align-self:center;background:#f2f4f7;color:#667085;font-size:11px}.ai-typing{display:inline-flex;gap:4px;align-items:center}.ai-typing i{width:5px;height:5px;border-radius:50%;background:#98a2b3;animation:aiBounce 1s infinite ease-in-out}.ai-typing i:nth-child(2){animation-delay:.15s}.ai-typing i:nth-child(3){animation-delay:.3s}@keyframes aiBounce{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-3px);opacity:1}}.ai-prompts{display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid #edf0f3}.ai-prompt{border:1px solid #d9dee7;background:#fff;color:#344054;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:700;cursor:pointer}.ai-prompt:hover{background:#f7f9fc;border-color:#c8d5f5}.ai-input-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:14px;border-top:1px solid #edf0f3}.ai-input-row textarea{resize:none;min-height:44px;max-height:130px;border:1px solid #d9dee7;border-radius:10px;padding:11px 12px;font:inherit;line-height:1.4}.ai-input-row textarea:focus{outline:2px solid #dce7ff;border-color:#2457d6}.ai-input-row .btn{min-width:82px;align-self:end}.ai-note{padding:0 14px 14px;color:#98a2b3;font-size:10px;line-height:1.45}@media(max-width:700px){.ai-header{align-items:flex-start;flex-direction:column}.ai-messages{min-height:420px;height:55vh}.ai-message{max-width:94%}.ai-input-row{grid-template-columns:1fr}.ai-input-row .btn{width:100%}}
 <style id="ai-catalogue-css">
 .ai-capabilities{border:1px solid #e5e7eb;background:#fff;border-radius:16px;padding:16px}.ai-capability-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}.ai-capability-head b{display:block;font-size:13px}.ai-capability-head span{display:block;color:#98a2b3;font-size:10px;margin-top:3px}.ai-capability-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.ai-capability{display:grid;grid-template-columns:34px 1fr 18px;align-items:center;gap:9px;text-align:left;border:1px solid #e5e7eb;background:#fafbfc;border-radius:12px;padding:11px;cursor:pointer}.ai-capability:hover{background:#f7f9fc;border-color:#c8d5f5}.ai-capability>span{font-size:20px;text-align:center}.ai-capability b{display:block;font-size:11px;color:#182230}.ai-capability small{display:block;font-size:9px;color:#667085;line-height:1.4;margin-top:3px}.ai-capability>strong{color:#2457d6;text-align:right}.ai-catalogue-dialog{width:min(760px,94vw);padding:0;overflow:hidden}.ai-catalogue-form{padding:22px}.ai-catalogue-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}.ai-catalogue-head h3{margin:5px 0 4px;font-size:23px}.ai-catalogue-head p{margin:0;color:#667085;font-size:11px}.ai-catalogue-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ai-catalogue-grid label{font-size:11px;font-weight:750;display:grid;gap:5px}.ai-catalogue-grid .full{grid-column:1/-1}.ai-catalogue-grid input{font-size:12px}.ai-catalogue-preview-wrap{margin-top:16px}.ai-catalogue-preview-label{font-size:9px;letter-spacing:.14em;font-weight:850;color:#98a2b3}.ai-catalogue-preview{margin-top:7px;min-height:280px;border:1px dashed #d9dee7;border-radius:14px;background:#f8fafc;display:flex;align-items:center;justify-content:center;overflow:hidden}.ai-catalogue-preview canvas{display:block;max-width:100%;height:auto}.ai-catalogue-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:14px}.ai-catalogue-help{font-size:10px;line-height:1.5;color:#98a2b3;margin-top:10px}.ai-catalogue-help b{color:#667085}@media(max-width:700px){.ai-capability-grid,.ai-catalogue-grid{grid-template-columns:1fr}.ai-catalogue-grid .full{grid-column:auto}.ai-catalogue-form{padding:16px}.ai-catalogue-head{flex-direction:column}.ai-catalogue-head .btn{align-self:flex-end}}
+</style><style id="ai-product-library-css">
+.ai-library-status{margin-top:9px;font-size:10px;color:#667085;min-height:15px}.ai-library-status.ok{color:#067647}.ai-library-status.err{color:#b42318}
 </style></style></head>
 <body>
 <header class="top"><div><div class="eyebrow">LOCAL SHOP OPERATIONS</div><h1>Raghava Paints and Hardwares</h1></div><div><div class="connection"><span id="dot" class="dot"></span><span id="connectionText">Google Drive storage not connected</span></div><button id="connectBtn" class="btn primary">Connect Google Drive</button></div></header>
@@ -277,6 +279,7 @@
       <div class="ai-capability-head"><div><b>AI Capabilities</b><span>Quick tools customers can use</span></div></div>
       <div class="ai-capability-grid">
         <button type="button" class="ai-capability" id="aiCatalogueOpen"><span>🖼️</span><div><b>Product Catalogue Card</b><small>Create a shareable product card for WhatsApp or other apps.</small></div><strong>→</strong></button>
+        <button type="button" class="ai-capability" id="aiBuildLibrary"><span>📚</span><div><b>Build AI Product Library</b><small>Create product and subproduct cards + a searchable AI knowledge file in Google Drive.</small></div><strong>→</strong></button>
         <button type="button" class="ai-capability ai-capability-prompt" data-ai-prompt="What paint should I use for interior walls?"><span>🎨</span><div><b>Paint Recommendation</b><small>Get general paint selection guidance.</small></div><strong>→</strong></button>
         <button type="button" class="ai-capability ai-capability-prompt" data-ai-prompt="How should I prepare a wall before painting?"><span>🧱</span><div><b>Painting Tips</b><small>Get practical preparation and application tips.</small></div><strong>→</strong></button>
         <button type="button" class="ai-capability ai-capability-prompt" data-ai-prompt="Suggest a few suitable colour combinations for a living room."><span>🌈</span><div><b>Colour Suggestions</b><small>Explore suitable colour combinations.</small></div><strong>→</strong></button>
@@ -287,7 +290,7 @@
       <textarea id="aiInput" rows="1" maxlength="4000" placeholder="Ask the AI Assistant…" aria-label="Ask the AI Assistant"></textarea>
       <button id="aiSendBtn" type="submit" class="btn primary">Send</button>
     </form>
-    <div class="ai-note">AI Assistant is independent from your shop records. Product Catalogue Card uses only the details you enter in its card generator and does not change Inventory, Sales, Purchases, Estimate, Invoice, Contact Details or Google Drive data.</div>
+    <div class="ai-note">AI Product Library is read-only from your current catalogue. It creates a separate Google Drive folder containing shareable product/subproduct cards and customer-safe product information; it does not change Inventory, Sales, Purchases, Estimate, Invoice or Contact Details.</div>
   <dialog id="aiCatalogueDialog" class="ai-catalogue-dialog">
     <form id="aiCatalogueForm" class="ai-catalogue-form">
       <div class="ai-catalogue-head"><div><span class="ai-kicker">SHAREABLE PRODUCT CARD</span><h3>Product Catalogue Card</h3><p>Create a clean product image for WhatsApp or other sharing apps.</p></div><button type="button" class="btn" id="aiCatalogueClose">Close</button></div>
@@ -2369,6 +2372,20 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
     history.length=0;
     addMessage('assistant','Hi! I’m the Raghava Paints AI Assistant. I can help with paint selection, painting methods, colours, tools and general painting questions.');
   }
+  function getAIProductContext(question){
+    const q=String(question||'').toLowerCase();
+    const tokens=q.split(/[^a-z0-9]+/).filter(x=>x.length>=2);
+    const score=item=>{
+      const hay=[item.kind,item.sku,item.name,item.brand,item.type,item.category,item.variant,item.size,item.shade,item.finish,item.barcode].join(' ').toLowerCase();
+      return tokens.reduce((n,t)=>n+(hay.includes(t)?1:0),0);
+    };
+    const rows=[
+      ...(Array.isArray(window.db?.products)?window.db.products:[]).map(p=>({kind:'main product',sku:p.sku,name:p.name,brand:p.brand,type:p.type,shade:p.shade,finish:p.finish,size:p.packSize,unit:p.unit,sellingPrice:p.sell,gstPercent:p.gst,barcode:p.barcode,verifiedOn:p.verifiedOn,source:p.source})),
+      ...(Array.isArray(window.db?.subproducts)?window.db.subproducts:[]).map(p=>({kind:'subproduct',sku:p.sku,name:p.name,brand:p.brand,category:p.category,variant:p.variant,size:p.size,unit:p.unit,sellingPrice:p.sell,gstPercent:p.gst,barcode:p.barcode,verifiedOn:p.verifiedOn,source:p.source,notes:p.notes}))
+    ];
+    const ranked=rows.map((x,i)=>({x,i,s:score(x)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,8).map(x=>x.x);
+    return ranked;
+  }
   function typing(){
     const el=document.createElement('div');
     el.className='ai-message assistant';
@@ -2380,7 +2397,7 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
     addMessage('user',q); input.value=''; input.style.height='auto'; send.disabled=true;
     const wait=typing();
     try{
-      const res=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,history:history.slice(-8)})});
+      const res=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,history:history.slice(-8),productContext:getAIProductContext(q)})});
       const data=await res.json().catch(()=>({}));
       if(!res.ok)throw new Error(data.error||'AI service is unavailable.');
       const answer=String(data.answer||'').trim()||'I could not generate a response. Please try again.';
@@ -2394,7 +2411,54 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
   input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit()}});
   input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,130)+'px'});
   clear?.addEventListener('click',welcome);
-  document.querySelectorAll('.ai-prompt').forEach(b=>b.addEventListener('click',()=>ask(b.dataset.aiPrompt)));
+  document.querySelectorAll('.ai-prompt,.ai-capability-prompt').forEach(b=>b.addEventListener('click',()=>ask(b.dataset.aiPrompt)));
+  const libraryBtn=$('aiBuildLibrary');
+  if(libraryBtn){
+    const status=document.createElement('div');status.className='ai-library-status';libraryBtn.parentElement.parentElement.parentElement.appendChild(status);
+    libraryBtn.addEventListener('click',()=>buildAIProductLibrary(status,libraryBtn));
+  }
+  async function buildAIProductLibrary(status,button){
+    if(!window.accessToken||!window.driveFetch){status.textContent='Connect Google Drive first, then build the AI Product Library.';status.className='ai-library-status err';return;}
+    const products=Array.isArray(window.db?.products)?window.db.products:[],subs=Array.isArray(window.db?.subproducts)?window.db.subproducts:[];
+    if(!products.length&&!subs.length){status.textContent='No products or subproducts are loaded. Connect your shop workbook first.';status.className='ai-library-status err';return;}
+    button.disabled=true;const old=button.innerHTML;button.innerHTML='<span>⏳</span><div><b>Building Library…</b><small>Uploading cards to Google Drive</small></div><strong>…</strong>';
+    try{
+      const folderName='Raghava_Paints_Hardwares_AI_Product_Library';
+      const q="name='"+folderName.replace(/'/g,"\\'")+"' and mimeType='application/vnd.google-apps.folder' and trashed=false";
+      const fr=await driveFetch('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent(q)+'&fields=files(id,name)&pageSize=10');
+      if(!fr.ok)throw Error('Could not access Google Drive.');
+      const fj=await fr.json();let folder=fj.files?.[0]?.id;
+      if(!folder){const cr=await driveFetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:folderName,mimeType:'application/vnd.google-apps.folder'})});if(!cr.ok)throw Error('Could not create the AI Product Library folder.');folder=(await cr.json()).id}
+      const cleanMain=p=>({type:'Main Product',id:p.id,sku:p.sku,name:p.name,brand:p.brand,productType:p.type,shade:p.shade,finish:p.finish,packSize:p.packSize,unit:p.unit,sellingPrice:p.sell,gstPercent:p.gst,barcode:p.barcode,verifiedOn:p.verifiedOn,source:p.source});
+      const cleanSub=p=>({type:'Subproduct',id:p.id,sku:p.sku,name:p.name,brand:p.brand,category:p.category,variant:p.variant,size:p.size,unit:p.unit,sellingPrice:p.sell,gstPercent:p.gst,barcode:p.barcode,verifiedOn:p.verifiedOn,source:p.source,notes:p.notes});
+      const knowledge={generatedAt:new Date().toISOString(),source:'Raghava Paints & Hardwares connected catalogue',records:[...products.filter(p=>p&&p.active!==false).map(cleanMain),...subs.filter(p=>p&&p.active!==false).map(cleanSub)]};
+      async function upsert(name,mime,blob){
+        const qq="'"+folder+"' in parents and name='"+name.replace(/'/g,"\\'")+"' and trashed=false";
+        const lr=await driveFetch('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent(qq)+'&fields=files(id,name)&pageSize=10');if(!lr.ok)throw Error('Could not search the AI library.');
+        const lf=await lr.json();let id=lf.files?.[0]?.id;
+        if(!id){const mr=await driveFetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,parents:[folder],mimeType})});if(!mr.ok)throw Error('Could not create '+name+'.');id=(await mr.json()).id}
+        const ur=await driveFetch('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(id)+'?uploadType=media&supportsAllDrives=true',{method:'PATCH',headers:{'Content-Type':mime},body:blob});if(!ur.ok)throw Error('Could not upload '+name+'.');return id;
+      }
+      await upsert('AI_Product_Knowledge.json','application/json',new Blob([JSON.stringify(knowledge,null,2)],{type:'application/json'}));
+      const items=[...products.filter(p=>p&&p.active!==false).map(p=>({...cleanMain(p),_title:p.name||'product'})),...subs.filter(p=>p&&p.active!==false).map(p=>({...cleanSub(p),_title:p.name||'subproduct'}))];
+      const escText=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+      const makeCard=item=>new Promise(resolve=>{
+        const c=document.createElement('canvas');c.width=1200;c.height=1500;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,1200,1500);x.fillStyle='#172033';x.fillRect(0,0,1200,180);
+        x.fillStyle='#fff';x.font='700 32px Arial';x.fillText('RAGHAVA PAINTS & HARDWARES',60,70);x.fillStyle='#cbd5e1';x.font='500 21px Arial';x.fillText(item.type.toUpperCase(),60,115);
+        let y=245;x.fillStyle='#2457d6';x.font='700 24px Arial';x.fillText(item.brand||'PAINTS & HARDWARES',60,y);y+=75;
+        x.fillStyle='#182230';x.font='700 46px Arial';const title=String(item._title).slice(0,34);x.fillText(title,60,y);y+=62;
+        x.fillStyle='#667085';x.font='400 27px Arial';
+        const lines=[];if(item.productType)lines.push('Type: '+item.productType);if(item.category)lines.push('Category: '+item.category);if(item.variant)lines.push('Variant: '+item.variant);if(item.shade)lines.push('Shade / Colour: '+item.shade);if(item.finish)lines.push('Finish: '+item.finish);if(item.packSize)lines.push('Pack Size: '+item.packSize+' '+(item.unit||''));if(item.size&&!item.packSize)lines.push('Size: '+item.size+' '+(item.unit||''));if(item.sellingPrice!==''&&item.sellingPrice!=null)lines.push('Selling Price: ₹'+Number(item.sellingPrice||0).toLocaleString('en-IN'));if(item.gstPercent)lines.push('GST: '+item.gstPercent+'%');if(item.sku)lines.push('SKU: '+item.sku);if(item.barcode)lines.push('Barcode: '+item.barcode);
+        lines.forEach(line=>{x.fillText(line.slice(0,58),60,y);y+=52});if(item.notes){x.fillStyle='#344054';x.font='400 22px Arial';x.fillText('Notes: '+String(item.notes).slice(0,75),60,y+20)}
+        x.fillStyle='#98a2b3';x.font='400 19px Arial';x.fillText('Ask the Raghava Paints AI Assistant for product details.',60,1405);
+        c.toBlob(b=>resolve(b),'image/png');
+      });
+      let done=0;const concurrency=4;
+      for(let i=0;i<items.length;i+=concurrency){await Promise.all(items.slice(i,i+concurrency).map(async item=>{const safe=(item.sku||item._title||item.id).replace(/[^a-z0-9_-]+/gi,'_').slice(0,70);await upsert((item.type==='Main Product'?'Product_':'Subproduct_')+safe+'_'+item.id+'.png','image/png',await makeCard(item));done++;status.textContent='AI Product Library: '+done+'/'+items.length+' cards uploaded…'}))}
+      status.textContent='AI Product Library ready: '+items.length+' cards + AI_Product_Knowledge.json in Google Drive.';status.className='ai-library-status ok';
+    }catch(e){status.textContent=e.message||'Could not build the AI Product Library.';status.className='ai-library-status err'}
+    finally{button.disabled=false;button.innerHTML=old}
+  }
   welcome();
 })();
 <script>
