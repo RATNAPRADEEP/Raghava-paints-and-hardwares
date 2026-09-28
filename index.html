@@ -2414,11 +2414,36 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
   document.querySelectorAll('.ai-prompt,.ai-capability-prompt').forEach(b=>b.addEventListener('click',()=>ask(b.dataset.aiPrompt)));
   const libraryBtn=$('aiBuildLibrary');
   if(libraryBtn){
-    const status=document.createElement('div');status.className='ai-library-status';libraryBtn.parentElement.parentElement.parentElement.appendChild(status);
+    const status=document.createElement('div');
+    status.className='ai-library-status';
+    status.style.gridColumn='1 / -1';
+    status.setAttribute('role','status');
+    status.setAttribute('aria-live','polite');
+    libraryBtn.parentElement.appendChild(status);
     libraryBtn.addEventListener('click',()=>buildAIProductLibrary(status,libraryBtn));
   }
   async function buildAIProductLibrary(status,button){
-    if(!accessToken||!driveFetch){status.textContent='Connect Google Drive first, then build the AI Product Library.';status.className='ai-library-status err';return;}
+    status.textContent='Starting AI Product Library…';
+    status.className='ai-library-status';
+    if(typeof driveFetch!=='function'){
+      status.textContent='Google Drive connection is not available on this page. Refresh once and try again.';
+      status.className='ai-library-status err';
+      return;
+    }
+    try{
+      if(!accessToken){
+        status.textContent='Connecting to Google Drive…';
+        await Promise.all([gapiReady,gisReady]);
+        await requestToken('');
+      }
+      if(!accessToken){
+        throw Error('Google Drive is not connected. Click Connect Google Drive first.');
+      }
+    }catch(e){
+      status.textContent=e.message||'Could not connect to Google Drive.';
+      status.className='ai-library-status err';
+      return;
+    }
     const products=Array.isArray(db?.products)?db.products:[],subs=Array.isArray(db?.subproducts)?db.subproducts:[];
     if(!products.length&&!subs.length){status.textContent='No products or subproducts are loaded. Connect your shop workbook first.';status.className='ai-library-status err';return;}
     button.disabled=true;const old=button.innerHTML;button.innerHTML='<span>⏳</span><div><b>Building Library…</b><small>Uploading cards to Google Drive</small></div><strong>…</strong>';
