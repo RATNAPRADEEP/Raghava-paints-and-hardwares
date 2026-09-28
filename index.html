@@ -2566,7 +2566,19 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       }
       return wrap;
     }
-    if(/^COLOR_SUGGESTIONS:/i.test(title)){\n      let data=null;\n      try{data=JSON.parse(title.replace(/^COLOR_SUGGESTIONS:\\s*/i,''))}catch(e){}\n      if(data&&Array.isArray(data.palettes)){\n        const h=document.createElement('div');h.className='ai-answer-title';h.innerHTML='<span>🌈</span><div><b>Colour Combinations for '+escapeAIHtml(data.room||'your room')+'</b><small>Wall palettes with a main colour and accent colour</small></div>';wrap.appendChild(h);\n        const grid=document.createElement('div');grid.className='ai-colour-grid';\n        data.palettes.forEach(p=>{const card=document.createElement('div');card.className='ai-colour-card';card.innerHTML='<div class="ai-colour-swatches"><span style="background:'+escapeAIHtml(p.mainHex)+'" title="'+escapeAIHtml(p.main)+'"></span><span style="background:'+escapeAIHtml(p.accentHex)+'" title="'+escapeAIHtml(p.accent)+'"></span></div><b>'+escapeAIHtml(p.name)+'</b><small>'+escapeAIHtml(p.main)+' + '+escapeAIHtml(p.accent)+'</small><p>'+escapeAIHtml(p.use)+'</p>';grid.appendChild(card)});\n        wrap.appendChild(grid);\n        const note=document.createElement('p');note.className='ai-answer-note';note.textContent='These are room colour palettes, not product recommendations. If you want, ask for a specific brand or product shade to match one of these palettes.';wrap.appendChild(note);\n        return wrap;\n      }\n    }\n    if(isOverview){
+    if(/^COLOR_SUGGESTIONS:/i.test(title)){
+      let data=null;
+      try{data=JSON.parse(title.replace(/^COLOR_SUGGESTIONS:\s*/i,''))}catch(e){}
+      if(data&&Array.isArray(data.palettes)){
+        const h=document.createElement('div');h.className='ai-answer-title';h.innerHTML='<span>🌈</span><div><b>Colour Combinations for '+escapeAIHtml(data.room||'your room')+'</b><small>Wall palettes with a main colour and accent colour</small></div>';wrap.appendChild(h);
+        const grid=document.createElement('div');grid.className='ai-colour-grid';
+        data.palettes.forEach(p=>{const card=document.createElement('div');card.className='ai-colour-card';card.innerHTML='<div class="ai-colour-swatches"><span style="background:'+escapeAIHtml(p.mainHex)+'" title="'+escapeAIHtml(p.main)+'"></span><span style="background:'+escapeAIHtml(p.accentHex)+'" title="'+escapeAIHtml(p.accent)+'"></span></div><b>'+escapeAIHtml(p.name)+'</b><small>'+escapeAIHtml(p.main)+' + '+escapeAIHtml(p.accent)+'</small><p>'+escapeAIHtml(p.use)+'</p>';grid.appendChild(card)});
+        wrap.appendChild(grid);
+        const note=document.createElement('p');note.className='ai-answer-note';note.textContent='These are room colour palettes, not product recommendations. If you want, ask for a specific brand or product shade to match one of these palettes.';wrap.appendChild(note);
+        return wrap;
+      }
+    }
+    if(isOverview){
       let data=[];
       const dataLine=lines.find(x=>/^CATEGORY_DATA:/i.test(x));
       if(dataLine){try{data=JSON.parse(dataLine.replace(/^CATEGORY_DATA:\s*/i,''))||[]}catch(e){data=[]}}
