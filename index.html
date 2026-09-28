@@ -73,16 +73,25 @@
 .ai-all-products{margin-top:0;margin-bottom:12px;border-top:1px solid #edf0f3;padding-top:10px}.ai-all-products>summary{cursor:pointer;font-size:11px;font-weight:800;color:#2457d6}
 .ai-all-products .ai-product-list{margin-top:8px}
 @media(max-width:760px){.ai-recommend-grid{grid-template-columns:1fr}.ai-salesman-intro{padding:12px}}
+</style><style id="ai-workspace-css">
+.ai-workspace-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(330px,.85fr);gap:16px;align-items:start}
+.ai-chat-column,.ai-capabilities-column{min-width:0}
+.ai-chat-column .ai-messages{min-height:430px}
+.ai-capabilities-column .ai-capabilities{height:100%;box-sizing:border-box}
+.ai-header-search{flex:3 1 900px;min-width:700px;max-width:none}
+@media(max-width:1250px){.ai-header-search{min-width:450px;flex:2 1 600px}.ai-workspace-grid{grid-template-columns:minmax(0,1.4fr) minmax(300px,.8fr)}}
+@media(max-width:900px){.ai-workspace-grid{grid-template-columns:1fr}.ai-header-search{min-width:300px;flex:1 1 auto}.ai-chat-column .ai-messages{min-height:320px}}
+@media(max-width:700px){.ai-header-search{min-width:0;width:100%;order:3}.ai-header{flex-wrap:wrap}}
 </style><style id="ai-assistant-css">
 .ai-shell{display:grid;gap:16px}.ai-header{display:flex;justify-content:space-between;align-items:flex-end;gap:18px}.ai-header h2{margin:5px 0 6px}.ai-header p{margin:0;color:#667085;font-size:12px}.ai-kicker{font-size:10px;letter-spacing:.16em;font-weight:850;color:#2457d6}.ai-card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden}.ai-messages{height:min(58vh,560px);min-height:360px;overflow:auto;padding:20px;background:#f8fafc;display:flex;flex-direction:column;gap:12px}.ai-message{max-width:min(820px,88%);padding:12px 14px;border-radius:14px;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}.ai-message.user{align-self:flex-end;background:#2457d6;color:#fff;border-bottom-right-radius:5px}.ai-message.assistant{align-self:flex-start;background:#fff;border:1px solid #e5e7eb;color:#182230;border-bottom-left-radius:5px}.ai-message.system{align-self:center;background:#f2f4f7;color:#667085;font-size:11px}.ai-typing{display:inline-flex;gap:4px;align-items:center}.ai-typing i{width:5px;height:5px;border-radius:50%;background:#98a2b3;animation:aiBounce 1s infinite ease-in-out}.ai-typing i:nth-child(2){animation-delay:.15s}.ai-typing i:nth-child(3){animation-delay:.3s}@keyframes aiBounce{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-3px);opacity:1}}.ai-prompts{display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid #edf0f3}.ai-prompt{border:1px solid #d9dee7;background:#fff;color:#344054;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:700;cursor:pointer}.ai-prompt:hover{background:#f7f9fc;border-color:#c8d5f5}.ai-input-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:14px;border-top:1px solid #edf0f3}.ai-input-row textarea{resize:none;min-height:44px;max-height:130px;border:1px solid #d9dee7;border-radius:10px;padding:11px 12px;font:inherit;line-height:1.4}.ai-input-row textarea:focus{outline:2px solid #dce7ff;border-color:#2457d6}.ai-input-row .btn{min-width:82px;align-self:end}.ai-note{padding:0 14px 14px;color:#98a2b3;font-size:10px;line-height:1.45}@media(max-width:700px){.ai-header{align-items:flex-start;flex-direction:column}.ai-messages{min-height:420px;height:55vh}.ai-message{max-width:94%}.ai-input-row{grid-template-columns:1fr}.ai-input-row .btn{width:100%}}
 <style id="ai-layout-fix">
 .ai-header{display:flex!important;flex-direction:row!important;justify-content:space-between!important;align-items:flex-end!important;gap:24px!important;position:relative!important}
 .ai-header>div:first-child{flex:1 1 auto!important;min-width:0!important}
 .ai-title-block{min-width:250px;flex:0 0 auto}
-.ai-header-search{display:flex;align-items:center;gap:7px;flex:1;min-width:300px;max-width:620px}
-.ai-header-search textarea{height:42px;min-height:42px;max-height:42px;resize:none;flex:1;border:1px solid #dfe4ec;border-radius:11px;background:#fff;padding:11px 13px;font:inherit;font-size:12px;color:#172033;outline:none;box-sizing:border-box}
+.ai-header-search{display:flex;align-items:center;gap:9px;flex:3 1 900px;min-width:700px;max-width:none}
+.ai-header-search textarea{height:50px;min-height:50px;max-height:50px;resize:none;flex:1;border:1px solid #dfe4ec;border-radius:11px;background:#fff;padding:11px 13px;font:inherit;font-size:12px;color:#172033;outline:none;box-sizing:border-box}
 .ai-header-search textarea:focus{border-color:#2457d6;box-shadow:0 0 0 3px rgba(36,87,214,.08)}
-.ai-header-search .btn{height:42px;min-width:68px;padding:0 15px;border-radius:11px}
+.ai-header-search .btn{height:50px;min-width:54px;width:54px;padding:0;border-radius:12px;font-size:24px;line-height:1}
 .ai-header-actions{display:flex!important;flex-direction:row!important;align-items:flex-end!important;justify-content:flex-end!important;gap:10px!important;flex:0 0 auto!important;margin-left:auto!important;min-width:max-content!important;white-space:nowrap!important}
 .ai-top-action{width:96px!important;height:52px!important;padding:7px 8px!important;border:1px solid #d9e2f0!important;border-radius:12px!important;background:linear-gradient(180deg,#fff 0%,#f8fafc 100%)!important;color:#172033!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;cursor:pointer!important;box-shadow:0 3px 10px rgba(16,24,40,.06)!important;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease!important}
 .ai-top-action span{font-size:18px!important;line-height:1!important}
@@ -383,7 +392,7 @@
     <div class="ai-title-block"><div class="ai-kicker">08 / AI ASSISTANT</div><h2>AI Assistant</h2><p>Ask questions about paints, painting methods, colours, tools and general shop knowledge.</p></div>
     <form id="aiChatForm" class="ai-header-search">
       <textarea id="aiInput" rows="1" maxlength="4000" placeholder="Search or ask the AI Assistant…" aria-label="Search or ask the AI Assistant"></textarea>
-      <button id="aiSendBtn" type="submit" class="btn primary" aria-label="Send">Send</button>
+      <button id="aiSendBtn" type="submit" class="btn primary" aria-label="Send" title="Ask AI">→</button>
     </form>
     <div class="ai-header-actions">
       <button type="button" id="aiCheckCatalogue" class="ai-top-action" title="Check catalogue updates" aria-label="Check catalogue updates"><span>🔄</span><b>Updates</b></button>
@@ -392,15 +401,14 @@
     </div>
   </div>
   <div class="ai-card">
-    <div id="aiMessages" class="ai-messages" aria-live="polite"></div>
-    <div class="ai-capabilities">
+    <div class="ai-workspace-grid"><div class="ai-chat-column">    <div id="aiMessages" class="ai-messages" aria-live="polite"></div></div><div class="ai-capabilities-column">    <div class="ai-capabilities">
       <div class="ai-capability-head"><div><b>AI Capabilities</b><span>Quick tools customers can use</span></div></div>
       <div class="ai-capability-grid">
         <button type="button" class="ai-capability" id="aiCatalogueOpen"><span>🖼️</span><div><b>Product Catalogue Card</b><small>Create a shareable product card for WhatsApp or other apps.</small></div><strong>→</strong></button>
         <button type="button" class="ai-capability ai-capability-prompt" data-ai-prompt="What paint should I use for interior walls?"><span>🎨</span><div><b>Paint Recommendation</b><small>Get general paint selection guidance.</small></div><strong>→</strong></button>
         <button type="button" class="ai-capability ai-capability-prompt" data-ai-prompt="Suggest a few suitable colour combinations for a living room."><span>🌈</span><div><b>Colour Suggestions</b><small>Explore suitable colour combinations.</small></div><strong>→</strong></button>
       </div>
-    </div>
+    </div></div></div>
     <div class="ai-note">AI Product Library uses a separate Google Drive catalogue as its AI product source. Build it from the current catalogue, then use Check Catalogue Updates to review official web changes before updating Drive. containing shareable product/subproduct cards and customer-safe product information; it does not change Inventory, Sales, Purchases, Estimate, Invoice or Contact Details.</div>
   <dialog id="aiCatalogueDialog" class="ai-catalogue-dialog">
     <form id="aiCatalogueForm" class="ai-catalogue-form">
