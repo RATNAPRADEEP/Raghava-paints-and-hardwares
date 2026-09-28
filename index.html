@@ -2758,7 +2758,13 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       const cat=inferCategory(r);if(cat)ans+='Category: '+esc(cat)+'\n';
       if(clean(r.type))ans+='Type: '+esc(r.type)+'\n';
       if(clean(r.variant))ans+='Variant: '+esc(r.variant)+'\n';
-      if(clean(r.size))ans+='Pack Size: '+esc(r.size)+(clean(r.unit)?' '+esc(r.unit):'')+'\n';
+      const linkedProduct=activeProducts().find(p=>String(p.id)===String(r.id)) || activeProducts().find(p=>String(p.name||'').trim().toLowerCase()===String(r.name||'').trim().toLowerCase());
+      const availablePacks=linkedProduct?productSizes(linkedProduct.id):[];
+      if(availablePacks.length){
+        ans+='Available Pack Sizes: '+availablePacks.map(x=>displaySize(x.size,x.unit)).join(', ')+'\n';
+      }else if(clean(r.size)){
+        ans+='Pack Size: '+esc(r.size)+(clean(r.unit)?' '+esc(r.unit):'')+'\n';
+      }
       if(clean(r.sellingPrice))ans+='Price: '+money(r.sellingPrice)+(clean(r.unit)?' / '+esc(r.unit):'')+'\n';
       if(clean(r.shade))ans+='Shade / Colour: '+esc(r.shade)+'\n';
       if(clean(r.finish))ans+='Finish: '+esc(r.finish)+'\n';
