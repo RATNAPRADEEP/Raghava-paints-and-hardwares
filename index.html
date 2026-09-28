@@ -2418,19 +2418,39 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
     el.innerHTML='<span class="ai-typing"><i></i><i></i><i></i></span>';
     messages.appendChild(el);messages.scrollTop=messages.scrollHeight;return el;
   }
+  function money(v){const n=Number(v);return Number.isFinite(n)&&n>0?'₹'+n.toLocaleString('en-IN',{maximumFractionDigits:2}):''}
+  function localCatalogueAnswer(q,rows){
+    const l=q.toLowerCase();
+    const productWords=/product|paint|emulsion|primer|putty|enamel|thinner|brush|roller|tool|hardware|shade|colour|color|price|cost|mrp|size|pack|available|catalogue|catalog|sku|barcode|finish|brand|asian paints/i;
+    const tokens=l.split(/[^a-z0-9]+/).filter(x=>x.length>=3);
+    const matches=rows.filter(r=>{const h=[r.name,r.brand,r.type,r.category,r.variant,r.size,r.shade,r.finish,r.sku,r.barcode,r.unit].join(' ').toLowerCase();return tokens.some(t=>h.includes(t))});
+    if(productWords.test(l)&&matches.length){
+      const unique=[];const seen=new Set();matches.forEach(r=>{const k=String(r.name||'').toLowerCase();if(k&&!seen.has(k)){seen.add(k);unique.push(r)}});
+      const show=unique.slice(0,8);
+      let ans='I found '+unique.length+' matching catalogue item'+(unique.length===1?'':'s')+' in the Google Drive AI Product Library:\n\n';
+      ans+=show.map((r,i)=>(i+1)+'. '+(r.name||'Unnamed product')+(r.brand?' — '+r.brand:'')+(r.size?' — '+r.size:'')+(r.sellingPrice!==''&&r.sellingPrice!=null?' — '+money(r.sellingPrice):'')+(r.unit?' / '+r.unit:'')+(r.shade?' — Shade: '+r.shade:'')+(r.finish?' — Finish: '+r.finish:'')).join('\n');
+      if(unique.length>8)ans+='\n\nShowing the first 8 matches. Ask with a more specific product name, size, or brand for narrower results.';
+      return ans;
+    }
+    if(productWords.test(l)&&!matches.length)return 'I could not find a matching product in the current Google Drive catalogue. Try the product name, brand, category, pack size, or SKU.';
+    if(/hello|hi|hey|namaste/i.test(l))return 'Hello! I can search the Raghava Paints & Hardwares product catalogue and give practical painting and tool guidance. Ask me about a product, price, pack size, shade, finish, brush, roller, primer, or paint.';
+    if(/how.*(prepare|paint)|wall.*prepare|surface/i.test(l))return 'For most wall-painting jobs: clean the surface, remove loose or peeling material, repair cracks and holes, allow repairs to dry, sand where needed, remove dust, apply the appropriate primer, then apply the recommended finish coats according to the product instructions.';
+    if(/roller|brush|tool/i.test(l))return 'Choose the brush or roller according to the coating and surface. A quality roller is generally suitable for broad wall areas, while brushes are useful for edges, corners and smaller areas. Use the tool size and nap/type recommended for the selected coating.';
+    if(/colour|color|combination/i.test(l))return 'For colour selection, consider room size, natural light, existing furniture and the desired mood. Light neutrals can make smaller rooms feel more open; stronger accent colours can be used on one feature wall.';
+    if(/interior|exterior|primer|putty|emulsion|waterproof/i.test(l))return 'Tell me the surface and location (for example, interior wall, exterior wall, metal or wood), and I can help you narrow the suitable paint or preparation product from the catalogue.';
+    return 'I can search the Google Drive product catalogue without an external AI API. Ask me a product question, such as “Asian Paints 20L products”, “What is the price of this product?”, or “Show me brushes”.';
+  }
   async function ask(question){
     const q=String(question||'').trim(); if(!q)return;
     addMessage('user',q); input.value=''; input.style.height='auto'; send.disabled=true;
     const wait=typing();
     try{
-      const res=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,history:history.slice(-8),productContext:await getAIProductContext(q)})});
-      const data=await res.json().catch(()=>({}));
-      if(!res.ok)throw new Error(data.error||'AI service is unavailable.');
-      const answer=String(data.answer||'').trim()||'I could not generate a response. Please try again.';
+      const rows=await getAIProductContext(q);
+      const answer=localCatalogueAnswer(q,rows);
       wait.remove(); addMessage('assistant',answer);
       history.push({role:'user',content:q},{role:'assistant',content:answer});
     }catch(err){
-      wait.remove(); addMessage('system',err.message||'Unable to connect to the AI assistant.');
+      wait.remove(); addMessage('system',err.message||'Unable to read the Google Drive catalogue.');
     }finally{send.disabled=false;input.focus();}
   }
   form.addEventListener('submit',e=>{e.preventDefault();ask(input.value)});
