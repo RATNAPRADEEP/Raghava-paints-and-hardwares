@@ -2641,8 +2641,15 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       const filtered=scope.filter(r=>reTest(categoryHit[1],r));
       if(filtered.length)return categoryOverview(categoryHit[0],filtered,brandMatch);
     }
-    const broad=/\b(show|list|what|which|give|tell|details?|range|categories?|types?|products?|catalogue|catalog)\b/i.test(l) &&
-      (!tokens.length || tokens.length<=3 || !!brandMatch || /\b(products?|catalogue|catalog)\b/i.test(l));
+    const asksOverview=/\b(show|list|what|which|give|tell)\b/i.test(l) &&
+      /\b(products?|catalogue|catalog|categories?|types?|price\s*range|brands?)\b/i.test(l);
+    const asksSpecificDetails=/\b(details?|information|info|about|specifications?|specs?|price|pack|size|shade|colour|color|finish|sku|barcode)\b/i.test(l) &&
+      tokens.length>0 && !brandMatch;
+    const broad=!asksSpecificDetails && (
+      (!tokens.length && /\b(products?|catalogue|catalog|categories?|types?)\b/i.test(l)) ||
+      !!brandMatch ||
+      asksOverview && tokens.length<=1
+    );
     if(broad){
       return overallOverview(scope,brandMatch);
     }
