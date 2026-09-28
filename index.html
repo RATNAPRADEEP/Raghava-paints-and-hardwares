@@ -2460,10 +2460,21 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
         try{
           const merged=[...(Array.isArray(current.records)?current.records:[])];
           updates.forEach(u=>{const i=merged.findIndex(x=>String(x.name||'').toLowerCase()===String(u.name||'').toLowerCase());if(i>=0)merged[i]={...merged[i],sellingPrice:u.pricePerLitre??merged[i].sellingPrice,webSource:u.source,webCheckedOn:data.checkedAt,updateType:u.change||'web catalogue update'};else merged.push({type:'Web Catalogue Product',id:'web-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),name:u.name,brand:u.brand||'Asian Paints',category:u.category||'',sellingPrice:u.pricePerLitre??'',unit:'per L',source:u.source,webCheckedOn:data.checkedAt,updateType:'new web catalogue item'});});
-          const save=await fetch('/api/catalogue-drive-update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({records:merged,checkedAt:data.checkedAt})});
-          const sj=await save.json().catch(()=>({}));if(!save.ok)throw Error(sj.error||'Could not prepare Drive update.');
-          aiDriveKnowledgeCache=sj.knowledge;aiDriveKnowledgeAt=Date.now();
-          panel.innerHTML='<b style="color:#067647">Drive catalogue updated.</b> '+sj.count+' records saved to AI_Product_Knowledge.json.';
+          if(typeof driveFetch!=='function'||!accessToken)throw Error('Connect Google Drive first.');
+          const folderName='Raghava_Paints_Hardwares_AI_Product_Library';
+          const fq="name='"+folderName+"' and mimeType='application/vnd.google-apps.folder' and trashed=false";
+          const fr=await driveFetch('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent(fq)+'&fields=files(id,name)&pageSize=10');
+          if(!fr.ok)throw Error('Could not access the AI Product Library folder.');
+          const fj=await fr.json();const folder=fj.files?.[0]?.id;if(!folder)throw Error('AI Product Library folder was not found. Build the library first.');
+          const fileQ="'"+folder+"' in parents and name='AI_Product_Knowledge.json' and trashed=false";
+          const kr=await driveFetch('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent(fileQ)+'&fields=files(id,name)&pageSize=10');
+          if(!kr.ok)throw Error('Could not find AI_Product_Knowledge.json.');
+          const kj=await kr.json();const file=kj.files?.[0];if(!file)throw Error('AI_Product_Knowledge.json was not found. Build the library first.');
+          const knowledge={generatedAt:data.checkedAt,source:'Raghava Paints & Hardwares connected catalogue + official web catalogue updates',records:merged};
+          const ur=await driveFetch('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(file.id)+'?uploadType=media&supportsAllDrives=true',{method:'PATCH',headers:{'Content-Type':'application/json'},body:new Blob([JSON.stringify(knowledge,null,2)],{type:'application/json'})});
+          if(!ur.ok)throw Error('Could not save the updated catalogue to Google Drive.');
+          aiDriveKnowledgeCache=knowledge;aiDriveKnowledgeAt=Date.now();
+          panel.innerHTML='<b style="color:#067647">Drive catalogue updated.</b> '+merged.length+' records saved to AI_Product_Knowledge.json.';
         }catch(e){panel.innerHTML='<b style="color:#b42318">'+(e.message||'Drive update failed.')+'</b>'}
       });
     }catch(e){panel.innerHTML='<b style="color:#b42318">'+(e.message||'Catalogue check failed.')+'</b>'}
