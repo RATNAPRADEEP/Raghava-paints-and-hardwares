@@ -68,7 +68,7 @@
 .ai-recommend-card p{font-size:10px;color:#667085;line-height:1.5;margin:7px 0 0}
 .ai-salesman-questions{margin-top:12px;border:1px solid #e5e7eb;border-radius:12px;background:#f8fafc;padding:12px}
 .ai-salesman-questions b{font-size:11px;color:#172033}.ai-salesman-questions ul{margin:7px 0 0;padding-left:17px;color:#667085;font-size:10px;line-height:1.6}
-.ai-all-products{margin-top:12px;border-top:1px solid #edf0f3;padding-top:10px}.ai-all-products>summary{cursor:pointer;font-size:11px;font-weight:800;color:#2457d6}
+.ai-all-products{margin-top:0;margin-bottom:12px;border-top:1px solid #edf0f3;padding-top:10px}.ai-all-products>summary{cursor:pointer;font-size:11px;font-weight:800;color:#2457d6}
 .ai-all-products .ai-product-list{margin-top:8px}
 @media(max-width:760px){.ai-recommend-grid{grid-template-columns:1fr}.ai-salesman-intro{padding:12px}}
 </style><style id="ai-assistant-css">
@@ -2503,7 +2503,7 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       const titleLine=lines.find(x=>/^TITLE:/i.test(x))?.replace(/^TITLE:\s*/i,'')||'Paint recommendation';
       const intro=document.createElement('div');intro.className='ai-salesman-intro';
       const why=lines.find(x=>/^WHY:/i.test(x))?.replace(/^WHY:\s*/i,'')||'';
-      intro.innerHTML='<b>🧑‍💼 Salesman-style recommendation</b><p><strong>'+escapeAIHtml(titleLine)+'</strong><br>'+escapeAIHtml(why)+'</p>';
+      intro.innerHTML='<b>Recommended Paint Options</b><p><strong>'+escapeAIHtml(titleLine)+'</strong><br>'+escapeAIHtml(why)+'</p>';
       wrap.appendChild(intro);
       const recLine=lines.find(x=>/^RECOMMENDATIONS:/i.test(x));let recs=[];
       if(recLine){try{recs=JSON.parse(recLine.replace(/^RECOMMENDATIONS:\s*/,''))||[]}catch(e){}}
@@ -2518,19 +2518,24 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       }
       // Salesman questions are used internally for recommendation logic and are not shown to customers.
       const dataLine=lines.find(x=>/^CATEGORY_DATA:/i.test(x));let data=[];
-      if(dataLine){try{data=JSON.parse(dataLine.replace(/^CATEGORY_DATA:\s*/,''))||[]}catch(e){}}
+      if(dataLine){try{data=JSON.parse(dataLine.replace(/^CATEGORY_DATA:\\s*/,''))||[]}catch(e){}}
       if(data.length){
         const allCount=data.reduce((n,cat)=>n+Number(cat.count||0),0);
-        const allWrap=document.createElement('details');allWrap.className='ai-all-products';
-        const sum=document.createElement('summary');sum.textContent='Browse all '+allCount+' matching interior catalogue items';allWrap.appendChild(sum);
+        const allWrap=document.createElement('details');allWrap.className='ai-all-products';allWrap.open=true;
+        const sum=document.createElement('summary');sum.textContent='Browse '+allCount+' matching catalogue items by type';allWrap.appendChild(sum);
         const section=document.createElement('div');section.className='ai-category-section';
         const accordions=document.createElement('div');accordions.className='ai-category-accordion-list';
         data.forEach(cat=>{
           const d=document.createElement('details');d.className='ai-answer-dropdown ai-category-dropdown';
           const s=document.createElement('summary');s.innerHTML='<span class="ai-chevron">▾</span><div><b>'+escapeAIHtml(cat.name)+'</b><small>'+cat.count+' items · '+escapeAIHtml(cat.range)+'</small></div><strong>'+cat.count+'</strong>';d.appendChild(s);
           const box=document.createElement('div');box.className='ai-category-detail';
-          if(Array.isArray(cat.types)&&cat.types.length){const t=document.createElement('div');t.className='ai-type-strip';t.innerHTML='<span>Types</span>'+cat.types.map(x=>'<em>'+escapeAIHtml(x)+'</em>').join('');box.appendChild(t)}
-          const price=document.createElement('div');price.className='ai-category-price';price.innerHTML='<span>Category price range</span><b>'+escapeAIHtml(cat.range)+'</b>';box.appendChild(price);
+          if(Array.isArray(cat.types)&&cat.types.length){
+            const t=document.createElement('div');t.className='ai-type-strip';
+            t.innerHTML='<span>Types</span>'+cat.types.map(x=>'<em>'+escapeAIHtml(x)+'</em>').join('');
+            box.appendChild(t);
+          }
+          const price=document.createElement('div');price.className='ai-category-price';
+          price.innerHTML='<span>Category price range</span><b>'+escapeAIHtml(cat.range)+'</b>';box.appendChild(price);
           const products=document.createElement('div');products.className='ai-product-list';
           (cat.products||[]).forEach(p=>{
             const row=document.createElement('div');row.className='ai-product-row';
@@ -2539,7 +2544,10 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
           });
           box.appendChild(products);d.appendChild(box);accordions.appendChild(d);
         });
-        section.appendChild(accordions);allWrap.appendChild(section);wrap.appendChild(allWrap);
+        section.appendChild(accordions);allWrap.appendChild(section);
+        // Keep the type/category browser directly under the customer's question,
+        // before the recommendation explanation and product cards.
+        wrap.insertBefore(allWrap, wrap.firstChild);
       }
       return wrap;
     }
