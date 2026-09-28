@@ -1771,7 +1771,31 @@ body{width:760px;height:1060px;overflow:hidden}
 
 `;
 
- const html='<!doctype html><html><head><meta charset="UTF-8"><title>Invoice</title><style>'+styles+'</style></head><body>'+clone.outerHTML+'</body></html>';
+ const html='<!doctype html><html><head><meta charset="UTF-8"><title>Invoice</title><style>'+styles+'</style><style id="ai-category-rich-css">
+.ai-category-accordion-list{display:grid;gap:9px}
+.ai-category-dropdown{border-radius:14px!important}
+.ai-category-dropdown summary{grid-template-columns:22px 1fr auto!important;gap:9px!important}
+.ai-category-dropdown summary>div b{display:block;font-size:12px;color:#172033}
+.ai-category-dropdown summary>div small{display:block;margin-top:3px;font-size:9px;color:#8b95a5}
+.ai-category-dropdown summary>strong{font-size:11px;color:#2457d6;background:#edf3ff;padding:5px 9px;border-radius:999px}
+.ai-chevron{transition:transform .18s}
+.ai-category-dropdown[open] .ai-chevron{transform:rotate(180deg)}
+.ai-category-detail{border-top:1px solid #edf0f4;padding:10px 12px 12px;background:#fbfcfe}
+.ai-type-strip{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+.ai-type-strip>span{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#8a95a6;font-weight:800;margin-right:3px}
+.ai-type-strip em{font-style:normal;font-size:9px;color:#344054;background:#fff;border:1px solid #e2e7ee;border-radius:999px;padding:4px 7px}
+.ai-category-price{display:flex;justify-content:space-between;align-items:center;border:1px solid #e1e7f0;background:#fff;border-radius:10px;padding:9px 10px;margin-bottom:8px}
+.ai-category-price span{font-size:9px;color:#8a95a6;text-transform:uppercase;font-weight:800}
+.ai-category-price b{font-size:11px;color:#2457d6}
+.ai-product-list{display:grid;gap:5px}
+.ai-product-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:9px 10px;border:1px solid transparent;border-radius:9px;transition:.15s;background:#fff}
+.ai-product-row:hover{border-color:#cddaff;background:#f3f6ff;transform:translateX(2px)}
+.ai-product-row b{display:block;font-size:10px;color:#344054}
+.ai-product-row small{display:block;margin-top:3px;font-size:8px;color:#98a2b3}
+.ai-product-row>strong{font-size:10px;color:#172033;white-space:nowrap}
+.ai-stat-selected{border-color:#b8caff!important;background:#f3f6ff!important}
+@media(max-width:700px){.ai-product-row{align-items:flex-start}.ai-product-row>strong{white-space:normal;text-align:right}}
+</style></head><body>'+clone.outerHTML+'</body></html>';
  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
  const url=URL.createObjectURL(blob);
  const w=window.open(url,'_blank','width=900,height=1200');
@@ -2431,40 +2455,65 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       wrap.appendChild(grid);return wrap;
     }
     if(isOverview){
+      let data=[];
+      const dataLine=lines.find(x=>/^CATEGORY_DATA:/i.test(x));
+      if(dataLine){try{data=JSON.parse(dataLine.replace(/^CATEGORY_DATA:\s*/i,''))||[]}catch(e){data=[]}}
+      const titleLine=lines.find(x=>/^TITLE:/i.test(x))?.replace(/^TITLE:\s*/i,'')||title;
       const sub=document.createElement('div');sub.className='ai-answer-title';
-      sub.innerHTML='<span>🎨</span><div><b>'+escapeAIHtml(title)+'</b><small>Catalogue overview</small></div>';
+      sub.innerHTML='<span>🎨</span><div><b>'+escapeAIHtml(titleLine)+'</b><small>Catalogue overview · hover a product to preview its price range</small></div>';
       wrap.appendChild(sub);
       const stats=document.createElement('div');stats.className='ai-answer-stats';
-      lines.slice(1).filter(x=>/^(Total catalogue items|Items found|Overall price range|Price range|Category):/i.test(x)).forEach(line=>{
+      const statLines=lines.filter(x=>/^(Total catalogue items|Items found|Overall price range|Price range):/i.test(x));
+      statLines.forEach(line=>{
         const m=line.match(/^([^:]+):\s*(.*)$/);if(!m)return;
         const card=document.createElement('div');card.className='ai-stat-card';
+        if(/^Overall price range|^Price range/i.test(m[1]))card.id='aiOverallPriceRange';
         const label=document.createElement('span');label.textContent=m[1];
         const val=document.createElement('strong');val.textContent=m[2];
         card.append(label,val);stats.appendChild(card);
       });
       if(stats.children.length)wrap.appendChild(stats);
-      const categoryLine=lines.find(x=>/^Categories:/i.test(x));
-      if(categoryLine){
-        const d=document.createElement('details');d.className='ai-answer-dropdown';d.open=false;
-        const s=document.createElement('summary');s.innerHTML='<span>▾</span><b>Categories & item counts</b><small>Tap to expand</small>';d.appendChild(s);
-        const box=document.createElement('div');box.className='ai-category-list';
-        categoryLine.replace(/^Categories:\s*/i,'').split(/,\s*(?=[^,]+\s*\()/).forEach(x=>{const p=x.match(/^(.*?)\s*\((\d+)\)$/);const row=document.createElement('div');row.className='ai-category-row';row.append(aiValue(p?p[1]:x),aiValue(p?p[2]+' items':''));box.appendChild(row)});
-        d.appendChild(box);wrap.appendChild(d);
+      if(data.length){
+        const section=document.createElement('div');section.className='ai-category-accordion-list';
+        data.forEach((cat,idx)=>{
+          const d=document.createElement('details');d.className='ai-answer-dropdown ai-category-dropdown';
+          const s=document.createElement('summary');
+          s.innerHTML='<span class="ai-chevron">▾</span><div><b>'+escapeAIHtml(cat.name)+'</b><small>'+cat.count+' items · '+escapeAIHtml(cat.range)+'</small></div><strong>'+cat.count+'</strong>';
+          d.appendChild(s);
+          const box=document.createElement('div');box.className='ai-category-detail';
+          if(Array.isArray(cat.types)&&cat.types.length){
+            const t=document.createElement('div');t.className='ai-type-strip';
+            t.innerHTML='<span>Types</span>'+cat.types.map(x=>'<em>'+escapeAIHtml(x)+'</em>').join('');
+            box.appendChild(t);
+          }
+          const price=document.createElement('div');price.className='ai-category-price';price.innerHTML='<span>Category price range</span><b>'+escapeAIHtml(cat.range)+'</b>';box.appendChild(price);
+          const products=document.createElement('div');products.className='ai-product-list';
+          (cat.products||[]).forEach(p=>{
+            const row=document.createElement('div');row.className='ai-product-row';
+            row.innerHTML='<div><b>'+escapeAIHtml(p.name||'Unnamed product')+'</b><small>'+escapeAIHtml([p.type,p.size,p.unit].filter(Boolean).join(' · '))+'</small></div><strong>'+escapeAIHtml(p.price||'Price unavailable')+'</strong>';
+            const activate=()=>{
+              const overall=document.getElementById('aiOverallPriceRange');
+              if(overall){
+                const v=overall.querySelector('strong');
+                if(v)v.textContent=(p.price||'Price unavailable')+' · '+cat.name;
+                overall.classList.add('ai-stat-selected');
+              }
+            };
+            const restore=()=>{
+              const overall=document.getElementById('aiOverallPriceRange');
+              const original=lines.find(x=>/^Overall price range:/i.test(x)||/^Price range:/i.test(x));
+              if(overall&&original){const v=overall.querySelector('strong');if(v)v.textContent=original.split(/:\s*/).slice(1).join(': ');overall.classList.remove('ai-stat-selected')}
+            };
+            row.addEventListener('mouseenter',activate);
+            row.addEventListener('mouseleave',restore);
+            products.appendChild(row);
+          });
+          box.appendChild(products);d.appendChild(box);section.appendChild(d);
+        });
+        wrap.appendChild(section);
       }
-      const brandLine=lines.find(x=>/^Brands:/i.test(x));
-      if(brandLine){
-        const d=document.createElement('details');d.className='ai-answer-dropdown';
-        const s=document.createElement('summary');s.innerHTML='<span>▾</span><b>Brands</b><small>Tap to expand</small>';d.appendChild(s);
-        const box=document.createElement('div');box.className='ai-category-list';brandLine.replace(/^Brands:\s*/i,'').split(/,\s*(?=[^,]+\s*\()/).forEach(x=>{const p=x.match(/^(.*?)\s*\((\d+)\)$/);const row=document.createElement('div');row.className='ai-category-row';row.append(aiValue(p?p[1]:x),aiValue(p?p[2]+' items':''));box.appendChild(row)});d.appendChild(box);wrap.appendChild(d);
-      }
-      const sample=lines.find(x=>/^Sample products:/i.test(x)||/^Examples:/i.test(x));
-      if(sample){
-        const d=document.createElement('details');d.className='ai-answer-dropdown';
-        const s=document.createElement('summary');s.innerHTML='<span>▾</span><b>Sample products</b><small>Tap to expand</small>';d.appendChild(s);
-        const box=document.createElement('div');box.className='ai-sample-list';
-        sample.replace(/^(Sample products|Examples):\s*/i,'').split(/,\s*/).filter(Boolean).forEach(x=>{const row=document.createElement('div');row.textContent=x;box.appendChild(row)});d.appendChild(box);wrap.appendChild(d);
-      }
-      const note=lines.find(x=>/^Tell me a specific product/i.test(x));if(note){const p=document.createElement('p');p.className='ai-answer-note';p.textContent=note;wrap.appendChild(p)}
+      const note=lines.find(x=>/^NOTE:/i.test(x));
+      if(note){const p=document.createElement('p');p.className='ai-answer-note';p.textContent=note.replace(/^NOTE:\s*/i,'');wrap.appendChild(p)}
       return wrap;
     }
     if(/^I found \d+ closely matching catalogue entries/i.test(title)){
@@ -2523,7 +2572,7 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
         ...(Array.isArray(db?.subproducts)?db.subproducts:[]).map(p=>({kind:'subproduct',sku:p.sku,name:p.name,brand:p.brand,category:p.category,variant:p.variant,size:p.size,unit:p.unit,sellingPrice:p.sell,gstPercent:p.gst,barcode:p.barcode,verifiedOn:p.verifiedOn,source:p.source,notes:p.notes}))
       ];
     }
-    return rows.map((x,i)=>({x,i,s:score(x)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,8).map(x=>x.x);
+    return rows;
   }
   function typing(){
     const el=document.createElement('div');
@@ -2627,36 +2676,39 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       });
       return parts.length?parts.join('  |  '):'Price not available in the current catalogue data';
     }
+    function categoryRange(list){
+      const nums=list.map(r=>Number(r.sellingPrice)).filter(n=>Number.isFinite(n)&&n>0);
+      if(!nums.length)return 'Price unavailable';
+      const min=Math.min(...nums),max=Math.max(...nums);
+      const unit=(list.map(r=>clean(r.unit)).find(Boolean)||'item');
+      return min===max?money(min)+' / '+unit:money(min)+' – '+money(max)+' / '+unit;
+    }
+    function categoryTypes(list){
+      return [...new Set(list.map(r=>clean(r.type)||clean(r.variant)).filter(Boolean))].slice(0,8);
+    }
+    function makeCategoryData(list){
+      const groups={};
+      list.forEach(r=>{
+        const c=inferCategory(r);
+        (groups[c]??=[]).push(r);
+      });
+      return Object.entries(groups).map(([name,items])=>{
+        const products=[...new Map(items.filter(r=>clean(r.name)).map(r=>[clean(r.name).toLowerCase(),r])).values()]
+          .sort((a,b)=>clean(a.name).localeCompare(clean(b.name)))
+          .map(r=>({name:clean(r.name),type:clean(r.type)||clean(r.variant),size:clean(r.size),unit:clean(r.unit),price:clean(r.sellingPrice)?money(r.sellingPrice)+(clean(r.unit)?' / '+clean(r.unit):''):'Price unavailable'}));
+        return {name,count:items.length,range:categoryRange(items),types:categoryTypes(items),products};
+      }).sort((a,b)=>a.name.localeCompare(b.name));
+    }
     function categoryOverview(label,list,brand){
       const title=label==='brush'?'Brushes':label==='roller'?'Rollers':label==='thinner'?'Thinners':label==='putty'?'Wall Putty':label==='primer'?'Primers':label==='enamel'?'Enamels':label==='waterproof'?'Waterproofing':label==='interior'?'Interior Paints':label==='exterior'?'Exterior Paints':label;
-      const cats={};
-      list.forEach(r=>{const c=inferCategory(r);cats[c]=(cats[c]||0)+1});
-      const examples=[...new Map(list.filter(r=>clean(r.name)).map(r=>[clean(r.name).toLowerCase(),r])).values()].slice(0,5);
-      let ans='Here is the '+title.toLowerCase()+' catalogue overview'+(brand?' for '+(brand==='asian paints'?'Asian Paints':brand):'')+'\n\n';
-      ans+='Items found: '+list.length+'\n';
-      ans+='Price range: '+formatRanges(list)+'\n';
-      if(Object.keys(cats).length)ans+='Category: '+Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,n])=>c+' ('+n+')').join(', ')+'\n';
-      if(examples.length)ans+='\nExamples: '+examples.map(r=>clean(r.name)).join(', ');
-      ans+='\n\nFor an individual product name, I’ll show its catalogue details such as pack size, price, shade, finish, SKU and other available fields.';
-      return ans;
+      const data=makeCategoryData(list);
+      return 'AI_OVERVIEW\nTITLE: '+('Here is the '+title.toLowerCase()+' catalogue overview'+(brand?' for '+(brand==='asian paints'?'Asian Paints':brand):''))+'\nItems found: '+list.length+'\nPrice range: '+formatRanges(list)+'\nCATEGORY_DATA: '+JSON.stringify(data)+'\nNOTE: Open a category to see its types, price range and products. Hover over a product to preview its price above.';
     }
     function overallOverview(list,brand){
       if(!list.length)return 'I could not find catalogue records for that brand/category in the connected Google Drive product library.';
-      const cats={};
-      list.forEach(r=>{const c=inferCategory(r);cats[c]=(cats[c]||0)+1});
-      const catParts=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,12).map(([c,n])=>c+' ('+n+')');
-      const brands={};
-      list.forEach(r=>{const b=clean(r.brand);if(b)brands[b]=(brands[b]||0)+1});
-      const brandParts=Object.entries(brands).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([b,n])=>b+' ('+n+')');
-      const examples=[...new Map(list.filter(r=>clean(r.name)).map(r=>[clean(r.name).toLowerCase(),r])).values()].slice(0,6);
-      let ans='Here is a catalogue overview'+(brand?' for '+(brand==='asian paints'?'Asian Paints':brand):'')+'\n\n';
-      ans+='Total catalogue items: '+list.length+'\n';
-      ans+='Overall price range: '+formatRanges(list)+'\n';
-      if(brandParts.length&&!brand)ans+='Brands: '+brandParts.join(', ')+'\n';
-      if(catParts.length)ans+='\nCategories: '+catParts.join(', ')+'\n';
-      if(examples.length)ans+='\nSample products: '+examples.map(r=>clean(r.name)).join(', ')+'\n';
-      ans+='\nTell me a specific product name when you want the detailed catalogue entry instead of the category overview.';
-      return ans;
+      const data=makeCategoryData(list);
+      const brandLabel=brand?(brand==='asian paints'?'Asian Paints':brand):'';
+      return 'AI_OVERVIEW\nTITLE: '+('Here is a catalogue overview'+(brandLabel?' for '+brandLabel:''))+'\nTotal catalogue items: '+list.length+'\nOverall price range: '+formatRanges(list)+'\nCATEGORY_DATA: '+JSON.stringify(data)+'\nNOTE: Open any category to explore its types, price range and products. Hover over a product to sync the price panel above to that product.';
     }
     function productCatalogue(r){
       let ans='Product Catalogue\n\n';
