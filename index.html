@@ -2667,6 +2667,23 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       return {r,score};
     }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
     if(scored.length){
+      // If the customer's query matches a product name exactly (ignoring case/spacing),
+      // open that product directly instead of showing similar products.
+      const normalizeName=s=>clean(s).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+      const normalizedQuery=normalizeName(l);
+      const exact=scored
+        .map(x=>x.r)
+        .find(r=>normalizeName(r.name)===normalizedQuery);
+      if(exact)return productCatalogue(exact);
+
+      // Also treat an exact product name followed by a detail word as a direct request.
+      const detailWords=/\b(details?|information|info|specifications?|specs?|price|pack|size|shade|colour|color|finish|sku|barcode)\b/i;
+      const withoutDetailWords=normalizeName(l.replace(detailWords,' '));
+      const exactWithDetail=scored
+        .map(x=>x.r)
+        .find(r=>normalizeName(r.name)===withoutDetailWords);
+      if(exactWithDetail)return productCatalogue(exactWithDetail);
+
       const top=scored.slice(0,3).map(x=>x.r);
       const strong=top.filter(r=>{
         const name=clean(r.name).toLowerCase();
