@@ -24,7 +24,9 @@
 @media(max-width:1000px){.calc-grid{grid-template-columns:1fr}.room-row{grid-template-columns:repeat(3,1fr)}.unit-strip{grid-template-columns:repeat(3,1fr)}}@media(max-width:700px){.calc-hero{flex-direction:column;align-items:flex-start}.calc-form,.surface-grid{grid-template-columns:1fr 1fr}.room-row{grid-template-columns:1fr 1fr}.calc-summary{grid-template-columns:1fr 1fr}}
 </style><style id="ai-assistant-css">
 .ai-shell{display:grid;gap:16px}.ai-header{display:flex;justify-content:space-between;align-items:flex-end;gap:18px}.ai-header h2{margin:5px 0 6px}.ai-header p{margin:0;color:#667085;font-size:12px}.ai-kicker{font-size:10px;letter-spacing:.16em;font-weight:850;color:#2457d6}.ai-card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden}.ai-messages{height:min(58vh,560px);min-height:360px;overflow:auto;padding:20px;background:#f8fafc;display:flex;flex-direction:column;gap:12px}.ai-message{max-width:min(820px,88%);padding:12px 14px;border-radius:14px;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}.ai-message.user{align-self:flex-end;background:#2457d6;color:#fff;border-bottom-right-radius:5px}.ai-message.assistant{align-self:flex-start;background:#fff;border:1px solid #e5e7eb;color:#182230;border-bottom-left-radius:5px}.ai-message.system{align-self:center;background:#f2f4f7;color:#667085;font-size:11px}.ai-typing{display:inline-flex;gap:4px;align-items:center}.ai-typing i{width:5px;height:5px;border-radius:50%;background:#98a2b3;animation:aiBounce 1s infinite ease-in-out}.ai-typing i:nth-child(2){animation-delay:.15s}.ai-typing i:nth-child(3){animation-delay:.3s}@keyframes aiBounce{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-3px);opacity:1}}.ai-prompts{display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid #edf0f3}.ai-prompt{border:1px solid #d9dee7;background:#fff;color:#344054;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:700;cursor:pointer}.ai-prompt:hover{background:#f7f9fc;border-color:#c8d5f5}.ai-input-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:14px;border-top:1px solid #edf0f3}.ai-input-row textarea{resize:none;min-height:44px;max-height:130px;border:1px solid #d9dee7;border-radius:10px;padding:11px 12px;font:inherit;line-height:1.4}.ai-input-row textarea:focus{outline:2px solid #dce7ff;border-color:#2457d6}.ai-input-row .btn{min-width:82px;align-self:end}.ai-note{padding:0 14px 14px;color:#98a2b3;font-size:10px;line-height:1.45}@media(max-width:700px){.ai-header{align-items:flex-start;flex-direction:column}.ai-messages{min-height:420px;height:55vh}.ai-message{max-width:94%}.ai-input-row{grid-template-columns:1fr}.ai-input-row .btn{width:100%}}
-</style></head>
+<style id="ai-catalogue-css">
+.ai-capabilities{border:1px solid #e5e7eb;background:#fff;border-radius:16px;padding:16px}.ai-capability-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}.ai-capability-head b{display:block;font-size:13px}.ai-capability-head span{display:block;color:#98a2b3;font-size:10px;margin-top:3px}.ai-capability-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.ai-capability{display:grid;grid-template-columns:34px 1fr 18px;align-items:center;gap:9px;text-align:left;border:1px solid #e5e7eb;background:#fafbfc;border-radius:12px;padding:11px;cursor:pointer}.ai-capability:hover{background:#f7f9fc;border-color:#c8d5f5}.ai-capability>span{font-size:20px;text-align:center}.ai-capability b{display:block;font-size:11px;color:#182230}.ai-capability small{display:block;font-size:9px;color:#667085;line-height:1.4;margin-top:3px}.ai-capability>strong{color:#2457d6;text-align:right}.ai-catalogue-dialog{width:min(760px,94vw);padding:0;overflow:hidden}.ai-catalogue-form{padding:22px}.ai-catalogue-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}.ai-catalogue-head h3{margin:5px 0 4px;font-size:23px}.ai-catalogue-head p{margin:0;color:#667085;font-size:11px}.ai-catalogue-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ai-catalogue-grid label{font-size:11px;font-weight:750;display:grid;gap:5px}.ai-catalogue-grid .full{grid-column:1/-1}.ai-catalogue-grid input{font-size:12px}.ai-catalogue-preview-wrap{margin-top:16px}.ai-catalogue-preview-label{font-size:9px;letter-spacing:.14em;font-weight:850;color:#98a2b3}.ai-catalogue-preview{margin-top:7px;min-height:280px;border:1px dashed #d9dee7;border-radius:14px;background:#f8fafc;display:flex;align-items:center;justify-content:center;overflow:hidden}.ai-catalogue-preview canvas{display:block;max-width:100%;height:auto}.ai-catalogue-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:14px}.ai-catalogue-help{font-size:10px;line-height:1.5;color:#98a2b3;margin-top:10px}.ai-catalogue-help b{color:#667085}@media(max-width:700px){.ai-capability-grid,.ai-catalogue-grid{grid-template-columns:1fr}.ai-catalogue-grid .full{grid-column:auto}.ai-catalogue-form{padding:16px}.ai-catalogue-head{flex-direction:column}.ai-catalogue-head .btn{align-self:flex-end}}
+</style></style></head>
 <body>
 <header class="top"><div><div class="eyebrow">LOCAL SHOP OPERATIONS</div><h1>Raghava Paints and Hardwares</h1></div><div><div class="connection"><span id="dot" class="dot"></span><span id="connectionText">Google Drive storage not connected</span></div><button id="connectBtn" class="btn primary">Connect Google Drive</button></div></header>
 <nav class="nav"><button class="navbtn active" data-page="dashboard">Home</button><button class="navbtn" data-page="sales">Sell</button><button class="navbtn" data-page="purchases">Purchase</button><button class="navbtn" data-page="products">Inventory</button><button class="navbtn" data-page="calculations">Estimate</button><button class="navbtn" data-page="invoices">Invoice Print</button><button class="navbtn" data-page="accounts">Contact Details</button><button class="navbtn" data-page="ai">AI Assistant</button><button id="saveBtn" class="btn save">Save to Google Drive</button><div class="reset-security-actions"><button id="resetShopBtn" class="btn danger" title="PIN required">🔒 Reset Shop Data</button></div></nav>
@@ -271,17 +273,41 @@
   </div>
   <div class="ai-card">
     <div id="aiMessages" class="ai-messages" aria-live="polite"></div>
-    <div class="ai-prompts" aria-label="Quick prompts">
-      <button type="button" class="ai-prompt" data-ai-prompt="What paint should I use for interior walls?">Paint recommendation</button>
-      <button type="button" class="ai-prompt" data-ai-prompt="How should I prepare a wall before painting?">Painting tips</button>
-      <button type="button" class="ai-prompt" data-ai-prompt="Suggest a few suitable colour combinations for a living room.">Colour suggestions</button>
-      <button type="button" class="ai-prompt" data-ai-prompt="What should I consider when choosing a paint roller or brush?">Tools advice</button>
+    <div class="ai-capabilities">
+      <div class="ai-capability-head"><div><b>AI Capabilities</b><span>Quick tools customers can use</span></div></div>
+      <div class="ai-capability-grid">
+        <button type="button" class="ai-capability" id="aiCatalogueOpen"><span>🖼️</span><div><b>Product Catalogue Card</b><small>Create a shareable product card for WhatsApp or other apps.</small></div><strong>→</strong></button>
+        <button type="button" class="ai-capability ai-capability-prompt" data-ai-prompt="What paint should I use for interior walls?"><span>🎨</span><div><b>Paint Recommendation</b><small>Get general paint selection guidance.</small></div><strong>→</strong></button>
+        <button type="button" class="ai-capability ai-capability-prompt" data-ai-prompt="How should I prepare a wall before painting?"><span>🧱</span><div><b>Painting Tips</b><small>Get practical preparation and application tips.</small></div><strong>→</strong></button>
+        <button type="button" class="ai-capability ai-capability-prompt" data-ai-prompt="Suggest a few suitable colour combinations for a living room."><span>🌈</span><div><b>Colour Suggestions</b><small>Explore suitable colour combinations.</small></div><strong>→</strong></button>
+        <button type="button" class="ai-capability ai-capability-prompt" data-ai-prompt="What should I consider when choosing a paint roller or brush?"><span>🖌️</span><div><b>Tools Advice</b><small>Choose suitable brushes, rollers and tools.</small></div><strong>→</strong></button>
+      </div>
     </div>
     <form id="aiChatForm" class="ai-input-row">
       <textarea id="aiInput" rows="1" maxlength="4000" placeholder="Ask the AI Assistant…" aria-label="Ask the AI Assistant"></textarea>
       <button id="aiSendBtn" type="submit" class="btn primary">Send</button>
     </form>
-    <div class="ai-note">Standalone assistant — it does not read or change Sales, Inventory, Purchases, Estimate, Invoice, Contact Details or Google Drive data.</div>
+    <div class="ai-note">AI Assistant is independent from your shop records. Product Catalogue Card uses only the details you enter in its card generator and does not change Inventory, Sales, Purchases, Estimate, Invoice, Contact Details or Google Drive data.</div>
+  <dialog id="aiCatalogueDialog" class="ai-catalogue-dialog">
+    <form id="aiCatalogueForm" class="ai-catalogue-form">
+      <div class="ai-catalogue-head"><div><span class="ai-kicker">SHAREABLE PRODUCT CARD</span><h3>Product Catalogue Card</h3><p>Create a clean product image for WhatsApp or other sharing apps.</p></div><button type="button" class="btn" id="aiCatalogueClose">Close</button></div>
+      <div class="ai-catalogue-grid">
+        <label>Product Name<input id="aiCatName" maxlength="80" placeholder="Asian Paints Apex" required></label>
+        <label>Brand<input id="aiCatBrand" maxlength="50" placeholder="Asian Paints"></label>
+        <label>Pack Size<input id="aiCatSize" maxlength="30" placeholder="20 L"></label>
+        <label>Price<input id="aiCatPrice" maxlength="30" placeholder="₹ 5,999"></label>
+        <label class="full">Description<input id="aiCatDesc" maxlength="120" placeholder="Exterior wall paint"></label>
+        <label class="full">Product Image <input id="aiCatImage" type="file" accept="image/*"></label>
+      </div>
+      <div class="ai-catalogue-preview-wrap"><span class="ai-catalogue-preview-label">PREVIEW</span><div id="aiCataloguePreview" class="ai-catalogue-preview"></div></div>
+      <div class="ai-catalogue-actions">
+        <button type="button" class="btn" id="aiCatDownload">Download Card</button>
+        <button type="button" class="btn" id="aiCatWhatsApp">WhatsApp</button>
+        <button type="button" class="btn primary" id="aiCatShare">Share Card</button>
+      </div>
+      <div class="ai-catalogue-help">On supported phones, <b>Share Card</b> can open the normal share sheet and let you choose WhatsApp or another app. WhatsApp itself does not allow a website to silently attach an image, so the fallback opens WhatsApp with the product text and keeps the card available to attach.</div>
+    </form>
+  </dialog>
   </div>
 </div></section><section id="accounts" class="section"><div class="head"><div><div class="eyebrow">07 / CONTACT DETAILS</div><h2>Customers & Suppliers</h2></div><div><button id="addCustomer" class="btn">Add Customer</button> <button id="addSupplier" class="btn">Add Supplier</button></div></div><div class="grid"><div class="card"><h3>Customers</h3><div class="table" id="customersTable"></div></div><div class="card"><h3>Suppliers</h3><div class="table" id="suppliersTable"></div></div></div></section>
 </main>
@@ -2371,6 +2397,40 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
   document.querySelectorAll('.ai-prompt').forEach(b=>b.addEventListener('click',()=>ask(b.dataset.aiPrompt)));
   welcome();
 })();
-</script><script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script><script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+<script>
+/* Standalone Product Catalogue Card capability. Uses only user-entered card data and browser sharing APIs. */
+(function(){
+  const open=$('aiCatalogueOpen'),dlg=$('aiCatalogueDialog'),form=$('aiCatalogueForm'),preview=$('aiCataloguePreview');
+  if(!open||!dlg||!form||!preview)return;
+  const name=$('aiCatName'),brand=$('aiCatBrand'),size=$('aiCatSize'),price=$('aiCatPrice'),desc=$('aiCatDesc'),imageInput=$('aiCatImage');
+  let imageData='',canvas=null;
+  function drawText(x,W,y){
+    x.fillStyle='#2457d6';x.font='700 24px Arial';x.fillText(brand.value.trim()||'PAINTS & HARDWARES',70,y);
+    x.fillStyle='#182230';x.font='700 50px Arial';x.fillText(name.value.trim()||'Product Name',70,y+70);
+    x.fillStyle='#667085';x.font='400 28px Arial';x.fillText(desc.value.trim()||'Quality paint and hardware product',70,y+115);
+    x.fillStyle='#182230';x.font='700 32px Arial';x.fillText(size.value.trim()?('Pack: '+size.value.trim()):'Pack size',70,y+180);
+    if(price.value.trim()){x.fillStyle='#067647';x.font='700 42px Arial';x.fillText(price.value.trim(),70,y+250)}
+    x.fillStyle='#98a2b3';x.font='400 20px Arial';x.fillText('Contact Raghava Paints & Hardwares for availability and current price.',70,y+330);
+  }
+  function drawCard(){
+    const W=1200,H=1500,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+    x.fillStyle='#fff';x.fillRect(0,0,W,H);x.fillStyle='#172033';x.fillRect(0,0,W,185);
+    x.fillStyle='#fff';x.font='700 34px Arial';x.fillText('RAGHAVA PAINTS & HARDWARES',70,78);
+    x.fillStyle='#cbd5e1';x.font='500 22px Arial';x.fillText('PRODUCT CATALOGUE',70,120);
+    const y=225;
+    if(imageData){const img=new Image();img.onload=()=>{const maxW=1060,maxH=620,scale=Math.min(maxW/img.width,maxH/img.height,1),iw=img.width*scale,ih=img.height*scale;x.fillStyle='#f5f7fa';x.fillRect((W-iw)/2,y,iw,ih);x.drawImage(img,(W-iw)/2,y,iw,ih);drawText(x,W,y+ih+75);canvas=c;preview.innerHTML='';preview.appendChild(c)};img.src=imageData}
+    else{x.fillStyle='#f5f7fa';x.fillRect(70,y,1060,620);x.fillStyle='#98a2b3';x.font='600 30px Arial';x.textAlign='center';x.fillText('PRODUCT IMAGE',W/2,y+320);x.textAlign='left';drawText(x,W,y+695);canvas=c;preview.innerHTML='';preview.appendChild(c)}
+  }
+  function shareText(){return 'Raghava Paints & Hardwares\n'+(name.value.trim()||'Product')+(size.value.trim()?' — '+size.value.trim():'')+(price.value.trim()?'\nPrice: '+price.value.trim():'')+(desc.value.trim()?'\n'+desc.value.trim():'')}
+  open.addEventListener('click',()=>{form.reset();imageData='';drawCard();dlg.showModal();name.focus()});
+  $('aiCatalogueClose').addEventListener('click',()=>dlg.close());
+  form.addEventListener('input',drawCard);
+  imageInput.addEventListener('change',()=>{const f=imageInput.files?.[0];if(!f){imageData='';drawCard();return}const reader=new FileReader();reader.onload=()=>{imageData=String(reader.result||'');drawCard()};reader.readAsDataURL(f)});
+  $('aiCatDownload').addEventListener('click',()=>{if(!canvas)return;const a=document.createElement('a');a.href=canvas.toDataURL('image/png');a.download=((name.value.trim()||'product')+'-catalogue-card.png').replace(/[^a-z0-9._-]+/gi,'_');a.click()});
+  $('aiCatWhatsApp').addEventListener('click',async()=>{const text=encodeURIComponent(shareText());try{const blob=await new Promise(res=>canvas?.toBlob(res,'image/png'));if(blob&&navigator.canShare?.({files:[new File([blob],'product-catalogue-card.png',{type:'image/png'})]})){await navigator.share({title:name.value.trim()||'Product Catalogue',text:shareText(),files:[new File([blob],'product-catalogue-card.png',{type:'image/png'})]});return}}catch(e){}window.open('https://wa.me/?text='+text,'_blank','noopener')});
+  $('aiCatShare').addEventListener('click',async()=>{try{const blob=await new Promise(res=>canvas?.toBlob(res,'image/png'));if(blob&&navigator.canShare?.({files:[new File([blob],'product-catalogue-card.png',{type:'image/png'})]})){await navigator.share({title:name.value.trim()||'Product Catalogue Card',text:shareText(),files:[new File([blob],'product-catalogue-card.png',{type:'image/png'})]});return}}catch(e){}$('aiCatDownload').click();alert('Card downloaded. You can now attach it in WhatsApp or any other app.')});
+  drawCard();
+})();
+</script></script><script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script><script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body></html>
 <!-- restore promotion video player -->
