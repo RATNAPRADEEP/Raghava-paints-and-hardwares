@@ -22,10 +22,12 @@
 .calc-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.calc-actions .btn{font-size:12px}.calc-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.calc-metric{border:1px solid #e4e8ef;border-radius:11px;padding:12px;background:#fafbfc}.calc-metric small{display:block;color:#667085;font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.calc-metric strong{display:block;font-size:20px;margin-top:4px;color:#172b4d}.calc-table{width:100%;border-collapse:collapse}.calc-table th,.calc-table td{padding:9px 7px;border-bottom:1px solid #edf0f3;font-size:11px;text-align:left}.calc-table th{font-size:9px}.calc-table td.num{text-align:right;font-variant-numeric:tabular-nums}.calc-section-title{display:flex;justify-content:space-between;align-items:center;gap:10px}.calc-section-title button{font-size:11px}.calc-note{border-left:3px solid #2457d6;background:#f7f9ff;padding:10px 12px;border-radius:7px;color:#475467;font-size:10px;line-height:1.5;margin-top:12px}
 .surface-box{border:1px solid #e4e8ef;border-radius:12px;padding:13px;margin-top:10px;background:#fff}.surface-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.surface-grid label{font-size:10px;font-weight:800;display:grid;gap:5px}.surface-grid input,.surface-grid select{padding:8px;font-size:11px}.estimate-total{background:#172033;color:#fff;border-radius:13px;padding:15px;margin-top:12px}.estimate-total strong{font-size:25px}.estimate-total span{font-size:10px;color:#cbd2df}.calc-source{font-size:9px;color:#98a2b3;margin-top:8px;line-height:1.45}
 @media(max-width:1000px){.calc-grid{grid-template-columns:1fr}.room-row{grid-template-columns:repeat(3,1fr)}.unit-strip{grid-template-columns:repeat(3,1fr)}}@media(max-width:700px){.calc-hero{flex-direction:column;align-items:flex-start}.calc-form,.surface-grid{grid-template-columns:1fr 1fr}.room-row{grid-template-columns:1fr 1fr}.calc-summary{grid-template-columns:1fr 1fr}}
+</style><style id="ai-assistant-css">
+.ai-shell{display:grid;gap:16px}.ai-header{display:flex;justify-content:space-between;align-items:flex-end;gap:18px}.ai-header h2{margin:5px 0 6px}.ai-header p{margin:0;color:#667085;font-size:12px}.ai-kicker{font-size:10px;letter-spacing:.16em;font-weight:850;color:#2457d6}.ai-card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden}.ai-messages{height:min(58vh,560px);min-height:360px;overflow:auto;padding:20px;background:#f8fafc;display:flex;flex-direction:column;gap:12px}.ai-message{max-width:min(820px,88%);padding:12px 14px;border-radius:14px;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}.ai-message.user{align-self:flex-end;background:#2457d6;color:#fff;border-bottom-right-radius:5px}.ai-message.assistant{align-self:flex-start;background:#fff;border:1px solid #e5e7eb;color:#182230;border-bottom-left-radius:5px}.ai-message.system{align-self:center;background:#f2f4f7;color:#667085;font-size:11px}.ai-typing{display:inline-flex;gap:4px;align-items:center}.ai-typing i{width:5px;height:5px;border-radius:50%;background:#98a2b3;animation:aiBounce 1s infinite ease-in-out}.ai-typing i:nth-child(2){animation-delay:.15s}.ai-typing i:nth-child(3){animation-delay:.3s}@keyframes aiBounce{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-3px);opacity:1}}.ai-prompts{display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid #edf0f3}.ai-prompt{border:1px solid #d9dee7;background:#fff;color:#344054;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:700;cursor:pointer}.ai-prompt:hover{background:#f7f9fc;border-color:#c8d5f5}.ai-input-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:14px;border-top:1px solid #edf0f3}.ai-input-row textarea{resize:none;min-height:44px;max-height:130px;border:1px solid #d9dee7;border-radius:10px;padding:11px 12px;font:inherit;line-height:1.4}.ai-input-row textarea:focus{outline:2px solid #dce7ff;border-color:#2457d6}.ai-input-row .btn{min-width:82px;align-self:end}.ai-note{padding:0 14px 14px;color:#98a2b3;font-size:10px;line-height:1.45}@media(max-width:700px){.ai-header{align-items:flex-start;flex-direction:column}.ai-messages{min-height:420px;height:55vh}.ai-message{max-width:94%}.ai-input-row{grid-template-columns:1fr}.ai-input-row .btn{width:100%}}
 </style></head>
 <body>
 <header class="top"><div><div class="eyebrow">LOCAL SHOP OPERATIONS</div><h1>Raghava Paints and Hardwares</h1></div><div><div class="connection"><span id="dot" class="dot"></span><span id="connectionText">Google Drive storage not connected</span></div><button id="connectBtn" class="btn primary">Connect Google Drive</button></div></header>
-<nav class="nav"><button class="navbtn active" data-page="dashboard">Home</button><button class="navbtn" data-page="sales">Sell</button><button class="navbtn" data-page="purchases">Purchase</button><button class="navbtn" data-page="products">Inventory</button><button class="navbtn" data-page="calculations">Estimate</button><button class="navbtn" data-page="invoices">Invoice Print</button><button class="navbtn" data-page="accounts">Contact Details</button><button id="saveBtn" class="btn save">Save to Google Drive</button><div class="reset-security-actions"><button id="resetShopBtn" class="btn danger" title="PIN required">🔒 Reset Shop Data</button></div></nav>
+<nav class="nav"><button class="navbtn active" data-page="dashboard">Home</button><button class="navbtn" data-page="sales">Sell</button><button class="navbtn" data-page="purchases">Purchase</button><button class="navbtn" data-page="products">Inventory</button><button class="navbtn" data-page="calculations">Estimate</button><button class="navbtn" data-page="invoices">Invoice Print</button><button class="navbtn" data-page="accounts">Contact Details</button><button class="navbtn" data-page="ai">AI Assistant</button><button id="saveBtn" class="btn save">Save to Google Drive</button><div class="reset-security-actions"><button id="resetShopBtn" class="btn danger" title="PIN required">🔒 Reset Shop Data</button></div></nav>
 <main><div id="toast"></div><div id="resetPinModal" class="pin-modal" hidden aria-hidden="true">
   <div class="pin-modal-card" role="dialog" aria-modal="true" aria-labelledby="resetPinModalTitle">
     <button type="button" class="pin-modal-close" id="resetPinClose" aria-label="Close">×</button>
@@ -261,7 +263,27 @@
   </div>
 </div>
 <div class="invoice-bottom"><span id="invoicePage">Page 0 of 0</span><span id="invoiceSyncStatus" class="muted">Synced directly from Sales History</span></div>
-</section><section id="accounts" class="section"><div class="head"><div><div class="eyebrow">07 / CONTACT DETAILS</div><h2>Customers & Suppliers</h2></div><div><button id="addCustomer" class="btn">Add Customer</button> <button id="addSupplier" class="btn">Add Supplier</button></div></div><div class="grid"><div class="card"><h3>Customers</h3><div class="table" id="customersTable"></div></div><div class="card"><h3>Suppliers</h3><div class="table" id="suppliersTable"></div></div></div></section>
+</section><section id="ai" class="section">
+<div class="ai-shell">
+  <div class="ai-header">
+    <div><div class="ai-kicker">08 / AI ASSISTANT</div><h2>AI Assistant</h2><p>Ask questions about paints, painting methods, colours, tools and general shop knowledge.</p></div>
+    <button id="aiClearBtn" class="btn">Clear Chat</button>
+  </div>
+  <div class="ai-card">
+    <div id="aiMessages" class="ai-messages" aria-live="polite"></div>
+    <div class="ai-prompts" aria-label="Quick prompts">
+      <button type="button" class="ai-prompt" data-ai-prompt="What paint should I use for interior walls?">Paint recommendation</button>
+      <button type="button" class="ai-prompt" data-ai-prompt="How should I prepare a wall before painting?">Painting tips</button>
+      <button type="button" class="ai-prompt" data-ai-prompt="Suggest a few suitable colour combinations for a living room.">Colour suggestions</button>
+      <button type="button" class="ai-prompt" data-ai-prompt="What should I consider when choosing a paint roller or brush?">Tools advice</button>
+    </div>
+    <form id="aiChatForm" class="ai-input-row">
+      <textarea id="aiInput" rows="1" maxlength="4000" placeholder="Ask the AI Assistant…" aria-label="Ask the AI Assistant"></textarea>
+      <button id="aiSendBtn" type="submit" class="btn primary">Send</button>
+    </form>
+    <div class="ai-note">Standalone assistant — it does not read or change Sales, Inventory, Purchases, Estimate, Invoice, Contact Details or Google Drive data.</div>
+  </div>
+</div></section><section id="accounts" class="section"><div class="head"><div><div class="eyebrow">07 / CONTACT DETAILS</div><h2>Customers & Suppliers</h2></div><div><button id="addCustomer" class="btn">Add Customer</button> <button id="addSupplier" class="btn">Add Supplier</button></div></div><div class="grid"><div class="card"><h3>Customers</h3><div class="table" id="customersTable"></div></div><div class="card"><h3>Suppliers</h3><div class="table" id="suppliersTable"></div></div></div></section>
 </main>
 <dialog id="productDialog"><form id="productForm" class="form"><h2 class="full">Add Main Product</h2><label>SKU<input id="pSku" required><button type="button" class="btn" id="scanSku">📷 Scan SKU / text</button><input id="photoSku" type="file" accept="image/*" capture="environment" hidden></label><label>Product Name<input id="pName" required><button type="button" class="btn" id="scanName">📷 Scan Product Name</button><input id="photoName" type="file" accept="image/*" capture="environment" hidden></label><label>Brand<input id="pBrand"><button type="button" class="btn" id="scanBrand">📷 Scan Brand</button><input id="photoBrand" type="file" accept="image/*" capture="environment" hidden></label><label>Product Type<select id="pType"></select></label><label>Shade / Colour<input id="pShade"><button type="button" class="btn" id="scanShade">📷 Scan Shade</button><input id="photoShade" type="file" accept="image/*" capture="environment" hidden></label><label>Finish<input id="pFinish" placeholder="Matt / Gloss"></label><label>Pack Size<input id="pPack" placeholder="20"></label><label>Unit<select id="pUnit"></select></label><label>Purchase Price<input id="pCost" type="number" min="0" step=".01" required></label><label>Selling Price<input id="pSell" type="number" min="0" step=".01" required></label><label>GST %<input id="pGst" type="number" value="18" min="0"></label><label>Opening Stock<input id="pStock" type="number" min="0" step=".01" required></label><label>Reorder Level<input id="pReorder" type="number" min="0" value="5"></label><label>Rack<input id="pRack"></label><div class="form-actions"><button type="button" class="btn" onclick="productDialog.close()">Cancel</button><button class="btn primary">Save Product</button></div></form></dialog>
 
@@ -2302,6 +2324,53 @@ function forceInvoiceToday(){
  $('receiptDatePrint').textContent=el.textContent;
 }
 bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try{calcInit()}catch(e){console.error('Calculation tab init failed:',e)}},0);
+</script><script>
+/* Standalone AI Assistant. Intentionally isolated from the shop database and existing workflows. */
+(function(){
+  const messages=$('aiMessages'), input=$('aiInput'), form=$('aiChatForm'), send=$('aiSendBtn'), clear=$('aiClearBtn');
+  if(!messages||!input||!form)return;
+  const history=[];
+  function addMessage(role,text){
+    const el=document.createElement('div');
+    el.className='ai-message '+role;
+    el.textContent=text;
+    messages.appendChild(el);
+    messages.scrollTop=messages.scrollHeight;
+    return el;
+  }
+  function welcome(){
+    messages.innerHTML='';
+    history.length=0;
+    addMessage('assistant','Hi! I’m the Raghava Paints AI Assistant. I can help with paint selection, painting methods, colours, tools and general painting questions.');
+  }
+  function typing(){
+    const el=document.createElement('div');
+    el.className='ai-message assistant';
+    el.innerHTML='<span class="ai-typing"><i></i><i></i><i></i></span>';
+    messages.appendChild(el);messages.scrollTop=messages.scrollHeight;return el;
+  }
+  async function ask(question){
+    const q=String(question||'').trim(); if(!q)return;
+    addMessage('user',q); input.value=''; input.style.height='auto'; send.disabled=true;
+    const wait=typing();
+    try{
+      const res=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,history:history.slice(-8)})});
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok)throw new Error(data.error||'AI service is unavailable.');
+      const answer=String(data.answer||'').trim()||'I could not generate a response. Please try again.';
+      wait.remove(); addMessage('assistant',answer);
+      history.push({role:'user',content:q},{role:'assistant',content:answer});
+    }catch(err){
+      wait.remove(); addMessage('system',err.message||'Unable to connect to the AI assistant.');
+    }finally{send.disabled=false;input.focus();}
+  }
+  form.addEventListener('submit',e=>{e.preventDefault();ask(input.value)});
+  input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit()}});
+  input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,130)+'px'});
+  clear?.addEventListener('click',welcome);
+  document.querySelectorAll('.ai-prompt').forEach(b=>b.addEventListener('click',()=>ask(b.dataset.aiPrompt)));
+  welcome();
+})();
 </script><script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script><script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body></html>
 <!-- restore promotion video player -->
