@@ -22,6 +22,41 @@
 .calc-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.calc-actions .btn{font-size:12px}.calc-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.calc-metric{border:1px solid #e4e8ef;border-radius:11px;padding:12px;background:#fafbfc}.calc-metric small{display:block;color:#667085;font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.calc-metric strong{display:block;font-size:20px;margin-top:4px;color:#172b4d}.calc-table{width:100%;border-collapse:collapse}.calc-table th,.calc-table td{padding:9px 7px;border-bottom:1px solid #edf0f3;font-size:11px;text-align:left}.calc-table th{font-size:9px}.calc-table td.num{text-align:right;font-variant-numeric:tabular-nums}.calc-section-title{display:flex;justify-content:space-between;align-items:center;gap:10px}.calc-section-title button{font-size:11px}.calc-note{border-left:3px solid #2457d6;background:#f7f9ff;padding:10px 12px;border-radius:7px;color:#475467;font-size:10px;line-height:1.5;margin-top:12px}
 .surface-box{border:1px solid #e4e8ef;border-radius:12px;padding:13px;margin-top:10px;background:#fff}.surface-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.surface-grid label{font-size:10px;font-weight:800;display:grid;gap:5px}.surface-grid input,.surface-grid select{padding:8px;font-size:11px}.estimate-total{background:#172033;color:#fff;border-radius:13px;padding:15px;margin-top:12px}.estimate-total strong{font-size:25px}.estimate-total span{font-size:10px;color:#cbd2df}.calc-source{font-size:9px;color:#98a2b3;margin-top:8px;line-height:1.45}
 @media(max-width:1000px){.calc-grid{grid-template-columns:1fr}.room-row{grid-template-columns:repeat(3,1fr)}.unit-strip{grid-template-columns:repeat(3,1fr)}}@media(max-width:700px){.calc-hero{flex-direction:column;align-items:flex-start}.calc-form,.surface-grid{grid-template-columns:1fr 1fr}.room-row{grid-template-columns:1fr 1fr}.calc-summary{grid-template-columns:1fr 1fr}}
+</style><style id="ai-rich-answer-css">
+.ai-rich-answer{display:grid;gap:12px;width:100%;max-width:760px}
+.ai-rich-answer p{margin:0;line-height:1.65;color:#475467}
+.ai-answer-title{display:flex;align-items:center;gap:11px;padding-bottom:10px;border-bottom:1px solid #edf0f4}
+.ai-answer-title>span{width:38px;height:38px;border-radius:11px;background:#edf3ff;display:grid;place-items:center;font-size:19px}
+.ai-answer-title b{display:block;font-size:14px;color:#172033;line-height:1.3}
+.ai-answer-title small{display:block;margin-top:3px;color:#98a2b3;font-size:10px}
+.ai-answer-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ai-stat-card{padding:12px;border:1px solid #e4e8ef;border-radius:12px;background:linear-gradient(180deg,#fff,#fafbfc)}
+.ai-stat-card span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#8a95a6;font-weight:800}
+.ai-stat-card strong{display:block;margin-top:5px;font-size:14px;color:#172033;line-height:1.35}
+.ai-answer-dropdown{border:1px solid #e4e8ef;border-radius:12px;background:#fff;overflow:hidden}
+.ai-answer-dropdown summary{list-style:none;display:grid;grid-template-columns:20px 1fr auto;align-items:center;gap:6px;padding:12px 13px;cursor:pointer}
+.ai-answer-dropdown summary::-webkit-details-marker{display:none}
+.ai-answer-dropdown summary>span{color:#2457d6;font-size:15px;transition:transform .15s}
+.ai-answer-dropdown[open] summary>span{transform:rotate(180deg)}
+.ai-answer-dropdown summary b{font-size:11px;color:#344054}
+.ai-answer-dropdown summary small{font-size:9px;color:#98a2b3}
+.ai-category-list,.ai-sample-list{border-top:1px solid #edf0f3;padding:5px 13px 9px}
+.ai-category-row{display:flex;justify-content:space-between;gap:15px;padding:9px 0;border-bottom:1px solid #f0f2f5;font-size:11px}
+.ai-category-row:last-child{border-bottom:0}
+.ai-category-row span:last-child{font-weight:800;color:#2457d6}
+.ai-sample-list div{padding:8px 0;border-bottom:1px solid #f0f2f5;font-size:11px;color:#344054}
+.ai-sample-list div:last-child{border-bottom:0}
+.ai-answer-note{padding:10px 12px!important;border-radius:10px;background:#f7f9ff;color:#526581!important;font-size:10px!important}
+.ai-product-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ai-detail-item{border:1px solid #e5e9f0;border-radius:11px;padding:10px 11px;background:#fafbfc}
+.ai-detail-label{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#8a95a6;font-weight:800}
+.ai-detail-item strong{display:block;margin-top:4px;font-size:12px;color:#172033;line-height:1.4;overflow-wrap:anywhere}
+.ai-match-list{display:grid;gap:7px}
+.ai-match-card{display:grid;grid-template-columns:28px 1fr;gap:9px;align-items:start;border:1px solid #e5e9f0;border-radius:11px;padding:10px;background:#fafbfc}
+.ai-match-num{width:28px;height:28px;border-radius:8px;background:#edf3ff;color:#2457d6;display:grid;place-items:center;font-size:10px;font-weight:850}
+.ai-match-card b{display:block;font-size:11px;color:#172033;line-height:1.35}
+.ai-match-card small{display:block;margin-top:4px;color:#667085;font-size:9px;line-height:1.45}
+@media(max-width:700px){.ai-answer-stats{grid-template-columns:1fr 1fr}.ai-product-detail-grid{grid-template-columns:1fr}.ai-answer-dropdown summary{grid-template-columns:20px 1fr}.ai-answer-dropdown summary small{display:none}}
 </style><style id="ai-assistant-css">
 .ai-shell{display:grid;gap:16px}.ai-header{display:flex;justify-content:space-between;align-items:flex-end;gap:18px}.ai-header h2{margin:5px 0 6px}.ai-header p{margin:0;color:#667085;font-size:12px}.ai-kicker{font-size:10px;letter-spacing:.16em;font-weight:850;color:#2457d6}.ai-card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden}.ai-messages{height:min(58vh,560px);min-height:360px;overflow:auto;padding:20px;background:#f8fafc;display:flex;flex-direction:column;gap:12px}.ai-message{max-width:min(820px,88%);padding:12px 14px;border-radius:14px;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}.ai-message.user{align-self:flex-end;background:#2457d6;color:#fff;border-bottom-right-radius:5px}.ai-message.assistant{align-self:flex-start;background:#fff;border:1px solid #e5e7eb;color:#182230;border-bottom-left-radius:5px}.ai-message.system{align-self:center;background:#f2f4f7;color:#667085;font-size:11px}.ai-typing{display:inline-flex;gap:4px;align-items:center}.ai-typing i{width:5px;height:5px;border-radius:50%;background:#98a2b3;animation:aiBounce 1s infinite ease-in-out}.ai-typing i:nth-child(2){animation-delay:.15s}.ai-typing i:nth-child(3){animation-delay:.3s}@keyframes aiBounce{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-3px);opacity:1}}.ai-prompts{display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid #edf0f3}.ai-prompt{border:1px solid #d9dee7;background:#fff;color:#344054;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:700;cursor:pointer}.ai-prompt:hover{background:#f7f9fc;border-color:#c8d5f5}.ai-input-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:14px;border-top:1px solid #edf0f3}.ai-input-row textarea{resize:none;min-height:44px;max-height:130px;border:1px solid #d9dee7;border-radius:10px;padding:11px 12px;font:inherit;line-height:1.4}.ai-input-row textarea:focus{outline:2px solid #dce7ff;border-color:#2457d6}.ai-input-row .btn{min-width:82px;align-self:end}.ai-note{padding:0 14px 14px;color:#98a2b3;font-size:10px;line-height:1.45}@media(max-width:700px){.ai-header{align-items:flex-start;flex-direction:column}.ai-messages{min-height:420px;height:55vh}.ai-message{max-width:94%}.ai-input-row{grid-template-columns:1fr}.ai-input-row .btn{width:100%}}
 <style id="ai-catalogue-css">
@@ -2363,10 +2398,88 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
   function addMessage(role,text){
     const el=document.createElement('div');
     el.className='ai-message '+role;
-    el.textContent=text;
+    if(role==='assistant') el.appendChild(formatAIAnswer(String(text||'')));
+    else el.textContent=text;
     messages.appendChild(el);
     messages.scrollTop=messages.scrollHeight;
     return el;
+  }
+  function aiText(v){return String(v??'').trim()}
+  function aiValue(v){
+    const s=aiText(v),el=document.createElement('span');
+    el.textContent=s;
+    return el;
+  }
+  function formatAIAnswer(text){
+    const wrap=document.createElement('div');
+    wrap.className='ai-rich-answer';
+    const lines=text.split(/\n/).map(x=>x.trim()).filter(Boolean);
+    if(!lines.length)return wrap;
+    const title=lines[0];
+    const isOverview=/^Here is a catalogue overview/i.test(title)||/^Here is the .*catalogue overview/i.test(title);
+    const isCategory=/^Here is the .*catalogue overview/i.test(title)&&!/Asian Paints/i.test(title) ? true : false;
+    if(/^Product Catalogue$/i.test(title)){
+      const head=document.createElement('div');head.className='ai-answer-title';head.innerHTML='<span>📋</span><div><b>Product Catalogue</b><small>Detailed catalogue information</small></div>';wrap.appendChild(head);
+      const grid=document.createElement('div');grid.className='ai-product-detail-grid';
+      lines.slice(1).forEach(line=>{
+        const m=line.match(/^([^:]+):\\s*(.*)$/);if(!m)return;
+        const item=document.createElement('div');item.className='ai-detail-item';
+        const label=document.createElement('span');label.className='ai-detail-label';label.textContent=m[1];
+        const val=document.createElement('strong');val.textContent=m[2]||'—';
+        item.append(label,val);grid.appendChild(item);
+      });
+      wrap.appendChild(grid);return wrap;
+    }
+    if(isOverview){
+      const sub=document.createElement('div');sub.className='ai-answer-title';
+      sub.innerHTML='<span>🎨</span><div><b>'+escapeAIHtml(title)+'</b><small>Catalogue overview</small></div>';
+      wrap.appendChild(sub);
+      const stats=document.createElement('div');stats.className='ai-answer-stats';
+      lines.slice(1).filter(x=>/^(Total catalogue items|Items found|Overall price range|Price range|Category):/i.test(x)).forEach(line=>{
+        const m=line.match(/^([^:]+):\\s*(.*)$/);if(!m)return;
+        const card=document.createElement('div');card.className='ai-stat-card';
+        const label=document.createElement('span');label.textContent=m[1];
+        const val=document.createElement('strong');val.textContent=m[2];
+        card.append(label,val);stats.appendChild(card);
+      });
+      if(stats.children.length)wrap.appendChild(stats);
+      const categoryLine=lines.find(x=>/^Categories:/i.test(x));
+      if(categoryLine){
+        const d=document.createElement('details');d.className='ai-answer-dropdown';d.open=false;
+        const s=document.createElement('summary');s.innerHTML='<span>▾</span><b>Categories & item counts</b><small>Tap to expand</small>';d.appendChild(s);
+        const box=document.createElement('div');box.className='ai-category-list';
+        categoryLine.replace(/^Categories:\\s*/i,'').split(/,\\s*(?=[^,]+\\s*\\()/).forEach(x=>{const p=x.match(/^(.*?)\\s*\\((\\d+)\\)$/);const row=document.createElement('div');row.className='ai-category-row';row.append(aiValue(p?p[1]:x),aiValue(p?p[2]+' items':''));box.appendChild(row)});
+        d.appendChild(box);wrap.appendChild(d);
+      }
+      const brandLine=lines.find(x=>/^Brands:/i.test(x));
+      if(brandLine){
+        const d=document.createElement('details');d.className='ai-answer-dropdown';
+        const s=document.createElement('summary');s.innerHTML='<span>▾</span><b>Brands</b><small>Tap to expand</small>';d.appendChild(s);
+        const box=document.createElement('div');box.className='ai-category-list';brandLine.replace(/^Brands:\\s*/i,'').split(/,\\s*(?=[^,]+\\s*\\()/).forEach(x=>{const p=x.match(/^(.*?)\\s*\\((\\d+)\\)$/);const row=document.createElement('div');row.className='ai-category-row';row.append(aiValue(p?p[1]:x),aiValue(p?p[2]+' items':''));box.appendChild(row)});d.appendChild(box);wrap.appendChild(d);
+      }
+      const sample=lines.find(x=>/^Sample products:/i.test(x)||/^Examples:/i.test(x));
+      if(sample){
+        const d=document.createElement('details');d.className='ai-answer-dropdown';
+        const s=document.createElement('summary');s.innerHTML='<span>▾</span><b>Sample products</b><small>Tap to expand</small>';d.appendChild(s);
+        const box=document.createElement('div');box.className='ai-sample-list';
+        sample.replace(/^(Sample products|Examples):\\s*/i,'').split(/,\\s*/).filter(Boolean).forEach(x=>{const row=document.createElement('div');row.textContent=x;box.appendChild(row)});d.appendChild(box);wrap.appendChild(d);
+      }
+      const note=lines.find(x=>/^Tell me a specific product/i.test(x));if(note){const p=document.createElement('p');p.className='ai-answer-note';p.textContent=note;wrap.appendChild(p)}
+      return wrap;
+    }
+    if(/^I found \\d+ closely matching catalogue entries/i.test(title)){
+      const h=document.createElement('div');h.className='ai-answer-title';h.innerHTML='<span>🔎</span><div><b>Matching Catalogue Products</b><small>Select a specific product name for full details</small></div>';wrap.appendChild(h);
+      const list=document.createElement('div');list.className='ai-match-list';
+      lines.slice(1).filter(x=>/^\\d+\\./.test(x)).forEach(x=>{const row=document.createElement('div');row.className='ai-match-card';const m=x.match(/^\\d+\\.\\s*(.*?)(?:\\s+—\\s+(.*?))?(?:\\s+—\\s+(.*?))?$/);row.innerHTML='<span class="ai-match-num">'+x.match(/^\\d+/)[0]+'</span><div><b>'+escapeAIHtml(m?m[1]:x.replace(/^\\d+\\.\\s*/,''))+'</b>'+(m&&m[2]?'<small>'+escapeAIHtml(m[2])+(m[3]?' · '+escapeAIHtml(m[3]):'')+'</small>':'')+'</div>';list.appendChild(row)});wrap.appendChild(list);
+      const note=lines.find(x=>/^Name the exact product/i.test(x));if(note){const p=document.createElement('p');p.className='ai-answer-note';p.textContent=note;wrap.appendChild(p)}
+      return wrap;
+    }
+    // General assistant answer: keep readable paragraphs and bullet lines.
+    lines.forEach(line=>{const p=document.createElement('p');p.textContent=line.replace(/^[-•]\\s*/,'');wrap.appendChild(p)});
+    return wrap;
+  }
+  function escapeAIHtml(v){
+    return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
   function welcome(){
     messages.innerHTML='';
@@ -2519,12 +2632,12 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       const cats={};
       list.forEach(r=>{const c=inferCategory(r);cats[c]=(cats[c]||0)+1});
       const examples=[...new Map(list.filter(r=>clean(r.name)).map(r=>[clean(r.name).toLowerCase(),r])).values()].slice(0,5);
-      let ans='Here is the '+title.toLowerCase()+' catalogue overview'+(brand?' for '+(brand==='asian paints'?'Asian Paints':brand):'')+'\\n\\n';
-      ans+='Items found: '+list.length+'\\n';
-      ans+='Price range: '+formatRanges(list)+'\\n';
-      if(Object.keys(cats).length)ans+='Category: '+Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,n])=>c+' ('+n+')').join(', ')+'\\n';
-      if(examples.length)ans+='\\nExamples: '+examples.map(r=>clean(r.name)).join(', ');
-      ans+='\\n\\nFor an individual product name, I’ll show its catalogue details such as pack size, price, shade, finish, SKU and other available fields.';
+      let ans='Here is the '+title.toLowerCase()+' catalogue overview'+(brand?' for '+(brand==='asian paints'?'Asian Paints':brand):'')+'\n\n';
+      ans+='Items found: '+list.length+'\n';
+      ans+='Price range: '+formatRanges(list)+'\n';
+      if(Object.keys(cats).length)ans+='Category: '+Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,n])=>c+' ('+n+')').join(', ')+'\n';
+      if(examples.length)ans+='\nExamples: '+examples.map(r=>clean(r.name)).join(', ');
+      ans+='\n\nFor an individual product name, I’ll show its catalogue details such as pack size, price, shade, finish, SKU and other available fields.';
       return ans;
     }
     function overallOverview(list,brand){
@@ -2536,38 +2649,38 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       list.forEach(r=>{const b=clean(r.brand);if(b)brands[b]=(brands[b]||0)+1});
       const brandParts=Object.entries(brands).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([b,n])=>b+' ('+n+')');
       const examples=[...new Map(list.filter(r=>clean(r.name)).map(r=>[clean(r.name).toLowerCase(),r])).values()].slice(0,6);
-      let ans='Here is a catalogue overview'+(brand?' for '+(brand==='asian paints'?'Asian Paints':brand):'')+'\\n\\n';
-      ans+='Total catalogue items: '+list.length+'\\n';
-      ans+='Overall price range: '+formatRanges(list)+'\\n';
-      if(brandParts.length&&!brand)ans+='Brands: '+brandParts.join(', ')+'\\n';
-      if(catParts.length)ans+='\\nCategories: '+catParts.join(', ')+'\\n';
-      if(examples.length)ans+='\\nSample products: '+examples.map(r=>clean(r.name)).join(', ')+'\\n';
-      ans+='\\nTell me a specific product name when you want the detailed catalogue entry instead of the category overview.';
+      let ans='Here is a catalogue overview'+(brand?' for '+(brand==='asian paints'?'Asian Paints':brand):'')+'\n\n';
+      ans+='Total catalogue items: '+list.length+'\n';
+      ans+='Overall price range: '+formatRanges(list)+'\n';
+      if(brandParts.length&&!brand)ans+='Brands: '+brandParts.join(', ')+'\n';
+      if(catParts.length)ans+='\nCategories: '+catParts.join(', ')+'\n';
+      if(examples.length)ans+='\nSample products: '+examples.map(r=>clean(r.name)).join(', ')+'\n';
+      ans+='\nTell me a specific product name when you want the detailed catalogue entry instead of the category overview.';
       return ans;
     }
     function productCatalogue(r){
-      let ans='Product Catalogue\\n\\n';
-      ans+='Product: '+(esc(r.name)||'—')+'\\n';
-      if(clean(r.brand))ans+='Brand: '+esc(r.brand)+'\\n';
-      const cat=inferCategory(r);if(cat)ans+='Category: '+esc(cat)+'\\n';
-      if(clean(r.type))ans+='Type: '+esc(r.type)+'\\n';
-      if(clean(r.variant))ans+='Variant: '+esc(r.variant)+'\\n';
-      if(clean(r.size))ans+='Pack Size: '+esc(r.size)+(clean(r.unit)?' '+esc(r.unit):'')+'\\n';
-      if(clean(r.sellingPrice))ans+='Price: '+money(r.sellingPrice)+(clean(r.unit)?' / '+esc(r.unit):'')+'\\n';
-      if(clean(r.shade))ans+='Shade / Colour: '+esc(r.shade)+'\\n';
-      if(clean(r.finish))ans+='Finish: '+esc(r.finish)+'\\n';
-      if(clean(r.sku))ans+='SKU: '+esc(r.sku)+'\\n';
-      if(clean(r.barcode))ans+='Barcode: '+esc(r.barcode)+'\\n';
-      if(clean(r.gstPercent))ans+='GST: '+esc(r.gstPercent)+'%\\n';
-      if(clean(r.verifiedOn))ans+='Verified: '+esc(r.verifiedOn)+'\\n';
-      if(clean(r.source))ans+='Source: '+esc(r.source)+'\\n';
-      if(clean(r.notes))ans+='Notes: '+esc(r.notes)+'\\n';
+      let ans='Product Catalogue\n\n';
+      ans+='Product: '+(esc(r.name)||'—')+'\n';
+      if(clean(r.brand))ans+='Brand: '+esc(r.brand)+'\n';
+      const cat=inferCategory(r);if(cat)ans+='Category: '+esc(cat)+'\n';
+      if(clean(r.type))ans+='Type: '+esc(r.type)+'\n';
+      if(clean(r.variant))ans+='Variant: '+esc(r.variant)+'\n';
+      if(clean(r.size))ans+='Pack Size: '+esc(r.size)+(clean(r.unit)?' '+esc(r.unit):'')+'\n';
+      if(clean(r.sellingPrice))ans+='Price: '+money(r.sellingPrice)+(clean(r.unit)?' / '+esc(r.unit):'')+'\n';
+      if(clean(r.shade))ans+='Shade / Colour: '+esc(r.shade)+'\n';
+      if(clean(r.finish))ans+='Finish: '+esc(r.finish)+'\n';
+      if(clean(r.sku))ans+='SKU: '+esc(r.sku)+'\n';
+      if(clean(r.barcode))ans+='Barcode: '+esc(r.barcode)+'\n';
+      if(clean(r.gstPercent))ans+='GST: '+esc(r.gstPercent)+'%\n';
+      if(clean(r.verifiedOn))ans+='Verified: '+esc(r.verifiedOn)+'\n';
+      if(clean(r.source))ans+='Source: '+esc(r.source)+'\n';
+      if(clean(r.notes))ans+='Notes: '+esc(r.notes)+'\n';
       return ans.trim();
     }
     function productCatalogueList(list){
-      let ans='I found '+list.length+' closely matching catalogue entries.\\n\\n';
-      ans+=list.map((r,i)=>(i+1)+'. '+clean(r.name||'Unnamed')+' — '+(clean(r.brand)||'')+(clean(r.size)?' — '+clean(r.size):'')+(clean(r.sellingPrice)?' — '+money(r.sellingPrice)+(clean(r.unit)?' / '+clean(r.unit):''):'')).join('\\n');
-      ans+='\\n\\nName the exact product if you want the full catalogue entry.';
+      let ans='I found '+list.length+' closely matching catalogue entries.\n\n';
+      ans+=list.map((r,i)=>(i+1)+'. '+clean(r.name||'Unnamed')+' — '+(clean(r.brand)||'')+(clean(r.size)?' — '+clean(r.size):'')+(clean(r.sellingPrice)?' — '+money(r.sellingPrice)+(clean(r.unit)?' / '+clean(r.unit):''):'')).join('\n');
+      ans+='\n\nName the exact product if you want the full catalogue entry.';
       return ans;
     }
   }
