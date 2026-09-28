@@ -88,6 +88,17 @@
 .ai-stat-selected{border-color:#b8caff!important;background:#f3f6ff!important}
 @media(max-width:700px){.ai-product-row{align-items:flex-start}.ai-product-row>strong{white-space:normal;text-align:right}}
 </style>
+<style id="ai-overview-readable-css">
+.ai-category-section{display:grid;gap:9px}
+.ai-category-section-title{padding:4px 2px 2px}
+.ai-category-section-title b{display:block;font-size:12px;color:#172033}
+.ai-category-section-title small{display:block;margin-top:3px;font-size:9px;color:#8a95a6}
+.ai-category-dropdown summary{min-height:52px}
+.ai-category-dropdown summary>div{min-width:0}
+.ai-category-dropdown summary>div b{font-size:12px!important}
+.ai-category-dropdown summary>div small{font-size:9px!important}
+.ai-product-row{cursor:default}
+</style>
 </head>
 <body>
 <header class="top"><div><div class="eyebrow">LOCAL SHOP OPERATIONS</div><h1>Raghava Paints and Hardwares</h1></div><div><div class="connection"><span id="dot" class="dot"></span><span id="connectionText">Google Drive storage not connected</span></div><button id="connectBtn" class="btn primary">Connect Google Drive</button></div></header>
@@ -2440,9 +2451,10 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
     wrap.className='ai-rich-answer';
     const lines=text.split(/\n/).map(x=>x.trim()).filter(Boolean);
     if(!lines.length)return wrap;
-    const title=lines[0];
-    const isOverview=/^Here is a catalogue overview/i.test(title)||/^Here is the .*catalogue overview/i.test(title);
-    const isCategory=/^Here is the .*catalogue overview/i.test(title)&&!/Asian Paints/i.test(title) ? true : false;
+    const mode=(lines[0]||'').trim();
+    const title=lines.find(x=>/^TITLE:/i.test(x))?.replace(/^TITLE:\s*/i,'')||lines[0]||'';
+    const isOverview=mode==='AI_OVERVIEW'||/^Here is a catalogue overview/i.test(title)||/^Here is the .*catalogue overview/i.test(title);
+    const isCategory=/^Here is the .*catalogue overview/i.test(title)&&!/Asian Paints/i.test(title);
     if(/^Product Catalogue$/i.test(title)){
       const head=document.createElement('div');head.className='ai-answer-title';head.innerHTML='<span>📋</span><div><b>Product Catalogue</b><small>Detailed catalogue information</small></div>';wrap.appendChild(head);
       const grid=document.createElement('div');grid.className='ai-product-detail-grid';
@@ -2475,7 +2487,11 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       });
       if(stats.children.length)wrap.appendChild(stats);
       if(data.length){
-        const section=document.createElement('div');section.className='ai-category-accordion-list';
+        const section=document.createElement('div');section.className='ai-category-section';
+        const sectionTitle=document.createElement('div');sectionTitle.className='ai-category-section-title';
+        sectionTitle.innerHTML='<div><b>Browse by category</b><small>Open a category to see its types, products and prices</small></div>';
+        section.appendChild(sectionTitle);
+        const accordions=document.createElement('div');accordions.className='ai-category-accordion-list';
         data.forEach((cat,idx)=>{
           const d=document.createElement('details');d.className='ai-answer-dropdown ai-category-dropdown';
           const s=document.createElement('summary');
