@@ -2747,7 +2747,9 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       ['primer',/primer/],['enamel',/enamel/],['waterproof',/waterproof/],['interior',/interior|emulsion|distemper/],
       ['exterior',/exterior/],['wood',/wood/],['metal',/metal/],['hardware',/hardware/]
     ];
-    const colourCombinationIntent=/\b(colou?r|combination|combinations|palette|palettes)\b/i.test(l) && /\b(living\s+room|bedroom|hall|dining|home|room|wall|walls)\b/i.test(l);\n    if(colourCombinationIntent)return colourSuggestions(l);\n    const recommendationIntent=/\b(recommend|recommendation|suggest|which\s+paint|what\s+paint|which\s+one|what\s+should\s+i\s+use|best\s+paint|good\s+paint|suitable\s+paint|help\s+me\s+choose)\b/i.test(l);
+    const colourCombinationIntent=/\b(colou?r|combination|combinations|palette|palettes)\b/i.test(l) && /\b(living\s+room|bedroom|hall|dining|home|room|wall|walls)\b/i.test(l);
+    if(colourCombinationIntent)return colourSuggestions(l);
+    const recommendationIntent=/\b(recommend|recommendation|suggest|which\s+paint|what\s+paint|which\s+one|what\s+should\s+i\s+use|best\s+paint|good\s+paint|suitable\s+paint|help\s+me\s+choose)\b/i.test(l);
     const interiorIntent=/\b(interior|inside|indoor|living\s+room|bedroom|dining|hall|ceiling|home\s+walls?)\b/i.test(l);
     if(recommendationIntent && interiorIntent){
       const interiorRows=scope.filter(r=>{
@@ -2821,7 +2823,18 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
     if(/interior|exterior|primer|putty|emulsion|waterproof/i.test(l))return categoryOverview('paint',scope,brandMatch);
     return 'I can help with the connected product catalogue. Ask a broad question such as “Show me Asian Paints products” for category and price-range information, or name a specific product to see its catalogue details.';
     
-    function colourSuggestions(query){\n      const room=/bedroom/i.test(query)?'Bedroom':/dining/i.test(query)?'Dining Room':/hall|living\\s*room/i.test(query)?'Living Room':'Room';\n      const palettes=[\n        {name:'Warm Elegant',main:'Warm Ivory',accent:'Terracotta',mainHex:'#F3E7D3',accentHex:'#C96F4A',use:'Ivory walls with a terracotta feature wall or accents.'},\n        {name:'Fresh & Calm',main:'Soft Sage',accent:'Warm White',mainHex:'#B7C8B0',accentHex:'#F7F3EA',use:'Sage as the main wall colour with warm white for the remaining walls and ceiling.'},\n        {name:'Modern Neutral',main:'Greige',accent:'Deep Olive',mainHex:'#C8C0B4',accentHex:'#59624D',use:'Greige for most walls with olive on one feature wall or in décor.'},\n        {name:'Cool & Airy',main:'Powder Blue',accent:'Crisp White',mainHex:'#BFD8E8',accentHex:'#FFFFFF',use:'Powder blue walls paired with crisp white for a bright, spacious feel.'},\n        {name:'Soft Luxury',main:'Blush Beige',accent:'Muted Mauve',mainHex:'#DCC8BC',accentHex:'#9B7D86',use:'Blush beige as the base with muted mauve for a refined accent.'}\n      ];\n      return 'COLOR_SUGGESTIONS:'+JSON.stringify({room,palettes});\n    }\n    function reTest(re,r){
+    function colourSuggestions(query){
+      const room=/bedroom/i.test(query)?'Bedroom':/dining/i.test(query)?'Dining Room':/hall|living\s*room/i.test(query)?'Living Room':'Room';
+      const palettes=[
+        {name:'Warm Elegant',main:'Warm Ivory',accent:'Terracotta',mainHex:'#F3E7D3',accentHex:'#C96F4A',use:'Ivory walls with a terracotta feature wall or accents.'},
+        {name:'Fresh & Calm',main:'Soft Sage',accent:'Warm White',mainHex:'#B7C8B0',accentHex:'#F7F3EA',use:'Sage as the main wall colour with warm white for the remaining walls and ceiling.'},
+        {name:'Modern Neutral',main:'Greige',accent:'Deep Olive',mainHex:'#C8C0B4',accentHex:'#59624D',use:'Greige for most walls with olive on one feature wall or in décor.'},
+        {name:'Cool & Airy',main:'Powder Blue',accent:'Crisp White',mainHex:'#BFD8E8',accentHex:'#FFFFFF',use:'Powder blue walls paired with crisp white for a bright, spacious feel.'},
+        {name:'Soft Luxury',main:'Blush Beige',accent:'Muted Mauve',mainHex:'#DCC8BC',accentHex:'#9B7D86',use:'Blush beige as the base with muted mauve for a refined accent.'}
+      ];
+      return 'COLOR_SUGGESTIONS:'+JSON.stringify({room,palettes});
+    }
+    function reTest(re,r){
       return re.test(clean(r.name)+' '+clean(r.type)+' '+clean(r.category)+' '+clean(r.variant));
     }
     function formatRanges(list){
