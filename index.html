@@ -2420,25 +2420,156 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
   }
   function money(v){const n=Number(v);return Number.isFinite(n)&&n>0?'₹'+n.toLocaleString('en-IN',{maximumFractionDigits:2}):''}
   function localCatalogueAnswer(q,rows){
-    const l=q.toLowerCase();
-    const productWords=/product|paint|emulsion|primer|putty|enamel|thinner|brush|roller|tool|hardware|shade|colour|color|price|cost|mrp|size|pack|available|catalogue|catalog|sku|barcode|finish|brand|asian paints/i;
-    const tokens=l.split(/[^a-z0-9]+/).filter(x=>x.length>=3);
-    const matches=rows.filter(r=>{const h=[r.name,r.brand,r.type,r.category,r.variant,r.size,r.shade,r.finish,r.sku,r.barcode,r.unit].join(' ').toLowerCase();return tokens.some(t=>h.includes(t))});
-    if(productWords.test(l)&&matches.length){
-      const unique=[];const seen=new Set();matches.forEach(r=>{const k=String(r.name||'').toLowerCase();if(k&&!seen.has(k)){seen.add(k);unique.push(r)}});
-      const show=unique.slice(0,8);
-      let ans='I found '+unique.length+' matching catalogue item'+(unique.length===1?'':'s')+' in the Google Drive AI Product Library:\n\n';
-      ans+=show.map((r,i)=>(i+1)+'. '+(r.name||'Unnamed product')+(r.brand?' — '+r.brand:'')+(r.size?' — '+r.size:'')+(r.sellingPrice!==''&&r.sellingPrice!=null?' — '+money(r.sellingPrice):'')+(r.unit?' / '+r.unit:'')+(r.shade?' — Shade: '+r.shade:'')+(r.finish?' — Finish: '+r.finish:'')).join('\n');
-      if(unique.length>8)ans+='\n\nShowing the first 8 matches. Ask with a more specific product name, size, or brand for narrower results.';
+    const l=String(q||'').toLowerCase().trim();
+    const all=Array.isArray(rows)?rows:[];
+    const stop=new Set(['show','me','the','this','that','what','which','give','tell','about','please','can','you','are','is','for','from','with','and','or','how','many','their','your','products','product','items','item','details','detail','catalogue','catalog','available','availability','current','range','price','prices','cost','costs','mrp','rate','rates','list','all','some','types','type','category','categories','brand','brands','paint','paints','asian','per','in','of','on','to']);
+    const tokens=l.split(/[^a-z0-9]+/).filter(x=>x.length>=2&&!stop.has(x));
+    const clean=v=>String(v??'').trim();
+    const money=v=>{const n=Number(v);return Number.isFinite(n)&&n>0?'₹'+n.toLocaleString('en-IN',{maximumFractionDigits:2}):''};
+    const esc=v=>clean(v).replace(/[<>]/g,'');
+    function inferCategory(r){
+      const explicit=clean(r.category);
+      if(explicit)return explicit;
+      const s=(clean(r.type)+' '+clean(r.name)+' '+clean(r.variant)).toLowerCase();
+      if(/brush/.test(s))return 'Brushes';
+      if(/roller/.test(s))return 'Rollers';
+      if(/thinner/.test(s))return 'Thinners';
+      if(/putty/.test(s))return 'Wall Putty';
+      if(/primer/.test(s))return 'Primers';
+      if(/enamel/.test(s))return 'Enamels';
+      if(/waterproof/.test(s))return 'Waterproofing';
+      if(/adhesive|glue/.test(s))return 'Adhesives';
+      if(/exterior/.test(s))return 'Exterior Paints';
+      if(/interior|emulsion|distemper/.test(s))return 'Interior Paints';
+      if(/metal/.test(s))return 'Metal Paints';
+      if(/wood/.test(s))return 'Wood Finishes';
+      if(/paint/.test(s))return 'Paints';
+      return clean(r.type)||'Other';
+    }
+    function brandMatches(r,brand){
+      return !brand || clean(r.brand).toLowerCase().includes(brand);
+    }
+    const brandMatch=(l.match(/asian\s+paints?/i)||[])[0]?.toLowerCase()||'';
+    let scope=all.filter(r=>brandMatches(r,brandMatch));
+    if(!scope.length&&brandMatch)scope=all;
+    const categoryWords=[
+      ['brush',/brush/],['roller',/roller/],['thinner',/thinner/],['putty',/putty/],
+      ['primer',/primer/],['enamel',/enamel/],['waterproof',/waterproof/],['interior',/interior|emulsion|distemper/],
+      ['exterior',/exterior/],['wood',/wood/],['metal',/metal/],['hardware',/hardware/]
+    ];
+    const categoryHit=categoryWords.find(([word,re])=>re.test(l));
+    if(categoryHit){
+      const filtered=scope.filter(r=>reTest(categoryHit[1],r));
+      if(filtered.length)return categoryOverview(categoryHit[0],filtered,brandMatch);
+    }
+    const broad=/\b(show|list|what|which|give|tell|details?|range|categories?|types?|products?|catalogue|catalog)\b/i.test(l) &&
+      (!tokens.length || tokens.length<=3 || !!brandMatch || /\b(products?|catalogue|catalog)\b/i.test(l));
+    if(broad){
+      return overallOverview(scope,brandMatch);
+    }
+    const searchable=r=>[
+      r.name,r.brand,r.type,r.category,r.variant,r.size,r.shade,r.finish,r.sku,r.barcode,r.unit
+    ].map(clean).join(' ').toLowerCase();
+    const scored=scope.map(r=>{
+      const h=searchable(r);
+      let score=0;
+      const name=clean(r.name).toLowerCase();
+      if(name && l.includes(name))score+=100;
+      tokens.forEach(t=>{if(h.includes(t))score+=name.includes(t)?8:3});
+      if(clean(r.sku)&&l.includes(clean(r.sku).toLowerCase()))score+=60;
+      if(clean(r.barcode)&&l.includes(clean(r.barcode).toLowerCase()))score+=60;
+      return {r,score};
+    }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+    if(scored.length){
+      const top=scored.slice(0,3).map(x=>x.r);
+      const strong=top.filter(r=>{
+        const name=clean(r.name).toLowerCase();
+        return (name&&l.includes(name))||tokens.some(t=>name.includes(t));
+      });
+      if(strong.length||tokens.length){
+        return top.length===1?productCatalogue(top[0]):productCatalogueList(top);
+      }
+    }
+    if(/hello|hi|hey|namaste/i.test(l))return 'Hello! I can help with the Raghava Paints & Hardwares catalogue. Ask me about a product, category, price range, pack size, shade, finish, brush, roller, primer or paint.';
+    if(/how.*(prepare|paint)|wall.*prepare|surface/i.test(l))return 'For most wall-painting jobs: clean the surface, remove loose or peeling material, repair cracks and holes, allow repairs to dry, sand where needed, remove dust, apply the appropriate primer, then apply the recommended finish coats according to the product instructions.';
+    if(/roller|brush|tool/i.test(l))return 'I can show the tool category with its item count and price range. Try “Show me brushes” or “Show me rollers”.';
+    if(/colour|color|combination/i.test(l))return 'For colour selection, consider room size, natural light, existing furniture and the desired mood. If you name a product, I can show its catalogue details from the connected product library.';
+    if(/interior|exterior|primer|putty|emulsion|waterproof/i.test(l))return categoryOverview('paint',scope,brandMatch);
+    return 'I can help with the connected product catalogue. Ask a broad question such as “Show me Asian Paints products” for category and price-range information, or name a specific product to see its catalogue details.';
+    
+    function reTest(re,r){
+      return re.test(clean(r.name)+' '+clean(r.type)+' '+clean(r.category)+' '+clean(r.variant));
+    }
+    function formatRanges(list){
+      const groups={};
+      list.forEach(r=>{
+        const n=Number(r.sellingPrice);
+        if(!Number.isFinite(n)||n<=0)return;
+        const unit=clean(r.unit)||'item';
+        (groups[unit]??=[]).push(n);
+      });
+      const parts=Object.entries(groups).map(([unit,vals])=>{
+        const min=Math.min(...vals),max=Math.max(...vals);
+        return min===max?money(min)+' / '+unit:money(min)+' – '+money(max)+' / '+unit;
+      });
+      return parts.length?parts.join('  |  '):'Price not available in the current catalogue data';
+    }
+    function categoryOverview(label,list,brand){
+      const title=label==='brush'?'Brushes':label==='roller'?'Rollers':label==='thinner'?'Thinners':label==='putty'?'Wall Putty':label==='primer'?'Primers':label==='enamel'?'Enamels':label==='waterproof'?'Waterproofing':label==='interior'?'Interior Paints':label==='exterior'?'Exterior Paints':label;
+      const cats={};
+      list.forEach(r=>{const c=inferCategory(r);cats[c]=(cats[c]||0)+1});
+      const examples=[...new Map(list.filter(r=>clean(r.name)).map(r=>[clean(r.name).toLowerCase(),r])).values()].slice(0,5);
+      let ans='Here is the '+title.toLowerCase()+' catalogue overview'+(brand?' for '+(brand==='asian paints'?'Asian Paints':brand):'')+'\\n\\n';
+      ans+='Items found: '+list.length+'\\n';
+      ans+='Price range: '+formatRanges(list)+'\\n';
+      if(Object.keys(cats).length)ans+='Category: '+Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,n])=>c+' ('+n+')').join(', ')+'\\n';
+      if(examples.length)ans+='\\nExamples: '+examples.map(r=>clean(r.name)).join(', ');
+      ans+='\\n\\nFor an individual product name, I’ll show its catalogue details such as pack size, price, shade, finish, SKU and other available fields.';
       return ans;
     }
-    if(productWords.test(l)&&!matches.length)return 'I could not find a matching product in the current Google Drive catalogue. Try the product name, brand, category, pack size, or SKU.';
-    if(/hello|hi|hey|namaste/i.test(l))return 'Hello! I can search the Raghava Paints & Hardwares product catalogue and give practical painting and tool guidance. Ask me about a product, price, pack size, shade, finish, brush, roller, primer, or paint.';
-    if(/how.*(prepare|paint)|wall.*prepare|surface/i.test(l))return 'For most wall-painting jobs: clean the surface, remove loose or peeling material, repair cracks and holes, allow repairs to dry, sand where needed, remove dust, apply the appropriate primer, then apply the recommended finish coats according to the product instructions.';
-    if(/roller|brush|tool/i.test(l))return 'Choose the brush or roller according to the coating and surface. A quality roller is generally suitable for broad wall areas, while brushes are useful for edges, corners and smaller areas. Use the tool size and nap/type recommended for the selected coating.';
-    if(/colour|color|combination/i.test(l))return 'For colour selection, consider room size, natural light, existing furniture and the desired mood. Light neutrals can make smaller rooms feel more open; stronger accent colours can be used on one feature wall.';
-    if(/interior|exterior|primer|putty|emulsion|waterproof/i.test(l))return 'Tell me the surface and location (for example, interior wall, exterior wall, metal or wood), and I can help you narrow the suitable paint or preparation product from the catalogue.';
-    return 'I can search the Google Drive product catalogue without an external AI API. Ask me a product question, such as “Asian Paints 20L products”, “What is the price of this product?”, or “Show me brushes”.';
+    function overallOverview(list,brand){
+      if(!list.length)return 'I could not find catalogue records for that brand/category in the connected Google Drive product library.';
+      const cats={};
+      list.forEach(r=>{const c=inferCategory(r);cats[c]=(cats[c]||0)+1});
+      const catParts=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,12).map(([c,n])=>c+' ('+n+')');
+      const brands={};
+      list.forEach(r=>{const b=clean(r.brand);if(b)brands[b]=(brands[b]||0)+1});
+      const brandParts=Object.entries(brands).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([b,n])=>b+' ('+n+')');
+      const examples=[...new Map(list.filter(r=>clean(r.name)).map(r=>[clean(r.name).toLowerCase(),r])).values()].slice(0,6);
+      let ans='Here is a catalogue overview'+(brand?' for '+(brand==='asian paints'?'Asian Paints':brand):'')+'\\n\\n';
+      ans+='Total catalogue items: '+list.length+'\\n';
+      ans+='Overall price range: '+formatRanges(list)+'\\n';
+      if(brandParts.length&&!brand)ans+='Brands: '+brandParts.join(', ')+'\\n';
+      if(catParts.length)ans+='\\nCategories: '+catParts.join(', ')+'\\n';
+      if(examples.length)ans+='\\nSample products: '+examples.map(r=>clean(r.name)).join(', ')+'\\n';
+      ans+='\\nTell me a specific product name when you want the detailed catalogue entry instead of the category overview.';
+      return ans;
+    }
+    function productCatalogue(r){
+      let ans='Product Catalogue\\n\\n';
+      ans+='Product: '+(esc(r.name)||'—')+'\\n';
+      if(clean(r.brand))ans+='Brand: '+esc(r.brand)+'\\n';
+      const cat=inferCategory(r);if(cat)ans+='Category: '+esc(cat)+'\\n';
+      if(clean(r.type))ans+='Type: '+esc(r.type)+'\\n';
+      if(clean(r.variant))ans+='Variant: '+esc(r.variant)+'\\n';
+      if(clean(r.size))ans+='Pack Size: '+esc(r.size)+(clean(r.unit)?' '+esc(r.unit):'')+'\\n';
+      if(clean(r.sellingPrice))ans+='Price: '+money(r.sellingPrice)+(clean(r.unit)?' / '+esc(r.unit):'')+'\\n';
+      if(clean(r.shade))ans+='Shade / Colour: '+esc(r.shade)+'\\n';
+      if(clean(r.finish))ans+='Finish: '+esc(r.finish)+'\\n';
+      if(clean(r.sku))ans+='SKU: '+esc(r.sku)+'\\n';
+      if(clean(r.barcode))ans+='Barcode: '+esc(r.barcode)+'\\n';
+      if(clean(r.gstPercent))ans+='GST: '+esc(r.gstPercent)+'%\\n';
+      if(clean(r.verifiedOn))ans+='Verified: '+esc(r.verifiedOn)+'\\n';
+      if(clean(r.source))ans+='Source: '+esc(r.source)+'\\n';
+      if(clean(r.notes))ans+='Notes: '+esc(r.notes)+'\\n';
+      return ans.trim();
+    }
+    function productCatalogueList(list){
+      let ans='I found '+list.length+' closely matching catalogue entries.\\n\\n';
+      ans+=list.map((r,i)=>(i+1)+'. '+clean(r.name||'Unnamed')+' — '+(clean(r.brand)||'')+(clean(r.size)?' — '+clean(r.size):'')+(clean(r.sellingPrice)?' — '+money(r.sellingPrice)+(clean(r.unit)?' / '+clean(r.unit):''):'')).join('\\n');
+      ans+='\\n\\nName the exact product if you want the full catalogue entry.';
+      return ans;
+    }
   }
   async function ask(question){
     const q=String(question||'').trim(); if(!q)return;
