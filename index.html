@@ -2461,7 +2461,7 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
         const qq="'"+folder+"' in parents and name='"+name.replace(/'/g,"\\'")+"' and trashed=false";
         const lr=await driveFetch('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent(qq)+'&fields=files(id,name)&pageSize=10');if(!lr.ok)throw Error('Could not search the AI library.');
         const lf=await lr.json();let id=lf.files?.[0]?.id;
-        if(!id){const mr=await driveFetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,parents:[folder],mimeType})});if(!mr.ok)throw Error('Could not create '+name+'.');id=(await mr.json()).id}
+        if(!id){const mr=await driveFetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,parents:[folder],mimeType:mime})});if(!mr.ok)throw Error('Could not create '+name+'.');id=(await mr.json()).id}
         const ur=await driveFetch('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(id)+'?uploadType=media&supportsAllDrives=true',{method:'PATCH',headers:{'Content-Type':mime},body:blob});if(!ur.ok)throw Error('Could not upload '+name+'.');return id;
       }
       await upsert('AI_Product_Knowledge.json','application/json',new Blob([JSON.stringify(knowledge,null,2)],{type:'application/json'}));
