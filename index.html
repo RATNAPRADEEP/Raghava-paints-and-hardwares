@@ -63,7 +63,32 @@
 .ai-capabilities{border:1px solid #e5e7eb;background:#fff;border-radius:16px;padding:16px}.ai-capability-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}.ai-capability-head b{display:block;font-size:13px}.ai-capability-head span{display:block;color:#98a2b3;font-size:10px;margin-top:3px}.ai-capability-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.ai-capability{display:grid;grid-template-columns:34px 1fr 18px;align-items:center;gap:9px;text-align:left;border:1px solid #e5e7eb;background:#fafbfc;border-radius:12px;padding:11px;cursor:pointer}.ai-capability:hover{background:#f7f9fc;border-color:#c8d5f5}.ai-capability>span{font-size:20px;text-align:center}.ai-capability b{display:block;font-size:11px;color:#182230}.ai-capability small{display:block;font-size:9px;color:#667085;line-height:1.4;margin-top:3px}.ai-capability>strong{color:#2457d6;text-align:right}.ai-catalogue-dialog{width:min(760px,94vw);padding:0;overflow:hidden}.ai-catalogue-form{padding:22px}.ai-catalogue-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}.ai-catalogue-head h3{margin:5px 0 4px;font-size:23px}.ai-catalogue-head p{margin:0;color:#667085;font-size:11px}.ai-catalogue-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ai-catalogue-grid label{font-size:11px;font-weight:750;display:grid;gap:5px}.ai-catalogue-grid .full{grid-column:1/-1}.ai-catalogue-grid input{font-size:12px}.ai-catalogue-preview-wrap{margin-top:16px}.ai-catalogue-preview-label{font-size:9px;letter-spacing:.14em;font-weight:850;color:#98a2b3}.ai-catalogue-preview{margin-top:7px;min-height:280px;border:1px dashed #d9dee7;border-radius:14px;background:#f8fafc;display:flex;align-items:center;justify-content:center;overflow:hidden}.ai-catalogue-preview canvas{display:block;max-width:100%;height:auto}.ai-catalogue-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:14px}.ai-catalogue-help{font-size:10px;line-height:1.5;color:#98a2b3;margin-top:10px}.ai-catalogue-help b{color:#667085}@media(max-width:700px){.ai-capability-grid,.ai-catalogue-grid{grid-template-columns:1fr}.ai-catalogue-grid .full{grid-column:auto}.ai-catalogue-form{padding:16px}.ai-catalogue-head{flex-direction:column}.ai-catalogue-head .btn{align-self:flex-end}}
 </style><style id="ai-product-library-css">
 .ai-library-status{margin-top:9px;font-size:10px;color:#667085;min-height:15px}.ai-library-status.ok{color:#067647}.ai-library-status.err{color:#b42318}
-</style></style></head>
+</style></style><style id="ai-category-rich-css">
+.ai-category-accordion-list{display:grid;gap:9px}
+.ai-category-dropdown{border-radius:14px!important}
+.ai-category-dropdown summary{grid-template-columns:22px 1fr auto!important;gap:9px!important}
+.ai-category-dropdown summary>div b{display:block;font-size:12px;color:#172033}
+.ai-category-dropdown summary>div small{display:block;margin-top:3px;font-size:9px;color:#8b95a5}
+.ai-category-dropdown summary>strong{font-size:11px;color:#2457d6;background:#edf3ff;padding:5px 9px;border-radius:999px}
+.ai-chevron{transition:transform .18s}
+.ai-category-dropdown[open] .ai-chevron{transform:rotate(180deg)}
+.ai-category-detail{border-top:1px solid #edf0f4;padding:10px 12px 12px;background:#fbfcfe}
+.ai-type-strip{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+.ai-type-strip>span{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#8a95a6;font-weight:800;margin-right:3px}
+.ai-type-strip em{font-style:normal;font-size:9px;color:#344054;background:#fff;border:1px solid #e2e7ee;border-radius:999px;padding:4px 7px}
+.ai-category-price{display:flex;justify-content:space-between;align-items:center;border:1px solid #e1e7f0;background:#fff;border-radius:10px;padding:9px 10px;margin-bottom:8px}
+.ai-category-price span{font-size:9px;color:#8a95a6;text-transform:uppercase;font-weight:800}
+.ai-category-price b{font-size:11px;color:#2457d6}
+.ai-product-list{display:grid;gap:5px}
+.ai-product-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:9px 10px;border:1px solid transparent;border-radius:9px;transition:.15s;background:#fff}
+.ai-product-row:hover{border-color:#cddaff;background:#f3f6ff;transform:translateX(2px)}
+.ai-product-row b{display:block;font-size:10px;color:#344054}
+.ai-product-row small{display:block;margin-top:3px;font-size:8px;color:#98a2b3}
+.ai-product-row>strong{font-size:10px;color:#172033;white-space:nowrap}
+.ai-stat-selected{border-color:#b8caff!important;background:#f3f6ff!important}
+@media(max-width:700px){.ai-product-row{align-items:flex-start}.ai-product-row>strong{white-space:normal;text-align:right}}
+</style>
+</head>
 <body>
 <header class="top"><div><div class="eyebrow">LOCAL SHOP OPERATIONS</div><h1>Raghava Paints and Hardwares</h1></div><div><div class="connection"><span id="dot" class="dot"></span><span id="connectionText">Google Drive storage not connected</span></div><button id="connectBtn" class="btn primary">Connect Google Drive</button></div></header>
 <nav class="nav"><button class="navbtn active" data-page="dashboard">Home</button><button class="navbtn" data-page="sales">Sell</button><button class="navbtn" data-page="purchases">Purchase</button><button class="navbtn" data-page="products">Inventory</button><button class="navbtn" data-page="calculations">Estimate</button><button class="navbtn" data-page="invoices">Invoice Print</button><button class="navbtn" data-page="accounts">Contact Details</button><button class="navbtn" data-page="ai">AI Assistant</button><button id="saveBtn" class="btn save">Save to Google Drive</button><div class="reset-security-actions"><button id="resetShopBtn" class="btn danger" title="PIN required">🔒 Reset Shop Data</button></div></nav>
@@ -1771,31 +1796,7 @@ body{width:760px;height:1060px;overflow:hidden}
 
 `;
 
- const html='<!doctype html><html><head><meta charset="UTF-8"><title>Invoice</title><style>'+styles+'</style><style id="ai-category-rich-css">
-.ai-category-accordion-list{display:grid;gap:9px}
-.ai-category-dropdown{border-radius:14px!important}
-.ai-category-dropdown summary{grid-template-columns:22px 1fr auto!important;gap:9px!important}
-.ai-category-dropdown summary>div b{display:block;font-size:12px;color:#172033}
-.ai-category-dropdown summary>div small{display:block;margin-top:3px;font-size:9px;color:#8b95a5}
-.ai-category-dropdown summary>strong{font-size:11px;color:#2457d6;background:#edf3ff;padding:5px 9px;border-radius:999px}
-.ai-chevron{transition:transform .18s}
-.ai-category-dropdown[open] .ai-chevron{transform:rotate(180deg)}
-.ai-category-detail{border-top:1px solid #edf0f4;padding:10px 12px 12px;background:#fbfcfe}
-.ai-type-strip{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:9px}
-.ai-type-strip>span{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#8a95a6;font-weight:800;margin-right:3px}
-.ai-type-strip em{font-style:normal;font-size:9px;color:#344054;background:#fff;border:1px solid #e2e7ee;border-radius:999px;padding:4px 7px}
-.ai-category-price{display:flex;justify-content:space-between;align-items:center;border:1px solid #e1e7f0;background:#fff;border-radius:10px;padding:9px 10px;margin-bottom:8px}
-.ai-category-price span{font-size:9px;color:#8a95a6;text-transform:uppercase;font-weight:800}
-.ai-category-price b{font-size:11px;color:#2457d6}
-.ai-product-list{display:grid;gap:5px}
-.ai-product-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:9px 10px;border:1px solid transparent;border-radius:9px;transition:.15s;background:#fff}
-.ai-product-row:hover{border-color:#cddaff;background:#f3f6ff;transform:translateX(2px)}
-.ai-product-row b{display:block;font-size:10px;color:#344054}
-.ai-product-row small{display:block;margin-top:3px;font-size:8px;color:#98a2b3}
-.ai-product-row>strong{font-size:10px;color:#172033;white-space:nowrap}
-.ai-stat-selected{border-color:#b8caff!important;background:#f3f6ff!important}
-@media(max-width:700px){.ai-product-row{align-items:flex-start}.ai-product-row>strong{white-space:normal;text-align:right}}
-</style></head><body>'+clone.outerHTML+'</body></html>';
+ const html='<!doctype html><html><head><meta charset="UTF-8"><title>Invoice</title><style>'+styles+'</style></head><body>'+clone.outerHTML+'</body></html>';
  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
  const url=URL.createObjectURL(blob);
  const w=window.open(url,'_blank','width=900,height=1200');
