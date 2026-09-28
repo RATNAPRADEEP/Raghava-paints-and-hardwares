@@ -13,21 +13,21 @@ function json(res,status,body){
 
 function cleanText(html){
   return String(html||'')
-    .replace(/<script[\\s\\S]*?<\\/script>/gi,' ')
-    .replace(/<style[\\s\\S]*?<\\/style>/gi,' ')
+    .replace(/<script[\s\S]*?<\/script>/gi,' ')
+    .replace(/<style[\s\S]*?<\/style>/gi,' ')
     .replace(/<[^>]+>/g,' ')
     .replace(/&nbsp;/gi,' ')
     .replace(/&amp;/gi,'&')
     .replace(/&#8377;|&#x20b9;/gi,'₹')
-    .replace(/\\s+/g,' ')
+    .replace(/\s+/g,' ')
     .trim();
 }
 
 function extractProducts(text,category,source){
-  const out=[];const re=/([A-Za-z][A-Za-z0-9+&()./' -]{2,110}?)\\s+(?:Most popular\\s+|New Launch\\s+)?(?:MRP\\s*)?₹\\s*([0-9,]+(?:\\.[0-9]+)?)\\s*\\(Inclusive of all taxes\\)\\s*per L/gi;
+  const out=[];const re=/([A-Za-z][A-Za-z0-9+&()./' -]{2,110}?)\s+(?:Most popular\s+|New Launch\s+)?(?:MRP\s*)?₹\s*([0-9,]+(?:\.[0-9]+)?)\s*\(Inclusive of all taxes\)\s*per L/gi;
   let m;
   while((m=re.exec(text))){
-    let name=m[1].replace(/^(Compare|Image|Input|Most popular|New Launch)\\s+/gi,'').replace(/\\s+/g,' ').trim();
+    let name=m[1].replace(/^(Compare|Image|Input|Most popular|New Launch)\s+/gi,'').replace(/\s+/g,' ').trim();
     name=name.replace(/^.*?([A-Z][A-Za-z0-9+&()./' -]{2,90})$/,'$1').trim();
     if(name.length<3||name.length>100)continue;
     if(/^(the price|please note|price per litre|inclusive of all taxes|popular exterior emulsions)/i.test(name))continue;
