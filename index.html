@@ -48,7 +48,7 @@
 .ai-category-row span:last-child{font-weight:800;color:#2457d6}
 .ai-sample-list div{padding:8px 0;border-bottom:1px solid #f0f2f5;font-size:11px;color:#344054}
 .ai-sample-list div:last-child{border-bottom:0}
-.ai-answer-note{padding:10px 12px!important;border-radius:10px;background:#f7f9ff;color:#526581!important;font-size:10px!important}
+.ai-answer-note{padding:10px 12px!important;border-radius:10px;background:#f7f9ff;color:#526581!important;font-size:10px!important}.ai-colour-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.ai-colour-card{border:1px solid #e5e7eb;border-radius:12px;background:#fff;padding:11px}.ai-colour-swatches{display:flex;height:54px;border-radius:9px;overflow:hidden;border:1px solid #e5e7eb;margin-bottom:9px}.ai-colour-swatches span{flex:1;display:block}.ai-colour-card b{display:block;font-size:11px;color:#172033}.ai-colour-card small{display:block;margin-top:3px;font-size:9px;color:#667085}.ai-colour-card p{margin:6px 0 0;font-size:9px;line-height:1.45;color:#667085}@media(max-width:700px){.ai-colour-grid{grid-template-columns:1fr}}
 .ai-product-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .ai-detail-item{border:1px solid #e5e9f0;border-radius:11px;padding:10px 11px;background:#fafbfc}
 .ai-detail-label{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#8a95a6;font-weight:800}
@@ -2566,7 +2566,7 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       }
       return wrap;
     }
-    if(isOverview){
+    if(/^COLOR_SUGGESTIONS:/i.test(title)){\n      let data=null;\n      try{data=JSON.parse(title.replace(/^COLOR_SUGGESTIONS:\\s*/i,''))}catch(e){}\n      if(data&&Array.isArray(data.palettes)){\n        const h=document.createElement('div');h.className='ai-answer-title';h.innerHTML='<span>🌈</span><div><b>Colour Combinations for '+escapeAIHtml(data.room||'your room')+'</b><small>Wall palettes with a main colour and accent colour</small></div>';wrap.appendChild(h);\n        const grid=document.createElement('div');grid.className='ai-colour-grid';\n        data.palettes.forEach(p=>{const card=document.createElement('div');card.className='ai-colour-card';card.innerHTML='<div class="ai-colour-swatches"><span style="background:'+escapeAIHtml(p.mainHex)+'" title="'+escapeAIHtml(p.main)+'"></span><span style="background:'+escapeAIHtml(p.accentHex)+'" title="'+escapeAIHtml(p.accent)+'"></span></div><b>'+escapeAIHtml(p.name)+'</b><small>'+escapeAIHtml(p.main)+' + '+escapeAIHtml(p.accent)+'</small><p>'+escapeAIHtml(p.use)+'</p>';grid.appendChild(card)});\n        wrap.appendChild(grid);\n        const note=document.createElement('p');note.className='ai-answer-note';note.textContent='These are room colour palettes, not product recommendations. If you want, ask for a specific brand or product shade to match one of these palettes.';wrap.appendChild(note);\n        return wrap;\n      }\n    }\n    if(isOverview){
       let data=[];
       const dataLine=lines.find(x=>/^CATEGORY_DATA:/i.test(x));
       if(dataLine){try{data=JSON.parse(dataLine.replace(/^CATEGORY_DATA:\s*/i,''))||[]}catch(e){data=[]}}
@@ -2735,7 +2735,7 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       ['primer',/primer/],['enamel',/enamel/],['waterproof',/waterproof/],['interior',/interior|emulsion|distemper/],
       ['exterior',/exterior/],['wood',/wood/],['metal',/metal/],['hardware',/hardware/]
     ];
-    const recommendationIntent=/\b(recommend|recommendation|suggest|which\s+paint|what\s+paint|which\s+one|what\s+should\s+i\s+use|best\s+paint|good\s+paint|suitable\s+paint|help\s+me\s+choose)\b/i.test(l);
+    const colourCombinationIntent=/\b(colou?r|combination|combinations|palette|palettes)\b/i.test(l) && /\b(living\s+room|bedroom|hall|dining|home|room|wall|walls)\b/i.test(l);\n    if(colourCombinationIntent)return colourSuggestions(l);\n    const recommendationIntent=/\b(recommend|recommendation|suggest|which\s+paint|what\s+paint|which\s+one|what\s+should\s+i\s+use|best\s+paint|good\s+paint|suitable\s+paint|help\s+me\s+choose)\b/i.test(l);
     const interiorIntent=/\b(interior|inside|indoor|living\s+room|bedroom|dining|hall|ceiling|home\s+walls?)\b/i.test(l);
     if(recommendationIntent && interiorIntent){
       const interiorRows=scope.filter(r=>{
@@ -2809,7 +2809,7 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
     if(/interior|exterior|primer|putty|emulsion|waterproof/i.test(l))return categoryOverview('paint',scope,brandMatch);
     return 'I can help with the connected product catalogue. Ask a broad question such as “Show me Asian Paints products” for category and price-range information, or name a specific product to see its catalogue details.';
     
-    function reTest(re,r){
+    function colourSuggestions(query){\n      const room=/bedroom/i.test(query)?'Bedroom':/dining/i.test(query)?'Dining Room':/hall|living\\s*room/i.test(query)?'Living Room':'Room';\n      const palettes=[\n        {name:'Warm Elegant',main:'Warm Ivory',accent:'Terracotta',mainHex:'#F3E7D3',accentHex:'#C96F4A',use:'Ivory walls with a terracotta feature wall or accents.'},\n        {name:'Fresh & Calm',main:'Soft Sage',accent:'Warm White',mainHex:'#B7C8B0',accentHex:'#F7F3EA',use:'Sage as the main wall colour with warm white for the remaining walls and ceiling.'},\n        {name:'Modern Neutral',main:'Greige',accent:'Deep Olive',mainHex:'#C8C0B4',accentHex:'#59624D',use:'Greige for most walls with olive on one feature wall or in décor.'},\n        {name:'Cool & Airy',main:'Powder Blue',accent:'Crisp White',mainHex:'#BFD8E8',accentHex:'#FFFFFF',use:'Powder blue walls paired with crisp white for a bright, spacious feel.'},\n        {name:'Soft Luxury',main:'Blush Beige',accent:'Muted Mauve',mainHex:'#DCC8BC',accentHex:'#9B7D86',use:'Blush beige as the base with muted mauve for a refined accent.'}\n      ];\n      return 'COLOR_SUGGESTIONS:'+JSON.stringify({room,palettes});\n    }\n    function reTest(re,r){
       return re.test(clean(r.name)+' '+clean(r.type)+' '+clean(r.category)+' '+clean(r.variant));
     }
     function formatRanges(list){
