@@ -2422,7 +2422,7 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       const head=document.createElement('div');head.className='ai-answer-title';head.innerHTML='<span>📋</span><div><b>Product Catalogue</b><small>Detailed catalogue information</small></div>';wrap.appendChild(head);
       const grid=document.createElement('div');grid.className='ai-product-detail-grid';
       lines.slice(1).forEach(line=>{
-        const m=line.match(/^([^:]+):\\s*(.*)$/);if(!m)return;
+        const m=line.match(/^([^:]+):\s*(.*)$/);if(!m)return;
         const item=document.createElement('div');item.className='ai-detail-item';
         const label=document.createElement('span');label.className='ai-detail-label';label.textContent=m[1];
         const val=document.createElement('strong');val.textContent=m[2]||'—';
@@ -2436,7 +2436,7 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       wrap.appendChild(sub);
       const stats=document.createElement('div');stats.className='ai-answer-stats';
       lines.slice(1).filter(x=>/^(Total catalogue items|Items found|Overall price range|Price range|Category):/i.test(x)).forEach(line=>{
-        const m=line.match(/^([^:]+):\\s*(.*)$/);if(!m)return;
+        const m=line.match(/^([^:]+):\s*(.*)$/);if(!m)return;
         const card=document.createElement('div');card.className='ai-stat-card';
         const label=document.createElement('span');label.textContent=m[1];
         const val=document.createElement('strong');val.textContent=m[2];
@@ -2448,34 +2448,34 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
         const d=document.createElement('details');d.className='ai-answer-dropdown';d.open=false;
         const s=document.createElement('summary');s.innerHTML='<span>▾</span><b>Categories & item counts</b><small>Tap to expand</small>';d.appendChild(s);
         const box=document.createElement('div');box.className='ai-category-list';
-        categoryLine.replace(/^Categories:\\s*/i,'').split(/,\\s*(?=[^,]+\\s*\\()/).forEach(x=>{const p=x.match(/^(.*?)\\s*\\((\\d+)\\)$/);const row=document.createElement('div');row.className='ai-category-row';row.append(aiValue(p?p[1]:x),aiValue(p?p[2]+' items':''));box.appendChild(row)});
+        categoryLine.replace(/^Categories:\s*/i,'').split(/,\s*(?=[^,]+\s*\()/).forEach(x=>{const p=x.match(/^(.*?)\s*\((\d+)\)$/);const row=document.createElement('div');row.className='ai-category-row';row.append(aiValue(p?p[1]:x),aiValue(p?p[2]+' items':''));box.appendChild(row)});
         d.appendChild(box);wrap.appendChild(d);
       }
       const brandLine=lines.find(x=>/^Brands:/i.test(x));
       if(brandLine){
         const d=document.createElement('details');d.className='ai-answer-dropdown';
         const s=document.createElement('summary');s.innerHTML='<span>▾</span><b>Brands</b><small>Tap to expand</small>';d.appendChild(s);
-        const box=document.createElement('div');box.className='ai-category-list';brandLine.replace(/^Brands:\\s*/i,'').split(/,\\s*(?=[^,]+\\s*\\()/).forEach(x=>{const p=x.match(/^(.*?)\\s*\\((\\d+)\\)$/);const row=document.createElement('div');row.className='ai-category-row';row.append(aiValue(p?p[1]:x),aiValue(p?p[2]+' items':''));box.appendChild(row)});d.appendChild(box);wrap.appendChild(d);
+        const box=document.createElement('div');box.className='ai-category-list';brandLine.replace(/^Brands:\s*/i,'').split(/,\s*(?=[^,]+\s*\()/).forEach(x=>{const p=x.match(/^(.*?)\s*\((\d+)\)$/);const row=document.createElement('div');row.className='ai-category-row';row.append(aiValue(p?p[1]:x),aiValue(p?p[2]+' items':''));box.appendChild(row)});d.appendChild(box);wrap.appendChild(d);
       }
       const sample=lines.find(x=>/^Sample products:/i.test(x)||/^Examples:/i.test(x));
       if(sample){
         const d=document.createElement('details');d.className='ai-answer-dropdown';
         const s=document.createElement('summary');s.innerHTML='<span>▾</span><b>Sample products</b><small>Tap to expand</small>';d.appendChild(s);
         const box=document.createElement('div');box.className='ai-sample-list';
-        sample.replace(/^(Sample products|Examples):\\s*/i,'').split(/,\\s*/).filter(Boolean).forEach(x=>{const row=document.createElement('div');row.textContent=x;box.appendChild(row)});d.appendChild(box);wrap.appendChild(d);
+        sample.replace(/^(Sample products|Examples):\s*/i,'').split(/,\s*/).filter(Boolean).forEach(x=>{const row=document.createElement('div');row.textContent=x;box.appendChild(row)});d.appendChild(box);wrap.appendChild(d);
       }
       const note=lines.find(x=>/^Tell me a specific product/i.test(x));if(note){const p=document.createElement('p');p.className='ai-answer-note';p.textContent=note;wrap.appendChild(p)}
       return wrap;
     }
-    if(/^I found \\d+ closely matching catalogue entries/i.test(title)){
+    if(/^I found \d+ closely matching catalogue entries/i.test(title)){
       const h=document.createElement('div');h.className='ai-answer-title';h.innerHTML='<span>🔎</span><div><b>Matching Catalogue Products</b><small>Select a specific product name for full details</small></div>';wrap.appendChild(h);
       const list=document.createElement('div');list.className='ai-match-list';
-      lines.slice(1).filter(x=>/^\\d+\\./.test(x)).forEach(x=>{const row=document.createElement('div');row.className='ai-match-card';const m=x.match(/^\\d+\\.\\s*(.*?)(?:\\s+—\\s+(.*?))?(?:\\s+—\\s+(.*?))?$/);row.innerHTML='<span class="ai-match-num">'+x.match(/^\\d+/)[0]+'</span><div><b>'+escapeAIHtml(m?m[1]:x.replace(/^\\d+\\.\\s*/,''))+'</b>'+(m&&m[2]?'<small>'+escapeAIHtml(m[2])+(m[3]?' · '+escapeAIHtml(m[3]):'')+'</small>':'')+'</div>';list.appendChild(row)});wrap.appendChild(list);
+      lines.slice(1).filter(x=>/^\d+\./.test(x)).forEach(x=>{const row=document.createElement('div');row.className='ai-match-card';const m=x.match(/^\d+\.\s*(.*?)(?:\s+—\s+(.*?))?(?:\s+—\s+(.*?))?$/);row.innerHTML='<span class="ai-match-num">'+x.match(/^\d+/)[0]+'</span><div><b>'+escapeAIHtml(m?m[1]:x.replace(/^\d+\.\s*/,''))+'</b>'+(m&&m[2]?'<small>'+escapeAIHtml(m[2])+(m[3]?' · '+escapeAIHtml(m[3]):'')+'</small>':'')+'</div>';list.appendChild(row)});wrap.appendChild(list);
       const note=lines.find(x=>/^Name the exact product/i.test(x));if(note){const p=document.createElement('p');p.className='ai-answer-note';p.textContent=note;wrap.appendChild(p)}
       return wrap;
     }
     // General assistant answer: keep readable paragraphs and bullet lines.
-    lines.forEach(line=>{const p=document.createElement('p');p.textContent=line.replace(/^[-•]\\s*/,'');wrap.appendChild(p)});
+    lines.forEach(line=>{const p=document.createElement('p');p.textContent=line.replace(/^[-•]\s*/,'');wrap.appendChild(p)});
     return wrap;
   }
   function escapeAIHtml(v){
