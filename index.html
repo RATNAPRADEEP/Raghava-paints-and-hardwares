@@ -57,6 +57,20 @@
 .ai-match-card b{display:block;font-size:11px;color:#172033;line-height:1.35}
 .ai-match-card small{display:block;margin-top:4px;color:#667085;font-size:9px;line-height:1.45}
 @media(max-width:700px){.ai-answer-stats{grid-template-columns:1fr 1fr}.ai-product-detail-grid{grid-template-columns:1fr}.ai-answer-dropdown summary{grid-template-columns:20px 1fr}.ai-answer-dropdown summary small{display:none}}
+</style><style id="ai-salesman-css">
+.ai-salesman-intro{border:1px solid #e5e7eb;background:#fff;border-radius:14px;padding:14px 15px;margin-bottom:12px}
+.ai-salesman-intro b{display:block;font-size:13px;color:#172033;margin-bottom:5px}.ai-salesman-intro p{margin:0;color:#667085;font-size:11px;line-height:1.55}
+.ai-recommend-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:10px}
+.ai-recommend-card{border:1px solid #e5e7eb;border-radius:13px;background:#fff;padding:13px;transition:.16s;border-top:3px solid #2457d6}
+.ai-recommend-card:hover{border-color:#b9c9e8;box-shadow:0 6px 18px rgba(36,87,214,.10);transform:translateY(-1px)}
+.ai-recommend-card .ai-rec-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#2457d6;font-weight:850}
+.ai-recommend-card b{display:block;margin-top:6px;font-size:12px;color:#172033;line-height:1.35}.ai-recommend-card .ai-rec-price{font-size:11px;font-weight:800;color:#067647;margin-top:7px}
+.ai-recommend-card p{font-size:10px;color:#667085;line-height:1.5;margin:7px 0 0}
+.ai-salesman-questions{margin-top:12px;border:1px solid #e5e7eb;border-radius:12px;background:#f8fafc;padding:12px}
+.ai-salesman-questions b{font-size:11px;color:#172033}.ai-salesman-questions ul{margin:7px 0 0;padding-left:17px;color:#667085;font-size:10px;line-height:1.6}
+.ai-all-products{margin-top:12px;border-top:1px solid #edf0f3;padding-top:10px}.ai-all-products>summary{cursor:pointer;font-size:11px;font-weight:800;color:#2457d6}
+.ai-all-products .ai-product-list{margin-top:8px}
+@media(max-width:760px){.ai-recommend-grid{grid-template-columns:1fr}.ai-salesman-intro{padding:12px}}
 </style><style id="ai-assistant-css">
 .ai-shell{display:grid;gap:16px}.ai-header{display:flex;justify-content:space-between;align-items:flex-end;gap:18px}.ai-header h2{margin:5px 0 6px}.ai-header p{margin:0;color:#667085;font-size:12px}.ai-kicker{font-size:10px;letter-spacing:.16em;font-weight:850;color:#2457d6}.ai-card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden}.ai-messages{height:min(58vh,560px);min-height:360px;overflow:auto;padding:20px;background:#f8fafc;display:flex;flex-direction:column;gap:12px}.ai-message{max-width:min(820px,88%);padding:12px 14px;border-radius:14px;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}.ai-message.user{align-self:flex-end;background:#2457d6;color:#fff;border-bottom-right-radius:5px}.ai-message.assistant{align-self:flex-start;background:#fff;border:1px solid #e5e7eb;color:#182230;border-bottom-left-radius:5px}.ai-message.system{align-self:center;background:#f2f4f7;color:#667085;font-size:11px}.ai-typing{display:inline-flex;gap:4px;align-items:center}.ai-typing i{width:5px;height:5px;border-radius:50%;background:#98a2b3;animation:aiBounce 1s infinite ease-in-out}.ai-typing i:nth-child(2){animation-delay:.15s}.ai-typing i:nth-child(3){animation-delay:.3s}@keyframes aiBounce{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-3px);opacity:1}}.ai-prompts{display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid #edf0f3}.ai-prompt{border:1px solid #d9dee7;background:#fff;color:#344054;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:700;cursor:pointer}.ai-prompt:hover{background:#f7f9fc;border-color:#c8d5f5}.ai-input-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:14px;border-top:1px solid #edf0f3}.ai-input-row textarea{resize:none;min-height:44px;max-height:130px;border:1px solid #d9dee7;border-radius:10px;padding:11px 12px;font:inherit;line-height:1.4}.ai-input-row textarea:focus{outline:2px solid #dce7ff;border-color:#2457d6}.ai-input-row .btn{min-width:82px;align-self:end}.ai-note{padding:0 14px 14px;color:#98a2b3;font-size:10px;line-height:1.45}@media(max-width:700px){.ai-header{align-items:flex-start;flex-direction:column}.ai-messages{min-height:420px;height:55vh}.ai-message{max-width:94%}.ai-input-row{grid-template-columns:1fr}.ai-input-row .btn{width:100%}}
 <style id="ai-layout-fix">
@@ -2485,6 +2499,55 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       });
       wrap.appendChild(grid);return wrap;
     }
+    if(/^AI_RECOMMENDATION$/i.test(mode)){
+      const titleLine=lines.find(x=>/^TITLE:/i.test(x))?.replace(/^TITLE:\s*/i,'')||'Paint recommendation';
+      const intro=document.createElement('div');intro.className='ai-salesman-intro';
+      const why=lines.find(x=>/^WHY:/i.test(x))?.replace(/^WHY:\s*/i,'')||'';
+      intro.innerHTML='<b>🧑‍💼 Salesman-style recommendation</b><p><strong>'+escapeAIHtml(titleLine)+'</strong><br>'+escapeAIHtml(why)+'</p>';
+      wrap.appendChild(intro);
+      const recLine=lines.find(x=>/^RECOMMENDATIONS:/i.test(x));let recs=[];
+      if(recLine){try{recs=JSON.parse(recLine.replace(/^RECOMMENDATIONS:\s*/,''))||[]}catch(e){}}
+      if(recs.length){
+        const grid=document.createElement('div');grid.className='ai-recommend-grid';
+        recs.forEach(rec=>{
+          const card=document.createElement('div');card.className='ai-recommend-card';
+          card.innerHTML='<span class="ai-rec-label">'+escapeAIHtml(rec.label||'Option')+'</span><b>'+escapeAIHtml(rec.name||'Product')+'</b><div class="ai-rec-price">'+escapeAIHtml(rec.price||'Price unavailable')+'</div><p>'+escapeAIHtml(rec.reason||'Catalogue option matching the customer need.')+'</p>';
+          grid.appendChild(card);
+        });
+        wrap.appendChild(grid);
+      }
+      const qLine=lines.find(x=>/^QUESTIONS:/i.test(x));
+      if(qLine){
+        const qbox=document.createElement('div');qbox.className='ai-salesman-questions';
+        qbox.innerHTML='<b>Before finalising, ask the customer:</b><ul>'+qLine.replace(/^QUESTIONS:\s*/i,'').split(' | ').filter(Boolean).map(x=>'<li>'+escapeAIHtml(x)+'</li>').join('')+'</ul>';
+        wrap.appendChild(qbox);
+      }
+      const dataLine=lines.find(x=>/^CATEGORY_DATA:/i.test(x));let data=[];
+      if(dataLine){try{data=JSON.parse(dataLine.replace(/^CATEGORY_DATA:\s*/,''))||[]}catch(e){}}
+      if(data.length){
+        const allCount=data.reduce((n,cat)=>n+Number(cat.count||0),0);
+        const allWrap=document.createElement('details');allWrap.className='ai-all-products';
+        const sum=document.createElement('summary');sum.textContent='Browse all '+allCount+' matching interior catalogue items';allWrap.appendChild(sum);
+        const section=document.createElement('div');section.className='ai-category-section';
+        const accordions=document.createElement('div');accordions.className='ai-category-accordion-list';
+        data.forEach(cat=>{
+          const d=document.createElement('details');d.className='ai-answer-dropdown ai-category-dropdown';
+          const s=document.createElement('summary');s.innerHTML='<span class="ai-chevron">▾</span><div><b>'+escapeAIHtml(cat.name)+'</b><small>'+cat.count+' items · '+escapeAIHtml(cat.range)+'</small></div><strong>'+cat.count+'</strong>';d.appendChild(s);
+          const box=document.createElement('div');box.className='ai-category-detail';
+          if(Array.isArray(cat.types)&&cat.types.length){const t=document.createElement('div');t.className='ai-type-strip';t.innerHTML='<span>Types</span>'+cat.types.map(x=>'<em>'+escapeAIHtml(x)+'</em>').join('');box.appendChild(t)}
+          const price=document.createElement('div');price.className='ai-category-price';price.innerHTML='<span>Category price range</span><b>'+escapeAIHtml(cat.range)+'</b>';box.appendChild(price);
+          const products=document.createElement('div');products.className='ai-product-list';
+          (cat.products||[]).forEach(p=>{
+            const row=document.createElement('div');row.className='ai-product-row';
+            row.innerHTML='<div><b>'+escapeAIHtml(p.name||'Unnamed product')+'</b><small>'+escapeAIHtml([p.type,p.size,p.unit].filter(Boolean).join(' · '))+'</small></div><strong>'+escapeAIHtml(p.price||'Price unavailable')+'</strong>';
+            products.appendChild(row);
+          });
+          box.appendChild(products);d.appendChild(box);accordions.appendChild(d);
+        });
+        section.appendChild(accordions);allWrap.appendChild(section);wrap.appendChild(allWrap);
+      }
+      return wrap;
+    }
     if(isOverview){
       let data=[];
       const dataLine=lines.find(x=>/^CATEGORY_DATA:/i.test(x));
@@ -2654,6 +2717,16 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       ['primer',/primer/],['enamel',/enamel/],['waterproof',/waterproof/],['interior',/interior|emulsion|distemper/],
       ['exterior',/exterior/],['wood',/wood/],['metal',/metal/],['hardware',/hardware/]
     ];
+    const recommendationIntent=/\b(recommend|recommendation|suggest|which\s+paint|what\s+paint|which\s+one|what\s+should\s+i\s+use|best\s+paint|good\s+paint|suitable\s+paint|help\s+me\s+choose)\b/i.test(l);
+    const interiorIntent=/\b(interior|inside|indoor|living\s+room|bedroom|dining|hall|ceiling|home\s+walls?)\b/i.test(l);
+    if(recommendationIntent && interiorIntent){
+      const interiorRows=scope.filter(r=>{
+        const s=(clean(r.name)+' '+clean(r.type)+' '+clean(r.category)+' '+clean(r.variant)).toLowerCase();
+        return /interior|emulsion|distemper|royale|apcolite|tractor|neobharat|sparc/.test(s) && !/exterior/.test(s);
+      });
+      if(interiorRows.length)return interiorRecommendation(interiorRows,brandMatch);
+    }
+
     const categoryHit=categoryWords.find(([word,re])=>re.test(l));
     if(categoryHit){
       const filtered=scope.filter(r=>reTest(categoryHit[1],r));
@@ -2757,6 +2830,32 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
           .map(r=>({name:clean(r.name),type:clean(r.type)||clean(r.variant),size:clean(r.size),unit:clean(r.unit),price:clean(r.sellingPrice)?money(r.sellingPrice)+(clean(r.unit)?' / '+clean(r.unit):''):'Price unavailable'}));
         return {name,count:items.length,range:categoryRange(items),types:categoryTypes(items),products};
       }).sort((a,b)=>a.name.localeCompare(b.name));
+    }
+    function interiorRecommendation(list,brand){
+      const unique=[...new Map(list.filter(r=>clean(r.name)).map(r=>[clean(r.name).toLowerCase(),r])).values()];
+      const priced=unique.filter(r=>Number.isFinite(Number(r.sellingPrice))&&Number(r.sellingPrice)>0).sort((a,b)=>Number(a.sellingPrice)-Number(b.sellingPrice));
+      const picks=[];
+      const add=(label,r,reason)=>{
+        if(!r)return;
+        const key=clean(r.name).toLowerCase();
+        if(picks.some(x=>clean(x.name).toLowerCase()===key))return;
+        picks.push({label,name:clean(r.name),price:clean(r.sellingPrice)?money(r.sellingPrice)+(clean(r.unit)?' / '+clean(r.unit):''):'Price unavailable',reason});
+      };
+      const budget=priced[0],premium=priced[priced.length-1],mid=priced.length>2?priced[Math.floor((priced.length-1)/2)]:priced[0];
+      const reason=(r,tier)=>{
+        const s=(clean(r.name)+' '+clean(r.type)+' '+clean(r.variant)+' '+clean(r.finish)).toLowerCase();
+        const finish=clean(r.finish)?' '+clean(r.finish)+' finish':'';
+        if(tier==='Budget')return 'For a price-conscious customer; start here when keeping the paint budget controlled is the main priority.'+finish+'.';
+        if(/royale|nilaya/.test(s))return 'For a customer asking for a more premium/luxury interior finish and stronger maintenance features.'+finish+'.';
+        if(/apcolite/.test(s))return 'For a customer who wants a step up from economy paint while balancing finish, durability and spend.'+finish+'.';
+        return 'A middle-ground catalogue option; confirm the room, finish preference and budget before choosing the pack size.'+finish+'.';
+      };
+      add('Budget / Economy',budget,reason(budget,'Budget'));add('Balanced / Mid-range',mid,reason(mid,'Mid'));add('Premium / Luxury',premium,reason(premium,'Premium'));
+      const data=makeCategoryData(unique);
+      const room=/bedroom/i.test(l)?'a bedroom':/living\s*room|hall/i.test(l)?'a living room':/dining/i.test(l)?'a dining area':/ceiling/i.test(l)?'a ceiling':'interior walls';
+      const why='For '+room+', a salesperson should first understand the customer’s budget, desired finish and maintenance needs, then show several suitable options instead of returning one product. The connected catalogue currently contains '+unique.length+' matching interior paint entries.';
+      const questions='What room are you painting? | What is the approximate wall area or number of rooms? | What is the customer budget per litre or for the whole job? | Do they want matt, low sheen, high sheen or a premium finish? | Is washability or stain resistance important? | Is the wall new, previously painted, or does it need putty/primer work?';
+      return 'AI_RECOMMENDATION\nTITLE: '+('Interior paint options'+(brand?' for '+(brand==='asian paints'?'Asian Paints':brand):''))+'\nCUSTOMER_NEED: '+room+'\nWHY: '+why+'\nRECOMMENDATIONS: '+JSON.stringify(picks)+'\nQUESTIONS: '+questions+'\nCATEGORY_DATA: '+JSON.stringify(data)+'\nNOTE: Prices shown are from the connected catalogue records; confirm the exact pack size and current shop price before billing.';
     }
     function categoryOverview(label,list,brand){
       const title=label==='brush'?'Brushes':label==='roller'?'Rollers':label==='thinner'?'Thinners':label==='putty'?'Wall Putty':label==='primer'?'Primers':label==='enamel'?'Enamels':label==='waterproof'?'Waterproofing':label==='interior'?'Interior Paints':label==='exterior'?'Exterior Paints':label;
