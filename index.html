@@ -2380,8 +2380,8 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
       return tokens.reduce((n,t)=>n+(hay.includes(t)?1:0),0);
     };
     const rows=[
-      ...(Array.isArray(window.db?.products)?window.db.products:[]).map(p=>({kind:'main product',sku:p.sku,name:p.name,brand:p.brand,type:p.type,shade:p.shade,finish:p.finish,size:p.packSize,unit:p.unit,sellingPrice:p.sell,gstPercent:p.gst,barcode:p.barcode,verifiedOn:p.verifiedOn,source:p.source})),
-      ...(Array.isArray(window.db?.subproducts)?window.db.subproducts:[]).map(p=>({kind:'subproduct',sku:p.sku,name:p.name,brand:p.brand,category:p.category,variant:p.variant,size:p.size,unit:p.unit,sellingPrice:p.sell,gstPercent:p.gst,barcode:p.barcode,verifiedOn:p.verifiedOn,source:p.source,notes:p.notes}))
+      ...(Array.isArray(db?.products)?db.products:[]).map(p=>({kind:'main product',sku:p.sku,name:p.name,brand:p.brand,type:p.type,shade:p.shade,finish:p.finish,size:p.packSize,unit:p.unit,sellingPrice:p.sell,gstPercent:p.gst,barcode:p.barcode,verifiedOn:p.verifiedOn,source:p.source})),
+      ...(Array.isArray(db?.subproducts)?db.subproducts:[]).map(p=>({kind:'subproduct',sku:p.sku,name:p.name,brand:p.brand,category:p.category,variant:p.variant,size:p.size,unit:p.unit,sellingPrice:p.sell,gstPercent:p.gst,barcode:p.barcode,verifiedOn:p.verifiedOn,source:p.source,notes:p.notes}))
     ];
     const ranked=rows.map((x,i)=>({x,i,s:score(x)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,8).map(x=>x.x);
     return ranked;
@@ -2418,8 +2418,8 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
     libraryBtn.addEventListener('click',()=>buildAIProductLibrary(status,libraryBtn));
   }
   async function buildAIProductLibrary(status,button){
-    if(!window.accessToken||!window.driveFetch){status.textContent='Connect Google Drive first, then build the AI Product Library.';status.className='ai-library-status err';return;}
-    const products=Array.isArray(window.db?.products)?window.db.products:[],subs=Array.isArray(window.db?.subproducts)?window.db.subproducts:[];
+    if(!accessToken||!driveFetch){status.textContent='Connect Google Drive first, then build the AI Product Library.';status.className='ai-library-status err';return;}
+    const products=Array.isArray(db?.products)?db.products:[],subs=Array.isArray(db?.subproducts)?db.subproducts:[];
     if(!products.length&&!subs.length){status.textContent='No products or subproducts are loaded. Connect your shop workbook first.';status.className='ai-library-status err';return;}
     button.disabled=true;const old=button.innerHTML;button.innerHTML='<span>⏳</span><div><b>Building Library…</b><small>Uploading cards to Google Drive</small></div><strong>…</strong>';
     try{
