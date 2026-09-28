@@ -2516,12 +2516,7 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
         });
         wrap.appendChild(grid);
       }
-      const qLine=lines.find(x=>/^QUESTIONS:/i.test(x));
-      if(qLine){
-        const qbox=document.createElement('div');qbox.className='ai-salesman-questions';
-        qbox.innerHTML='<b>Before finalising, ask the customer:</b><ul>'+qLine.replace(/^QUESTIONS:\s*/i,'').split(' | ').filter(Boolean).map(x=>'<li>'+escapeAIHtml(x)+'</li>').join('')+'</ul>';
-        wrap.appendChild(qbox);
-      }
+      // Salesman questions are used internally for recommendation logic and are not shown to customers.
       const dataLine=lines.find(x=>/^CATEGORY_DATA:/i.test(x));let data=[];
       if(dataLine){try{data=JSON.parse(dataLine.replace(/^CATEGORY_DATA:\s*/,''))||[]}catch(e){}}
       if(data.length){
