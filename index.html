@@ -280,6 +280,7 @@
       <div class="ai-capability-grid">
         <button type="button" class="ai-capability" id="aiCatalogueOpen"><span>🖼️</span><div><b>Product Catalogue Card</b><small>Create a shareable product card for WhatsApp or other apps.</small></div><strong>→</strong></button>
         <button type="button" class="ai-capability" id="aiBuildLibrary"><span>📚</span><div><b>Build AI Product Library</b><small>Create product and subproduct cards + a searchable AI knowledge file in Google Drive.</small></div><strong>→</strong></button>
+        <button type="button" class="ai-capability" id="aiCheckCatalogue"><span>🔄</span><div><b>Check Catalogue Updates</b><small>Check official web catalogue data for new or changed products before updating Drive.</small></div><strong>→</strong></button>
         <button type="button" class="ai-capability ai-capability-prompt" data-ai-prompt="What paint should I use for interior walls?"><span>🎨</span><div><b>Paint Recommendation</b><small>Get general paint selection guidance.</small></div><strong>→</strong></button>
         <button type="button" class="ai-capability ai-capability-prompt" data-ai-prompt="How should I prepare a wall before painting?"><span>🧱</span><div><b>Painting Tips</b><small>Get practical preparation and application tips.</small></div><strong>→</strong></button>
         <button type="button" class="ai-capability ai-capability-prompt" data-ai-prompt="Suggest a few suitable colour combinations for a living room."><span>🌈</span><div><b>Colour Suggestions</b><small>Explore suitable colour combinations.</small></div><strong>→</strong></button>
@@ -290,7 +291,7 @@
       <textarea id="aiInput" rows="1" maxlength="4000" placeholder="Ask the AI Assistant…" aria-label="Ask the AI Assistant"></textarea>
       <button id="aiSendBtn" type="submit" class="btn primary">Send</button>
     </form>
-    <div class="ai-note">AI Product Library is read-only from your current catalogue. It creates a separate Google Drive folder containing shareable product/subproduct cards and customer-safe product information; it does not change Inventory, Sales, Purchases, Estimate, Invoice or Contact Details.</div>
+    <div class="ai-note">AI Product Library uses a separate Google Drive catalogue as its AI product source. Build it from the current catalogue, then use Check Catalogue Updates to review official web changes before updating Drive. containing shareable product/subproduct cards and customer-safe product information; it does not change Inventory, Sales, Purchases, Estimate, Invoice or Contact Details.</div>
   <dialog id="aiCatalogueDialog" class="ai-catalogue-dialog">
     <form id="aiCatalogueForm" class="ai-catalogue-form">
       <div class="ai-catalogue-head"><div><span class="ai-kicker">SHAREABLE PRODUCT CARD</span><h3>Product Catalogue Card</h3><p>Create a clean product image for WhatsApp or other sharing apps.</p></div><button type="button" class="btn" id="aiCatalogueClose">Close</button></div>
@@ -2372,19 +2373,44 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
     history.length=0;
     addMessage('assistant','Hi! I’m the Raghava Paints AI Assistant. I can help with paint selection, painting methods, colours, tools and general painting questions.');
   }
-  function getAIProductContext(question){
+  let aiDriveKnowledgeCache=null,aiDriveKnowledgeAt=0;
+  async function loadAIProductKnowledgeFromDrive(){
+    if(typeof driveFetch!=='function'||!accessToken)return null;
+    if(aiDriveKnowledgeCache&&Date.now()-aiDriveKnowledgeAt<300000)return aiDriveKnowledgeCache;
+    const folderName='Raghava_Paints_Hardwares_AI_Product_Library';
+    const q="name='"+folderName+"' and mimeType='application/vnd.google-apps.folder' and trashed=false";
+    const fr=await driveFetch('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent(q)+'&fields=files(id,name)&pageSize=10');
+    if(!fr.ok)throw Error('Could not read the AI Product Library from Google Drive.');
+    const fj=await fr.json();const folder=fj.files?.[0]?.id;if(!folder)return null;
+    const fq="'"+folder+"' in parents and name='AI_Product_Knowledge.json' and trashed=false";
+    const kr=await driveFetch('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent(fq)+'&fields=files(id,name)&pageSize=10');
+    if(!kr.ok)throw Error('Could not find AI_Product_Knowledge.json in Google Drive.');
+    const kj=await kr.json();const file=kj.files?.[0];if(!file)return null;
+    const rr=await driveFetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(file.id)+'?alt=media');
+    if(!rr.ok)throw Error('Could not download AI_Product_Knowledge.json from Google Drive.');
+    const data=await rr.json();aiDriveKnowledgeCache=data;aiDriveKnowledgeAt=Date.now();return data;
+  }
+  async function getAIProductContext(question){
     const q=String(question||'').toLowerCase();
     const tokens=q.split(/[^a-z0-9]+/).filter(x=>x.length>=2);
     const score=item=>{
       const hay=[item.kind,item.sku,item.name,item.brand,item.type,item.category,item.variant,item.size,item.shade,item.finish,item.barcode].join(' ').toLowerCase();
       return tokens.reduce((n,t)=>n+(hay.includes(t)?1:0),0);
     };
-    const rows=[
-      ...(Array.isArray(db?.products)?db.products:[]).map(p=>({kind:'main product',sku:p.sku,name:p.name,brand:p.brand,type:p.type,shade:p.shade,finish:p.finish,size:p.packSize,unit:p.unit,sellingPrice:p.sell,gstPercent:p.gst,barcode:p.barcode,verifiedOn:p.verifiedOn,source:p.source})),
-      ...(Array.isArray(db?.subproducts)?db.subproducts:[]).map(p=>({kind:'subproduct',sku:p.sku,name:p.name,brand:p.brand,category:p.category,variant:p.variant,size:p.size,unit:p.unit,sellingPrice:p.sell,gstPercent:p.gst,barcode:p.barcode,verifiedOn:p.verifiedOn,source:p.source,notes:p.notes}))
-    ];
-    const ranked=rows.map((x,i)=>({x,i,s:score(x)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,8).map(x=>x.x);
-    return ranked;
+    let rows=[];
+    try{
+      const driveData=await loadAIProductKnowledgeFromDrive();
+      if(Array.isArray(driveData?.records)){
+        rows=driveData.records.map(p=>({kind:String(p.type||'product').toLowerCase(),sku:p.sku,name:p.name,brand:p.brand,type:p.productType,category:p.category,variant:p.variant,size:p.packSize||p.size,unit:p.unit,shade:p.shade,finish:p.finish,sellingPrice:p.sellingPrice,gstPercent:p.gstPercent,barcode:p.barcode,verifiedOn:p.verifiedOn,source:p.source,notes:p.notes}));
+      }
+    }catch(e){console.warn('Drive AI catalogue read skipped:',e)}
+    if(!rows.length){
+      rows=[
+        ...(Array.isArray(db?.products)?db.products:[]).map(p=>({kind:'main product',sku:p.sku,name:p.name,brand:p.brand,type:p.type,shade:p.shade,finish:p.finish,size:p.packSize,unit:p.unit,sellingPrice:p.sell,gstPercent:p.gst,barcode:p.barcode,verifiedOn:p.verifiedOn,source:p.source})),
+        ...(Array.isArray(db?.subproducts)?db.subproducts:[]).map(p=>({kind:'subproduct',sku:p.sku,name:p.name,brand:p.brand,category:p.category,variant:p.variant,size:p.size,unit:p.unit,sellingPrice:p.sell,gstPercent:p.gst,barcode:p.barcode,verifiedOn:p.verifiedOn,source:p.source,notes:p.notes}))
+      ];
+    }
+    return rows.map((x,i)=>({x,i,s:score(x)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,8).map(x=>x.x);
   }
   function typing(){
     const el=document.createElement('div');
@@ -2397,7 +2423,7 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
     addMessage('user',q); input.value=''; input.style.height='auto'; send.disabled=true;
     const wait=typing();
     try{
-      const res=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,history:history.slice(-8),productContext:getAIProductContext(q)})});
+      const res=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,history:history.slice(-8),productContext:await getAIProductContext(q)})});
       const data=await res.json().catch(()=>({}));
       if(!res.ok)throw new Error(data.error||'AI service is unavailable.');
       const answer=String(data.answer||'').trim()||'I could not generate a response. Please try again.';
@@ -2412,6 +2438,37 @@ bind();render();forceInvoiceToday();restoreDriveConnection();setTimeout(()=>{try
   input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,130)+'px'});
   clear?.addEventListener('click',welcome);
   document.querySelectorAll('.ai-prompt,.ai-capability-prompt').forEach(b=>b.addEventListener('click',()=>ask(b.dataset.aiPrompt)));
+  const updateBtn=$('aiCheckCatalogue');
+  if(updateBtn){
+    const panel=document.createElement('div');panel.id='aiCatalogueUpdatePanel';panel.style.gridColumn='1 / -1';panel.style.fontSize='11px';panel.style.color='#667085';panel.style.padding='8px 2px';
+    updateBtn.parentElement.appendChild(panel);
+    updateBtn.addEventListener('click',()=>checkCatalogueUpdates(panel,updateBtn));
+  }
+  async function checkCatalogueUpdates(panel,button){
+    panel.textContent='Checking official Asian Paints catalogue pages…';button.disabled=true;
+    try{
+      const current=await loadAIProductKnowledgeFromDrive()||{records:[]};
+      const res=await fetch('/api/catalogue-update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({records:Array.isArray(current.records)?current.records:[]})});
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok)throw Error(data.error||'Could not check the web catalogue.');
+      const updates=Array.isArray(data.updates)?data.updates:[];
+      if(!updates.length){panel.innerHTML='<b>No catalogue updates detected.</b> Checked official Asian Paints product pages. <span style="display:block;margin-top:3px">Last checked: '+new Date(data.checkedAt||Date.now()).toLocaleString()+'</span>';return}
+      panel.innerHTML='<b>'+updates.length+' catalogue update(s) available.</b> <button type="button" class="btn" id="aiApplyCatalogueUpdates" style="margin-left:8px;padding:5px 9px;font-size:10px">Update Drive</button><div style="margin-top:7px">'+updates.slice(0,12).map(u=>'• '+String(u.name||'Product')+(u.pricePerLitre?' — MRP ₹'+u.pricePerLitre+'/L':'')+(u.change?' — '+String(u.change):'')).join('<br>')+'</div>';
+      const apply=$('aiApplyCatalogueUpdates');
+      apply.addEventListener('click',async()=>{
+        apply.disabled=true;apply.textContent='Updating…';
+        try{
+          const merged=[...(Array.isArray(current.records)?current.records:[])];
+          updates.forEach(u=>{const i=merged.findIndex(x=>String(x.name||'').toLowerCase()===String(u.name||'').toLowerCase());if(i>=0)merged[i]={...merged[i],sellingPrice:u.pricePerLitre??merged[i].sellingPrice,webSource:u.source,webCheckedOn:data.checkedAt,updateType:u.change||'web catalogue update'};else merged.push({type:'Web Catalogue Product',id:'web-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),name:u.name,brand:u.brand||'Asian Paints',category:u.category||'',sellingPrice:u.pricePerLitre??'',unit:'per L',source:u.source,webCheckedOn:data.checkedAt,updateType:'new web catalogue item'});});
+          const save=await fetch('/api/catalogue-drive-update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({records:merged,checkedAt:data.checkedAt})});
+          const sj=await save.json().catch(()=>({}));if(!save.ok)throw Error(sj.error||'Could not prepare Drive update.');
+          aiDriveKnowledgeCache=sj.knowledge;aiDriveKnowledgeAt=Date.now();
+          panel.innerHTML='<b style="color:#067647">Drive catalogue updated.</b> '+sj.count+' records saved to AI_Product_Knowledge.json.';
+        }catch(e){panel.innerHTML='<b style="color:#b42318">'+(e.message||'Drive update failed.')+'</b>'}
+      });
+    }catch(e){panel.innerHTML='<b style="color:#b42318">'+(e.message||'Catalogue check failed.')+'</b>'}
+    finally{button.disabled=false}
+  }
   const libraryBtn=$('aiBuildLibrary');
   if(libraryBtn){
     const status=document.createElement('div');
