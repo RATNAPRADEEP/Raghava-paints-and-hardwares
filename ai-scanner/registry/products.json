@@ -1,5 +1,38 @@
 {
   "version": 1,
   "shop": "Raghava Paints & Hardwares",
-  "products": []
+  "scope": "MVP recognition registry",
+  "source": "Raghava Paints & Hardwares Asian Paints expanded catalogue",
+  "source_catalogue_count": 147,
+  "products": [
+    {"sku_id":"AP-INT-001","name":"Nilaya Arc Matt","brand":"Asian Paints","category":"Interior Paint","product_type":"Interior Emulsion","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-INT-002","name":"Nilaya Arc Pearlescent","brand":"Asian Paints","category":"Interior Paint","product_type":"Interior Emulsion","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-INT-003","name":"Royale Aspira","brand":"Asian Paints","category":"Interior Paint","product_type":"Interior Emulsion","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-INT-004","name":"Royale Glitz","brand":"Asian Paints","category":"Interior Paint","product_type":"Interior Emulsion","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-INT-005","name":"Royale Glitz Reserv","brand":"Asian Paints","category":"Interior Paint","product_type":"Interior Emulsion","size":null,"unit":"Litre","active":true},
+
+    {"sku_id":"AP-INT-019","name":"Tractor Emulsion Shyne","brand":"Asian Paints","category":"Interior Paint","product_type":"Interior Emulsion","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-INT-020","name":"Tractor Shyne Advanced","brand":"Asian Paints","category":"Interior Paint","product_type":"Interior Emulsion","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-INT-021","name":"Tractor Emulsion Advanced","brand":"Asian Paints","category":"Interior Paint","product_type":"Interior Emulsion","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-INT-022","name":"Tractor Emulsion","brand":"Asian Paints","category":"Interior Paint","product_type":"Interior Emulsion","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-INT-025","name":"Tractor Sparc","brand":"Asian Paints","category":"Interior Paint","product_type":"Interior Emulsion","size":null,"unit":"Litre","active":true},
+
+    {"sku_id":"AP-EXT-001","name":"Apex Ultima Protek Duralife","brand":"Asian Paints","category":"Exterior Paint","product_type":"Exterior Emulsion","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-EXT-010","name":"Apex Dust Proof Ultraa","brand":"Asian Paints","category":"Exterior Paint","product_type":"Exterior Emulsion","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-EXT-011","name":"Apex Shyne Dust Proof","brand":"Asian Paints","category":"Exterior Paint","product_type":"Exterior Emulsion","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-EXT-015","name":"Ace Advanced","brand":"Asian Paints","category":"Exterior Paint","product_type":"Exterior Emulsion","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-EXT-016","name":"Ace Exterior Emulsion","brand":"Asian Paints","category":"Exterior Paint","product_type":"Exterior Emulsion","size":null,"unit":"Litre","active":true},
+
+    {"sku_id":"AP-PRI-001","name":"Royale Wall Base Coat","brand":"Asian Paints","category":"Primer","product_type":"Primer","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-PRI-002","name":"Trucare Interior Wall Primer - Water Thinnable","brand":"Asian Paints","category":"Primer","product_type":"Primer","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-PRI-008","name":"Trucare Exterior Wall Primer","brand":"Asian Paints","category":"Primer","product_type":"Primer","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-PRI-014","name":"Trucare Yellow Metal Primer","brand":"Asian Paints","category":"Primer","product_type":"Primer","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-PRI-015","name":"Trucare Wood Primer","brand":"Asian Paints","category":"Primer","product_type":"Primer","size":null,"unit":"Litre","active":true},
+
+    {"sku_id":"AP-PRI-020","name":"Acrylic Wall Putty","brand":"Asian Paints","category":"Putty","product_type":"Putty","size":null,"unit":"Kilogram","active":true},
+    {"sku_id":"AP-PRI-021","name":"Trucare Wall Putty","brand":"Asian Paints","category":"Putty","product_type":"Putty","size":null,"unit":"Kilogram","active":true},
+    {"sku_id":"AP-PRI-022","name":"Trucare Filling Putty","brand":"Asian Paints","category":"Putty","product_type":"Putty","size":null,"unit":"Kilogram","active":true},
+    {"sku_id":"AP-WP-001","name":"Damp Proof Xtreme Salt Shield","brand":"Asian Paints","category":"Waterproofing","product_type":"Waterproofing","size":null,"unit":"Litre","active":true},
+    {"sku_id":"AP-WP-002","name":"SmartCare Tile Coat","brand":"Asian Paints","category":"Waterproofing","product_type":"Waterproofing","size":null,"unit":"Litre","active":true}
+  ]
 }
