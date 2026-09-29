@@ -23,3 +23,23 @@ ai-scanner/experiments/curated_pipeline/data/products/<SKU_ID>/
 python ai-scanner/experiments/curated_pipeline/pipeline.py --help
 
 This branch is an isolated implementation/save point for the AI Stock Scanner.
+
+
+## Gallery preparation
+The canonical shop product metadata lives at `ai-scanner/registry/products.json`.
+Use `ai-scanner/scripts/populate_sku_gallery.py` to copy locally supplied reference images
+from one SKU folder per product into the scanner gallery. This keeps the reference gallery
+separate from the existing Raghava workbook and app data.
+
+Example:
+```
+python ai-scanner/scripts/populate_sku_gallery.py --source <reference-image-root> --dry-run
+python ai-scanner/scripts/populate_sku_gallery.py --source <reference-image-root>
+```
+
+The source folder must contain subfolders named exactly like the canonical SKU IDs.
+Unknown SKU folders are ignored. Existing gallery files are not overwritten.
+
+## Safety boundary
+Recognition does not directly change stock. The intended flow is:
+**Scan -> Recognize -> Review -> Confirm -> Inventory adapter.**
