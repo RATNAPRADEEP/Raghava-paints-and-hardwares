@@ -43,3 +43,18 @@ Unknown SKU folders are ignored. Existing gallery files are not overwritten.
 ## Safety boundary
 Recognition does not directly change stock. The intended flow is:
 **Scan -> Recognize -> Review -> Confirm -> Inventory adapter.**
+
+
+## Online reference gallery
+The MVP registry also contains official Asian Paints source pages in `ai-scanner/registry/reference_sources.json`. When running on a machine with internet access, the automated downloader can attempt to collect
+up to three product-page images per SKU:
+
+```bash
+python ai-scanner/scripts/download_reference_gallery.py --dry-run
+python ai-scanner/scripts/download_reference_gallery.py --max-images 3
+```
+
+The downloader only considers image URLs found on each declared source page, never overwrites
+existing gallery files, and continues when an individual product page or image is unavailable.
+Online images are reference imagery; they are not evidence that the physical item is currently
+in shop inventory. Do not automatically update inventory from recognition.
