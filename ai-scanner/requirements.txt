@@ -1,0 +1,10 @@
+# AI Stock Scanner - isolated Job 1 dependencies
+# Based on the SKU Vision Pipeline requirements, trimmed to the scanner core.
+torch>=2.0.0
+torchvision>=0.15.0
+Pillow>=10.0.0
+opencv-python>=4.8.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+pyyaml>=6.0
+tqdm>=4.65.0
